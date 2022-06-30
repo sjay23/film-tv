@@ -59,7 +59,6 @@ class SweetTvParserCommand extends Command
                 return [ 'name' => $node->text(), 'link' => $node->link()->getUri() ];});
             $filmData['age'] =  $crawlerChild->filter('div.film__age div.film-left__details div.film-left__flex ')->text();
             $filmData['duration'] = $crawlerChild->filter(' span.film-left__time')->text();
-            $filmData['poster']['en'] = $crawlerChild->filter('div.film__directors  a')->link()->getUri();
             $filmData['banner']['en'] = $crawlerChild->filter('div.film-right  div.film-right__img picture img')->image()->getUri();
             $filmData['audio'] =  array_unique($crawlerChild->filter('div.film__sounds div.film__content a.film-audio__link span')->each(function (Crawler $node) {
 
