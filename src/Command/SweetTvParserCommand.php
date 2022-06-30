@@ -55,10 +55,8 @@ class SweetTvParserCommand extends Command
             $filmData['genre'] = $crawlerChild->filter('div.film__genres a:nth-child(2)')->text();
             $filmData['director']['name'] = $crawlerChild->filter('div.film__directors span')->text();
             $filmData['director']['link'] = $crawlerChild->filter('div.film__directors  a')->link()->getUri();
-            $filmData['cast']['name'] = $crawlerChild->filter('div.film__actor  a')->each(function (Crawler $node) {
-
-                return $node->text();
-            });
+            $filmData['cast'] = $crawlerChild->filter('div.film__actor a')->each(function (Crawler $node) {
+                return [ 'name' => $node->text(), 'link' => $node->link()->getUri() ];});
             $filmData['age'] =  $crawlerChild->filter('div.film__age div.film-left__details div.film-left__flex ')->text();
             $filmData['duration'] = $crawlerChild->filter(' span.film-left__time')->text();
             $filmData['poster']['en'] = $crawlerChild->filter('div.film__directors  a')->link()->getUri();
@@ -72,7 +70,7 @@ class SweetTvParserCommand extends Command
             die();
         });
         die();
-        
+
         return Command::SUCCESS;
     }
 }
