@@ -9,9 +9,9 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: AudioRepository::class)]
 class Audio
 {
-    public const English = 0;
-    public const Russian = 1;
-    public const Ukrainian = 2;
+    public const LANG_EN = 0;
+    public const LANG_RU = 1;
+    public const LANG_UK = 2;
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -19,7 +19,7 @@ class Audio
     private int $id;
 
     #[ORM\Column(type: 'smallint', length: 255,options:[ "default" => 0])]
-    private int $audioLanguage= self::English;
+    private int $audioLanguage= self::LANG_EN;
 
 
     #[ORM\OneToMany(targetEntity:"App\Entity\FilmByPovider", mappedBy:"audio")]

@@ -9,8 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: ImageRepository::class)]
 class Image
 {
-    public const STATUS_ACTIVE = 1;
-    public const STATUS_NOT_ACTIVE = 0;
+
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -20,17 +19,13 @@ class Image
     #[ORM\Column(type: 'string', length: 500)]
     private ?string $link;
 
-    #[ORM\ManyToOne(targetEntity:"App\Entity\FilmByProvider", inversedBy:"baner")]
+    #[ORM\ManyToOne(targetEntity:"App\Entity\FilmByProvider", inversedBy:"banner")]
     #[ORM\JoinColumn(name:"film_id", referencedColumnName:"id", nullable:false)]
-    private $filmBaner;
+    private $filmBanner;
 
     #[ORM\ManyToOne(targetEntity:"App\Entity\FilmByProvider", inversedBy:"poster")]
     #[ORM\JoinColumn(name:"film_id", referencedColumnName:"id", nullable:false)]
     private $filmPoster;
-
-
-    #[ORM\Column(type:'smallint',nullable:false, options:[ "default" => 0])]
-    private int $status = self::STATUS_NOT_ACTIVE;
 
 
     #[ORM\Column(type:'datetime',nullable:false, options:[ "default" => "CURRENT_TIMESTAMP"])]
@@ -76,17 +71,17 @@ class Image
     /**
      * @return FilmByProvider
      */
-    public function getFilmBaner():FilmByProvider
+    public function getFilmBanner():FilmByProvider
     {
-        return $this->filmBaner;
+        return $this->filmBanner;
     }
 
     /**
-     * @param FilmByProvider $filmBaner
+     * @param FilmByProvider $filmBanner
      */
-    public function setFilmBaner(FilmByProvider $filmBaner): void
+    public function setFilmBanner(FilmByProvider $filmBanner): void
     {
-        $this->filmBaner = $filmBaner;
+        $this->filmBanner = $filmBanner;
     }
 
     /**
@@ -105,21 +100,6 @@ class Image
         $this->filmPoster = $filmPoster;
     }
 
-    /**
-     * @return int
-     */
-    public function getStatus(): int
-    {
-        return $this->status;
-    }
-
-    /**
-     * @param int $status
-     */
-    public function setStatus(int $status): void
-    {
-        $this->status = $status;
-    }
 
     /**
      * @return DateTimeInterface

@@ -11,8 +11,6 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: PeopleRepository::class)]
 class People
 {
-    public const ROLE_DIRECTOR = 1;
-    public const ROLE_ACTOR = 0;
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -25,8 +23,6 @@ class People
     #[ORM\Column(type: 'string', length: 500, unique: true)]
     private ?string $link;
 
-    #[ORM\Column(type:'smallint',nullable:false, options:[ "default" => 0])]
-    private int $role = self::ROLE_ACTOR;
 
     #[ORM\Column(type:'datetime',nullable:false, options:[ "default" => "CURRENT_TIMESTAMP"])]
     private $uploadedAt;
@@ -78,21 +74,7 @@ class People
         return $this;
     }
 
-    /**
-     * @return int
-     */
-    public function getRole(): int
-    {
-        return $this->role;
-    }
 
-    /**
-     * @param int $role
-     */
-    public function setRole(int $role): void
-    {
-        $this->role = $role;
-    }
 
     /**
      * @return DateTimeInterface

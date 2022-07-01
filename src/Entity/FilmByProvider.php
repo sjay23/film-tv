@@ -24,66 +24,68 @@ class FilmByProvider
     #[ORM\Column(type: 'string', length: 5000)]
     private ?string $description;
 
-    #[ORM\Column(type: 'date')]
+    #[ORM\Column(type: 'integer')]
     private $year;
 
     #[ORM\Column(type: 'decimal', precision: 4, scale: 2)]
     private $rating;
 
-    #[ORM\Column(type: 'string', length: 255)]
+    #[ORM\Column(type: 'string', length: 30)]
     private ?string $country;
 
-    #[ORM\Column(type: 'string', length: 255)]
+    #[ORM\Column(type: 'string', length: 5)]
     private ?string $age;
 
     #[ORM\Column(type: 'integer')]
     private int $duration;
 
     #[ORM\Column(type: 'integer', unique: true)]
-    private int $idByProvider;
+    private int $providerId ;
 
 
-    #[ORM\OneToMany(targetEntity: "App\Entity\Image", mappedBy: "filmBaner", cascade: ["persist", "remove"])]
-    private $baner;
+    #[ORM\OneToMany(targetEntity: "App\Entity\Image", mappedBy: "filmBanner", cascade: ["persist", "remove"])]
+    private $banner;
+
 
 
     #[ORM\OneToMany(targetEntity: "App\Entity\Image", mappedBy: "filmPoster", cascade: ["persist", "remove"])]
+    #[ORM\JoinColumn( nullable: false)]
     private $poster;
 
 
     #[ORM\ManyToMany(targetEntity: "App\Entity\People", inversedBy: "filmActor")]
-    #[ORM\JoinColumn(name: "filmActor_id", referencedColumnName: "id", nullable: false)]
+    #[ORM\JoinColumn(name: "filmActor_id", referencedColumnName: "id", nullable: true)]
     private $actor;
 
 
     #[ORM\ManyToMany(targetEntity: "App\Entity\People", inversedBy: "filmDirector")]
-    #[ORM\JoinColumn(name: "filmDirector_id", referencedColumnName: "id", nullable: false)]
-    private $derector;
+    #[ORM\JoinColumn(name: "filmDirector_id", referencedColumnName: "id", nullable: true)]
+    private $director;
 
     #[ORM\ManyToOne(targetEntity: "App\Entity\Audio", inversedBy: "films")]
-    #[ORM\JoinColumn(name: "audio", referencedColumnName: "audioLanguage", nullable: false)]
+    #[ORM\JoinColumn(name: "audio", referencedColumnName: "audioLanguage", nullable: true)]
     private $audio;
 
     public function __construct()
     {
-        $this->derector = new ArrayCollection();
+        $this->director = new ArrayCollection();
         $this->actor = new ArrayCollection();
     }
 
     /**
      * @return mixed
      */
-    public function getBaner()
+    public function getBanner()
     {
-        return $this->baner;
+        return $this->banner;
     }
 
     /**
-     * @param mixed $baner
+     * @param mixed $banner
      */
-    public function setBaner($baner): void
+    public function setBanner($banner): void
     {
-        $this->baner = $baner;
+        $this->baner = $banner;
     }
 
     /**
@@ -143,17 +145,23 @@ class FilmByProvider
         return $this;
     }
 
-    public function getYear(): ?\DateTimeInterface
+    /**
+     * @return mixed
+     */
+    public function getYear()
     {
         return $this->year;
     }
 
-    public function setYear(\DateTimeInterface $year): self
+    /**
+     * @param mixed $year
+     */
+    public function setYear($year): void
     {
         $this->year = $year;
-
-        return $this;
     }
+
+
 
     /**
      * @return mixed
@@ -208,14 +216,14 @@ class FilmByProvider
         return $this;
     }
 
-    public function getIdByProvider(): ?int
+    public function getProviderId(): ?int
     {
-        return $this->idByProvider;
+        return $this->providerId;
     }
 
-    public function setIdByProvider(int $idByProvider): self
+    public function setProviderId(int $providerId): self
     {
-        $this->idByProvider = $idByProvider;
+        $this->providerId = $providerId;
 
         return $this;
     }
@@ -239,17 +247,17 @@ class FilmByProvider
     /**
      * @return Collection|People[]
      */
-    public function getDerector(): Collection
+    public function getDirector(): Collection
     {
-        return $this->derector;
+        return $this->director;
     }
 
     /**
-     * @param Collection $derector
+     * @param Collection $director
      */
-    public function setDerector(Collection $derector): void
+    public function setDirector(Collection $director): void
     {
-        $this->derector = $derector;
+        $this->director = $director;
     }
 
     /**
