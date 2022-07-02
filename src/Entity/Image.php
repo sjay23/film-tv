@@ -5,35 +5,60 @@ namespace App\Entity;
 use App\Repository\ImageRepository;
 use DateTimeInterface;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Uid\Uuid;
 
-#[ORM\Entity(repositoryClass: ImageRepository::class)]
+/**
+ * @ORM\Entity(repositoryClass=ImageRepository::class)
+ * @ORM\Table(name="`image`")
+ */
 class Image
 {
 
-
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column(type: 'integer')]
+    /**
+     * @ORM\Id
+     * @ORM\GeneratedValue
+     * @ORM\Column(type="integer")
+     */
     private int $id;
 
-    #[ORM\Column(type: 'string', length: 500)]
+    /**
+     * @var Uuid
+     * @ORM\Column(type="uuid", unique="true")
+     * @Groups({"post", "get", "get_answer"})
+     */
+    private Uuid $uuid;
+
+    /**
+     * @ORM\Column(type="string", length=500, unique="true")
+     */
     private ?string $link;
 
-    #[ORM\ManyToOne(targetEntity:"App\Entity\FilmByProvider", inversedBy:"banner")]
-    #[ORM\JoinColumn(name:"film_id", referencedColumnName:"id", nullable:false)]
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\FilmByProvider", inversedBy="banner")
+     * @ORM\JoinColumn(name="film_id", referencedColumnName="id")
+     */
     private $filmBanner;
 
-    #[ORM\ManyToOne(targetEntity:"App\Entity\FilmByProvider", inversedBy:"poster")]
-    #[ORM\JoinColumn(name:"film_id", referencedColumnName:"id", nullable:false)]
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\FilmByProvider", inversedBy="poster")
+     * @ORM\JoinColumn(name="film_id", referencedColumnName="id")
+     */
     private $filmPoster;
 
 
-    #[ORM\Column(type:'datetime',nullable:false, options:[ "default" => "CURRENT_TIMESTAMP"])]
+    /**
+     * @var DateTimeInterface
+     *
+     * @ORM\Column(type="datetime", nullable="false", options={"default": "CURRENT_TIMESTAMP"})
+     */
     private $uploadedAt;
 
 
-    #[ORM\Column(type:'datetime',nullable:false, options:[ "default" => "CURRENT_TIMESTAMP"])]
-    private $uploaded;
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private bool $uploaded = false;
 
 
     /**
@@ -118,19 +143,36 @@ class Image
     }
 
     /**
-     * @return DateTimeInterface
+     * @return bool
      */
-    public function getUploaded(): DateTimeInterface
+    public function isUploaded(): bool
     {
         return $this->uploaded;
     }
 
     /**
-     * @param DateTimeInterface $uploaded
+     * @param bool $uploaded
      */
-    public function setUploaded(DateTimeInterface $uploaded): void
+    public function setUploaded(bool $uploaded): void
     {
         $this->uploaded = $uploaded;
+    }
+
+
+    /**
+     * @return Uuid
+     */
+    public function getUuid(): Uuid
+    {
+        return $this->uuid;
+    }
+
+    /**
+     * @param Uuid $uuid
+     */
+    public function setUuid(Uuid $uuid): void
+    {
+        $this->uuid = $uuid;
     }
 
 }

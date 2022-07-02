@@ -38,5 +38,5 @@ class PeopleRepository extends ServiceEntityRepository
             $this->getEntityManager()->flush();
         }
     }
-    
+
 }

@@ -6,68 +6,110 @@ use App\Repository\FilmByProviderRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Uid\Uuid;
 
-#[ORM\Entity(repositoryClass: FilmByProviderRepository::class)]
+/**
+ * @ORM\Entity(repositoryClass=FilmByProviderRepository::class)
+ * @ORM\Table(name="`filmByProvider`")
+ */
 class FilmByProvider
 {
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column(type: 'integer')]
+
+    /**
+     * @ORM\Id
+     * @ORM\GeneratedValue
+     * @ORM\Column(type="integer")
+     */
     private int $id;
 
-    #[ORM\Column(type: 'string', length: 255, unique: true)]
+    /**
+     * @var Uuid
+     * @ORM\Column(type="uuid", unique=true)
+     * @Groups({"post", "get", "get_answer"})
+     */
+    private Uuid $uuid;
+
+    /**
+     * @ORM\Column(type="string", length=500, unique="true")
+     */
     private ?string $title;
 
-    #[ORM\Column(type: 'string', length: 500, unique: true)]
+    /**
+     * @ORM\Column(type="string", length=500, unique="true")
+     */
     private ?string $link;
 
-    #[ORM\Column(type: 'string', length: 5000)]
+    /**
+     * @ORM\Column(type="string", length=5000, nullable="true")
+     */
     private ?string $description;
 
-    #[ORM\Column(type: 'integer')]
+    /**
+     * @ORM\Column(type="smallint" ,length=4, nullable="true")
+     */
     private $year;
 
-    #[ORM\Column(type: 'decimal', precision: 4, scale: 2)]
+    /**
+     * @ORM\Column(type="decimal", precision="4", scale="2", nullable="true")
+     */
     private $rating;
 
-    #[ORM\Column(type: 'string', length: 30)]
+    /**
+     * @ORM\Column(type="string", length=30,nullable="true")
+     */
     private ?string $country;
 
-    #[ORM\Column(type: 'string', length: 5)]
+    /**
+     * @ORM\Column(type="string", length=5,nullable="true")
+     */
     private ?string $age;
 
-    #[ORM\Column(type: 'integer')]
+    /**
+     * @ORM\Column(type="integer" ,nullable="true")
+     */
     private int $duration;
 
-    #[ORM\Column(type: 'integer', unique: true)]
-    private int $providerId ;
 
-
-    #[ORM\OneToMany(targetEntity: "App\Entity\Image", mappedBy: "filmBanner", cascade: ["persist", "remove"])]
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Image", mappedBy="filmBanner",cascade={"persist", "remove"})
+     * @ORM\JoinColumn( nullable="true")
+     */
     private $banner;
 
-
-
-    #[ORM\OneToMany(targetEntity: "App\Entity\Image", mappedBy: "filmPoster", cascade: ["persist", "remove"])]
-    #[ORM\JoinColumn( nullable: false)]
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Image", mappedBy="filmPoster",cascade={"persist", "remove"})
+     * @ORM\JoinColumn( nullable="true")
+     */
     private $poster;
 
-
-    #[ORM\ManyToMany(targetEntity: "App\Entity\People", inversedBy: "filmActor")]
-    #[ORM\JoinColumn(name: "filmActor_id", referencedColumnName: "id", nullable: true)]
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\People", mappedBy="filmActor")
+     * @ORM\JoinColumn( nullable="true")
+     */
     private $actor;
 
-
-    #[ORM\ManyToMany(targetEntity: "App\Entity\People", inversedBy: "filmDirector")]
-    #[ORM\JoinColumn(name: "filmDirector_id", referencedColumnName: "id", nullable: true)]
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\People", mappedBy="filmDirector")
+     * @ORM\JoinColumn(nullable="true")
+     */
     private $director;
 
-    #[ORM\ManyToOne(targetEntity: "App\Entity\Audio", inversedBy: "films")]
-    #[ORM\JoinColumn(name: "audio", referencedColumnName: "audioLanguage", nullable: true)]
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\Audio", inversedBy="films")
+     * @ORM\JoinColumn(name="languageAudio", referencedColumnName="id")
+     */
     private $audio;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\Provider", inversedBy="films")
+     * @ORM\JoinColumn(name="provider_id", referencedColumnName="id")
+     */
+    private $provider;
 
     public function __construct()
     {
+
         $this->director = new ArrayCollection();
         $this->actor = new ArrayCollection();
     }
@@ -85,7 +127,7 @@ class FilmByProvider
      */
     public function setBanner($banner): void
     {
-        $this->baner = $banner;
+        $this->banner = $banner;
     }
 
     /**
@@ -161,8 +203,6 @@ class FilmByProvider
         $this->year = $year;
     }
 
-
-
     /**
      * @return mixed
      */
@@ -216,17 +256,6 @@ class FilmByProvider
         return $this;
     }
 
-    public function getProviderId(): ?int
-    {
-        return $this->providerId;
-    }
-
-    public function setProviderId(int $providerId): self
-    {
-        $this->providerId = $providerId;
-
-        return $this;
-    }
 
     /**
      * @return Collection|People[]
@@ -274,6 +303,38 @@ class FilmByProvider
     public function setAudio(Audio $audio): void
     {
         $this->audio = $audio;
+    }
+
+    /**
+     * @return Uuid
+     */
+    public function getUuid(): Uuid
+    {
+        return $this->uuid;
+    }
+
+    /**
+     * @param Uuid $uuid
+     */
+    public function setUuid(Uuid $uuid): void
+    {
+        $this->uuid = $uuid;
+    }
+
+    /**
+     * @return Provider
+     */
+    public function getProvider(): ?Provider
+    {
+        return $this->provider;
+    }
+
+    /**
+     * @param Provider $provider
+     */
+    public function setProvider(Provider $provider): void
+    {
+        $this->provider = $provider;
     }
 
 }

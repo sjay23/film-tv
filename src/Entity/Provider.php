@@ -2,25 +2,23 @@
 
 namespace App\Entity;
 
-use App\Repository\AudioRepository;
+use App\Repository\ProviderRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Uid\Uuid;
-use Symfony\Component\Uid\UuidV6;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Uid\Uuid;
 
 /**
- * @ORM\Entity(repositoryClass=AudioRepository::class)
- * @ORM\Table(name="`audio`")
+ * @ORM\Entity(repositoryClass=ProviderRepository::class)
  */
-class Audio
+class Provider
 {
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
      */
-    private int $id;
+    private $id;
 
     /**
      * @var Uuid
@@ -30,40 +28,22 @@ class Audio
     private Uuid $uuid;
 
     /**
-     * @ORM\Column(type="string", length=30, )
+     * @ORM\Column(type="string", length=255,)
      */
-    private string $name;
-
+    private ?string $name;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\FilmByProvider", mappedBy="audio")
+     * @ORM\OneToMany(targetEntity="App\Entity\FilmByProvider", mappedBy="provider",cascade={"persist", "remove"})
      */
     private $films;
 
     public function __construct()
     {
-        $this->films= new ArrayCollection();
+        $this->films = new ArrayCollection();
     }
-
     public function getId(): ?int
     {
         return $this->id;
-    }
-
-    /**
-     * @return string
-     */
-    public function getName(): string
-    {
-        return $this->name;
-    }
-
-    /**
-     * @param string $name
-     */
-    public function setName(string $name): void
-    {
-        $this->name = $name;
     }
 
     /**
@@ -96,6 +76,22 @@ class Audio
     public function setUuid(Uuid $uuid): void
     {
         $this->uuid = $uuid;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getName(): ?string
+    {
+        return $this->name;
+    }
+
+    /**
+     * @param string|null $name
+     */
+    public function setName(?string $name): void
+    {
+        $this->name = $name;
     }
 
 

@@ -4,46 +4,67 @@ namespace App\Entity;
 
 use App\Repository\PeopleRepository;
 use DateTimeInterface;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
-use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass: PeopleRepository::class)]
+use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Uid\Uuid;
+
+/**
+ * @ORM\Entity(repositoryClass=PeopleRepository::class)
+ * @ORM\Table(name="`people`")
+ */
 class People
 {
 
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column(type: 'integer')]
+    /**
+     * @ORM\Id
+     * @ORM\GeneratedValue
+     * @ORM\Column(type="integer")
+     */
     private int $id;
 
-    #[ORM\Column(type: 'string', length: 255)]
+    /**
+     * @var Uuid
+     * @ORM\Column(type="uuid", unique="true")
+     * @Groups({"post", "get", "get_answer"})
+     */
+    private Uuid $uuid;
+
+    /**
+     * @ORM\Column(type="string", length=255,)
+     */
     private ?string $name;
 
-    #[ORM\Column(type: 'string', length: 500, unique: true)]
+
+    /**
+     * @ORM\Column(type="string", length=500, unique="true")
+     */
     private ?string $link;
 
-
-    #[ORM\Column(type:'datetime',nullable:false, options:[ "default" => "CURRENT_TIMESTAMP"])]
+    /**
+     * @var DateTimeInterface
+     *
+     * @ORM\Column(type="datetime", nullable="false", options={"default": "CURRENT_TIMESTAMP"})
+     */
     private $uploadedAt;
 
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private bool $uploaded = false;
 
-    #[ORM\Column(type:'datetime',nullable:false, options:[ "default" => "CURRENT_TIMESTAMP"])]
-    private $uploaded;
-
-
-    #[ORM\ManyToMany(targetEntity:"App\Entity\FilmByProvider", mappedBy:"filmDirector")]
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\FilmByProvider", inversedBy="filmDirector")
+     * @ORM\JoinColumn(name="director_id", referencedColumnName="id")
+     */
     private $filmDirector;
 
-    #[ORM\ManyToMany(targetEntity:"App\Entity\FilmByProvider", mappedBy:"filmActor")]
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\FilmByProvider", inversedBy="filmActor")
+     * @ORM\JoinColumn(name="actor_id", referencedColumnName="id")
+     */
     private $filmActor;
 
-    public function __construct()
-    {
-        $this->filmActor = new ArrayCollection();
-        $this->filmDirector = new ArrayCollection();
-
-    }
 
     public function getId(): ?int
     {
@@ -74,23 +95,23 @@ class People
         return $this;
     }
 
-
-
     /**
-     * @return DateTimeInterface
+     * @return bool
      */
-    public function getUploaded(): DateTimeInterface
+    public function isUploaded(): bool
     {
         return $this->uploaded;
     }
 
     /**
-     * @param DateTimeInterface $uploaded
+     * @param bool $uploaded
      */
-    public function setUploaded(DateTimeInterface $uploaded): void
+    public function setUploaded(bool $uploaded): void
     {
         $this->uploaded = $uploaded;
     }
+
+
 
     /**
      * @return DateTimeInterface
@@ -108,38 +129,40 @@ class People
         $this->uploadedAt = $uploadedAt;
     }
 
-    /**
-     *  @return  Collection|FilmByProvider[]
-     */
-    public function getFilmDirector(): Collection
+    public function getFilmDirector()
     {
         return $this->filmDirector;
     }
 
-    /**
-     * @param Collection $filmDirector
-     */
-    public function setFilmDirector(Collection $filmDirector): void
+    public function setFilmDirector($filmDirector): void
     {
         $this->filmDirector = $filmDirector;
     }
 
-    /**
-     * @return  Collection|FilmByProvider[]
-     */
-    public function getFilmActor(): Collection
+    public function getFilmActor()
     {
         return $this->filmActor;
     }
 
-    /**
-     * @param Collection $filmActor
-     */
-    public function setFilmActor(Collection $filmActor): void
+    public function setFilmActor($filmActor): void
     {
         $this->filmActor = $filmActor;
     }
 
+    /**
+     * @return Uuid
+     */
+    public function getUuid(): Uuid
+    {
+        return $this->uuid;
+    }
 
+    /**
+     * @param Uuid $uuid
+     */
+    public function setUuid(Uuid $uuid): void
+    {
+        $this->uuid = $uuid;
+    }
 
 }
