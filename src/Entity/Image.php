@@ -23,13 +23,6 @@ class Image
     private int $id;
 
     /**
-     * @var Uuid
-     * @ORM\Column(type="uuid", unique="true")
-     * @Groups({"post", "get", "get_answer"})
-     */
-    private Uuid $uuid;
-
-    /**
      * @ORM\Column(type="string", length=500, unique="true")
      */
     private ?string $link;
@@ -157,22 +150,4 @@ class Image
     {
         $this->uploaded = $uploaded;
     }
-
-
-    /**
-     * @return Uuid
-     */
-    public function getUuid(): Uuid
-    {
-        return $this->uuid;
-    }
-
-    /**
-     * @param Uuid $uuid
-     */
-    public function setUuid(Uuid $uuid): void
-    {
-        $this->uuid = $uuid;
-    }
-
 }

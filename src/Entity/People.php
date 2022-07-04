@@ -25,13 +25,6 @@ class People
     private int $id;
 
     /**
-     * @var Uuid
-     * @ORM\Column(type="uuid", unique="true")
-     * @Groups({"post", "get", "get_answer"})
-     */
-    private Uuid $uuid;
-
-    /**
      * @ORM\Column(type="string", length=255,)
      */
     private ?string $name;
@@ -154,21 +147,4 @@ class People
     {
         $this->films = $films;
     }
-
-    /**
-     * @return Uuid
-     */
-    public function getUuid(): Uuid
-    {
-        return $this->uuid;
-    }
-
-    /**
-     * @param Uuid $uuid
-     */
-    public function setUuid(Uuid $uuid): void
-    {
-        $this->uuid = $uuid;
-    }
-
 }

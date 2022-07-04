@@ -17,7 +17,7 @@ class SweetTvParserCommand extends Command
      * @var Client
      */
     private Client $client;
-
+    
     public function __construct() {
         $this->client = new Client();
         parent::__construct();

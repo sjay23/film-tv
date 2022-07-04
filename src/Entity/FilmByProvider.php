@@ -7,16 +7,16 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\JoinTable;
-use Doctrine\ORM\Mapping\ManyToMany;
-use Symfony\Component\Serializer\Annotation\Groups;
-use Symfony\Component\Uid\Uuid;
+use Knp\DoctrineBehaviors\Contract\Entity\TranslatableInterface;
+use Knp\DoctrineBehaviors\Model\Translatable\TranslatableTrait;
 
 /**
  * @ORM\Entity(repositoryClass=FilmByProviderRepository::class)
- * @ORM\Table(name="`film_by_provider`")
+ * @ORM\Table(name="film_by_provider")
  */
-class FilmByProvider
+class FilmByProvider implements TranslatableInterface
 {
+    use TranslatableTrait;
 
     /**
      * @ORM\Id
@@ -26,27 +26,9 @@ class FilmByProvider
     private int $id;
 
     /**
-     * @var Uuid
-     * @ORM\Column(type="uuid", unique=true)
-     * @Groups({"post", "get", "get_answer"})
-     */
-    private Uuid $uuid;
-
-    /**
-     * @ORM\Column(type="string", length=500, unique="true")
-     */
-    private ?string $title;
-
-    /**
      * @ORM\Column(type="string", length=500, unique="true")
      */
     private ?string $link;
-
-    /**
-     * @ORM\Column(type="string", length=5000, nullable="true")
-     */
-    private ?string $description;
-
     /**
      * @ORM\Column(type="smallint" ,length=4, nullable="true")
      */
@@ -92,19 +74,19 @@ class FilmByProvider
      *      inverseJoinColumns={@ORM\JoinColumn(name="actor_id", referencedColumnName="id", onDelete="CASCADE")}
      *      )
      */
-    private ?ArrayCollection $actor;
+    private ?Collection $actor;
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\People", mappedBy="filmDirector")
      * @ORM\JoinColumn(nullable="true")
      */
-    private ?ArrayCollection $director;
+    private ?Collection $director;
 
     /**
      * @ORM\ManyToMany(targetEntity="App\Entity\Audio", mappedBy="films")
      * @JoinTable(name="film_audio")
      */
-    private ArrayCollection $audio;
+    private Collection $audio;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Provider", inversedBy="films")
@@ -114,7 +96,6 @@ class FilmByProvider
 
     public function __construct()
     {
-
         $this->audio = new ArrayCollection();
         $this->actor = new ArrayCollection();
         $this->director = new ArrayCollection();
@@ -157,18 +138,6 @@ class FilmByProvider
         return $this->id;
     }
 
-    public function getTitle(): ?string
-    {
-        return $this->title;
-    }
-
-    public function setTitle(string $title): self
-    {
-        $this->title = $title;
-
-        return $this;
-    }
-
     public function getLink(): ?string
     {
         return $this->link;
@@ -177,18 +146,6 @@ class FilmByProvider
     public function setLink(string $link): self
     {
         $this->link = $link;
-
-        return $this;
-    }
-
-    public function getDescription(): ?string
-    {
-        return $this->description;
-    }
-
-    public function setDescription(string $description): self
-    {
-        $this->description = $description;
 
         return $this;
     }
@@ -312,23 +269,6 @@ class FilmByProvider
     public function setDirector(Collection $director): void
     {
         $this->director = $director;
-    }
-
-
-    /**
-     * @return Uuid
-     */
-    public function getUuid(): Uuid
-    {
-        return $this->uuid;
-    }
-
-    /**
-     * @param Uuid $uuid
-     */
-    public function setUuid(Uuid $uuid): void
-    {
-        $this->uuid = $uuid;
     }
 
     /**

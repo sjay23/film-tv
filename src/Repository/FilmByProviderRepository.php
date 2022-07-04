@@ -3,6 +3,8 @@
 namespace App\Repository;
 
 use App\Entity\FilmByProvider;
+use App\Entity\FilmByProviderTranslation;
+use App\Entity\Provider;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -63,4 +65,24 @@ class FilmByProviderRepository extends ServiceEntityRepository
 //            ->getOneOrNullResult()
 //        ;
 //    }
+
+
+        public function test(Provider $provider)
+        {
+            /**
+             * Как добавить перевод пример
+             */
+            $filmsProvider = new FilmByProvider();
+            $filmsProvider->translate('en')->setTitle('my title in en1');
+            $filmsProvider->translate('ru')->setTitle('my title in ru');
+            $filmsProvider->translate('en')->setDescription('my content in en1');
+            $filmsProvider->translate('ru')->setDescription('my content in ru');
+            $filmsProvider->setProvider($provider);
+            $filmsProvider->setLink('https://github.com/doctrine-extensions/DoctrineExtensions/blob/main/doc/translatable.md#advanced-examples');
+            $this->_em->persist($filmsProvider);
+            $filmsProvider->mergeNewTranslations();
+            $test = $filmsProvider->translate('ru')->getTitle();
+            dump($test);die();
+            $this->_em->flush();
+        }
 }
