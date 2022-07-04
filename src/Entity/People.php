@@ -6,6 +6,7 @@ use App\Repository\PeopleRepository;
 use DateTimeInterface;
 
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\Mapping\JoinTable;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Uid\Uuid;
 
@@ -54,14 +55,18 @@ class People
     private bool $uploaded = false;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\FilmByProvider", inversedBy="filmDirector")
+     * @ORM\ManyToOne(targetEntity="App\Entity\FilmByProvider", inversedBy="director")
      * @ORM\JoinColumn(name="director_id", referencedColumnName="id")
      */
     private $filmDirector;
 
+
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\FilmByProvider", inversedBy="filmActor")
-     * @ORM\JoinColumn(name="actor_id", referencedColumnName="id")
+     * @ORM\ManyToMany(targetEntity="App\Entity\FilmByProvider", inversedBy="actor")
+     * @JoinTable(name="film_actor",
+     *      joinColumns={@ORM\JoinColumn(name="actor_id", referencedColumnName="id")},
+     *      inverseJoinColumns={@ORM\JoinColumn(name="film_id", referencedColumnName="id")}
+     *      )
      */
     private $filmActor;
 
@@ -139,14 +144,15 @@ class People
         $this->filmDirector = $filmDirector;
     }
 
-    public function getFilmActor()
+    public function getFilmActor(): ?People
     {
         return $this->filmActor;
     }
 
-    public function setFilmActor($filmActor): void
+    public function setFilmActor(?People $filmActor): self
     {
         $this->filmActor = $filmActor;
+        return $this;
     }
 
     /**

@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\AudioRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\Mapping\JoinTable;
 use Symfony\Component\Uid\Uuid;
 use Symfony\Component\Uid\UuidV6;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -35,15 +36,17 @@ class Audio
     private string $name;
 
 
+
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\FilmByProvider", mappedBy="audio")
+     * @ORM\ManyToMany(targetEntity="App\Entity\FilmByProvider", inversedBy="audio")
+     * @JoinTable(name="film_audio",
+     *      joinColumns={@ORM\JoinColumn(name="audio_id", referencedColumnName="id")},
+     *      inverseJoinColumns={@ORM\JoinColumn(name="film_id", referencedColumnName="id")}
+     *      )
      */
     private $films;
 
-    public function __construct()
-    {
-        $this->films= new ArrayCollection();
-    }
+
 
     public function getId(): ?int
     {
@@ -66,20 +69,15 @@ class Audio
         $this->name = $name;
     }
 
-    /**
-     * @return ArrayCollection
-     */
-    public function getFilms(): ArrayCollection
+    public function getFilms(): ?FilmByProvider
     {
         return $this->films;
     }
 
-    /**
-     * @param ArrayCollection $films
-     */
-    public function setFilms(ArrayCollection $films): void
+    public function setFilms(?FilmByProvider $films): self
     {
         $this->films = $films;
+        return $this;
     }
 
     /**

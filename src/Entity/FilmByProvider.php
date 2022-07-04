@@ -6,12 +6,13 @@ use App\Repository\FilmByProviderRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\Mapping\JoinTable;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Uid\Uuid;
 
 /**
  * @ORM\Entity(repositoryClass=FilmByProviderRepository::class)
- * @ORM\Table(name="`filmByProvider`")
+ * @ORM\Table(name="`film_by_provider`")
  */
 class FilmByProvider
 {
@@ -84,8 +85,8 @@ class FilmByProvider
     private $poster;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\People", mappedBy="filmActor")
-     * @ORM\JoinColumn( nullable="true")
+     * @ORM\ManyToMany(targetEntity="App\Entity\People", mappedBy="filmActor")
+     * @JoinTable(name="film_actor")
      */
     private $actor;
 
@@ -95,9 +96,10 @@ class FilmByProvider
      */
     private $director;
 
+
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Audio", inversedBy="films")
-     * @ORM\JoinColumn(name="languageAudio", referencedColumnName="id")
+     * @ORM\ManyToMany(targetEntity="App\Entity\Audio", mappedBy="films")
+     * @JoinTable(name="film_audio")
      */
     private $audio;
 
@@ -110,8 +112,9 @@ class FilmByProvider
     public function __construct()
     {
 
-        $this->director = new ArrayCollection();
+        $this->audio = new ArrayCollection();
         $this->actor = new ArrayCollection();
+        $this->director = new ArrayCollection();
     }
 
     /**
@@ -265,12 +268,32 @@ class FilmByProvider
         return $this->actor;
     }
 
-    /**
-     * @param Collection $actor
-     */
-    public function setActor(Collection $actor): void
+
+    public function setActor(People $actor): self
     {
-        $this->actor = $actor;
+
+        if (!$this->actor->contains($actor)) {
+            $this->actor[] = $actor;
+        }
+        return $this;
+    }
+
+    /**
+     * @return Collection|Audio []
+     */
+    public function getAudio(): Collection
+    {
+        return $this->audio;
+    }
+
+
+    public function setAudio(Audio $audio): self
+    {
+
+        if (!$this->audio->contains($audio)) {
+            $this->audio[] = $audio;
+        }
+        return $this;
     }
 
     /**
@@ -289,21 +312,6 @@ class FilmByProvider
         $this->director = $director;
     }
 
-    /**
-     * @return Audio
-     */
-    public function getAudio(): ?Audio
-    {
-        return $this->audio;
-    }
-
-    /**
-     * @param Audio $audio
-     */
-    public function setAudio(Audio $audio): void
-    {
-        $this->audio = $audio;
-    }
 
     /**
      * @return Uuid
