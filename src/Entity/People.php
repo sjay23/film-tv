@@ -7,6 +7,7 @@ use DateTimeInterface;
 
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\JoinTable;
+use Ramsey\Collection\Collection;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Uid\Uuid;
 
@@ -16,7 +17,6 @@ use Symfony\Component\Uid\Uuid;
  */
 class People
 {
-
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
@@ -60,15 +60,10 @@ class People
      */
     private $filmDirector;
 
-
     /**
-     * @ORM\ManyToMany(targetEntity="App\Entity\FilmByProvider", inversedBy="actor")
-     * @JoinTable(name="film_actor",
-     *      joinColumns={@ORM\JoinColumn(name="actor_id", referencedColumnName="id")},
-     *      inverseJoinColumns={@ORM\JoinColumn(name="film_id", referencedColumnName="id")}
-     *      )
+     * @ORM\ManyToMany(targetEntity="FilmByProvider", mappedBy="actor")
      */
-    private $filmActor;
+    protected ?Collection $films;
 
 
     public function getId(): ?int
@@ -144,15 +139,20 @@ class People
         $this->filmDirector = $filmDirector;
     }
 
-    public function getFilmActor(): ?People
+    /**
+     * @return Collection|null
+     */
+    public function getFilms(): ?Collection
     {
-        return $this->filmActor;
+        return $this->films;
     }
 
-    public function setFilmActor(?People $filmActor): self
+    /**
+     * @param Collection|null $films
+     */
+    public function setFilms(?Collection $films): void
     {
-        $this->filmActor = $filmActor;
-        return $this;
+        $this->films = $films;
     }
 
     /**

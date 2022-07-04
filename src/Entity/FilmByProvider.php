@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\JoinTable;
+use Doctrine\ORM\Mapping\ManyToMany;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Uid\Uuid;
 
@@ -85,29 +86,31 @@ class FilmByProvider
     private $poster;
 
     /**
-     * @ORM\ManyToMany(targetEntity="App\Entity\People", mappedBy="filmActor")
-     * @JoinTable(name="film_actor")
+     * @ORM\ManyToMany(targetEntity="People", inversedBy="films")
+     * @ORM\JoinTable(name="film_actor",
+     *      joinColumns={@ORM\JoinColumn(name="film_id", referencedColumnName="id", onDelete="CASCADE")},
+     *      inverseJoinColumns={@ORM\JoinColumn(name="actor_id", referencedColumnName="id", onDelete="CASCADE")}
+     *      )
      */
-    private $actor;
+    private ?ArrayCollection $actor;
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\People", mappedBy="filmDirector")
      * @ORM\JoinColumn(nullable="true")
      */
-    private $director;
-
+    private ?ArrayCollection $director;
 
     /**
      * @ORM\ManyToMany(targetEntity="App\Entity\Audio", mappedBy="films")
      * @JoinTable(name="film_audio")
      */
-    private $audio;
+    private ArrayCollection $audio;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Provider", inversedBy="films")
      * @ORM\JoinColumn(name="provider_id", referencedColumnName="id")
      */
-    private $provider;
+    private ?Provider $provider;
 
     public function __construct()
     {
@@ -271,7 +274,6 @@ class FilmByProvider
 
     public function setActor(People $actor): self
     {
-
         if (!$this->actor->contains($actor)) {
             $this->actor[] = $actor;
         }
@@ -344,5 +346,4 @@ class FilmByProvider
     {
         $this->provider = $provider;
     }
-
 }
