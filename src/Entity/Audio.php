@@ -35,8 +35,6 @@ class Audio
      */
     private string $name;
 
-
-
     /**
      * @ORM\ManyToMany(targetEntity="App\Entity\FilmByProvider", inversedBy="audio")
      * @JoinTable(name="film_audio",
@@ -45,8 +43,6 @@ class Audio
      *      )
      */
     private $films;
-
-
 
     public function getId(): ?int
     {
@@ -95,7 +91,5 @@ class Audio
     {
         $this->uuid = $uuid;
     }
-
-
 
 }
