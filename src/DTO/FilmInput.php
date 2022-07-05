@@ -36,15 +36,15 @@ class FilmInput
      */
     private ?int $duration;
 
-    public function __construct(
-    )
-    {
-        $this->filmFieldTranslationInput = new ArrayCollection();
-    }
     /**
      * @var ArrayCollection|null
      */
     private ?ArrayCollection $filmFieldTranslationInput;
+
+    public function __construct()
+    {
+        $this->filmFieldTranslationInput = new ArrayCollection();
+    }
 
     /**
      * @return Provider|null
