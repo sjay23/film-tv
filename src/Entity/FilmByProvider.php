@@ -89,8 +89,11 @@ class FilmByProvider implements TranslatableInterface
     private Collection $audio;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\People", mappedBy="filmDirector")
-     * @ORM\JoinColumn(nullable="true")
+     * @ORM\ManyToMany(targetEntity="People", inversedBy="filmDirector")
+     * @ORM\JoinTable(name="film_director",
+     *      joinColumns={@ORM\JoinColumn(name="film_id", referencedColumnName="id", onDelete="CASCADE")},
+     *      inverseJoinColumns={@ORM\JoinColumn(name="director_id", referencedColumnName="id", onDelete="CASCADE")}
+     *      )
      */
     private ?Collection $director;
 
@@ -259,12 +262,13 @@ class FilmByProvider implements TranslatableInterface
         return $this->director;
     }
 
-    /**
-     * @param Collection $director
-     */
-    public function setDirector(Collection $director): void
+
+    public function setDirector(People $director): self
     {
-        $this->director = $director;
+        if (!$this->director->contains($director)) {
+            $this->director[] = $director;
+        }
+        return $this;
     }
 
     /**

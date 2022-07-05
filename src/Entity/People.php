@@ -29,7 +29,6 @@ class People
      */
     private ?string $name;
 
-
     /**
      * @ORM\Column(type="string", length=500, unique="true")
      */
@@ -48,15 +47,16 @@ class People
     private bool $uploaded = false;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\FilmByProvider", inversedBy="director")
-     * @ORM\JoinColumn(name="director_id", referencedColumnName="id")
+     * @ORM\ManyToMany(targetEntity="FilmByProvider", mappedBy="actor")
+     * @JoinTable(name="film_actor")
      */
-    private $filmDirector;
+    protected ?Collection $filmActor;
 
     /**
-     * @ORM\ManyToMany(targetEntity="FilmByProvider", mappedBy="actor")
+     * @ORM\ManyToMany(targetEntity="FilmByProvider", mappedBy="director")
+     * @JoinTable(name="film_director")
      */
-    protected ?Collection $films;
+    protected ?Collection $filmDirector;
 
 
     public function getId(): ?int
@@ -104,8 +104,6 @@ class People
         $this->uploaded = $uploaded;
     }
 
-
-
     /**
      * @return DateTimeInterface
      */
@@ -122,29 +120,37 @@ class People
         $this->uploadedAt = $uploadedAt;
     }
 
-    public function getFilmDirector()
+
+    /**
+     * @return Collection|null
+     */
+    public function getFilmActor(): ?Collection
     {
-        return $this->filmDirector;
+        return $this->filmActor;
     }
 
-    public function setFilmDirector($filmDirector): void
+    /**
+     * @param Collection|null $filmActor
+     */
+    public function setFilmActor(?Collection $filmActor): void
     {
-        $this->filmDirector = $filmDirector;
+        $this->filmActor = $filmActor;
     }
 
     /**
      * @return Collection|null
      */
-    public function getFilms(): ?Collection
+    public function getFilmDirector(): ?Collection
     {
-        return $this->films;
+        return $this->filmDirector;
     }
 
     /**
-     * @param Collection|null $films
+     * @param Collection|null $filmDirector
      */
-    public function setFilms(?Collection $films): void
+    public function setFilmDirector(?Collection $filmDirector): void
     {
-        $this->films = $films;
+        $this->filmDirector = $filmDirector;
     }
+
 }
