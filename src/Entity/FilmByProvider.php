@@ -26,9 +26,16 @@ class FilmByProvider implements TranslatableInterface
     private int $id;
 
     /**
+     * @ORM\Column(type="integer", length=30)
+     * @ORM\JoinColumn(name="movie_id", nullable="false")
+     */
+    private $movieId;
+
+    /**
      * @ORM\Column(type="string", length=500, unique="true")
      */
     private ?string $link;
+
     /**
      * @ORM\Column(type="smallint" ,length=4, nullable="true")
      */
@@ -320,5 +327,23 @@ class FilmByProvider implements TranslatableInterface
         }
         return $this;
     }
+
+    /**
+     * @return mixed
+     */
+    public function getMovieId()
+    {
+        return $this->movieId;
+    }
+
+    /**
+     * @param mixed $movieId
+     */
+    public function setMovieId($movieId): void
+    {
+        $this->movieId = $movieId;
+    }
+
+
 
 }
