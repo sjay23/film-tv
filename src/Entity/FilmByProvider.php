@@ -40,11 +40,6 @@ class FilmByProvider implements TranslatableInterface
     private $rating;
 
     /**
-     * @ORM\Column(type="string", length=30,nullable="true")
-     */
-    private ?string $country;
-
-    /**
      * @ORM\Column(type="string", length=5,nullable="true")
      */
     private ?string $age;
@@ -53,7 +48,6 @@ class FilmByProvider implements TranslatableInterface
      * @ORM\Column(type="integer" ,nullable="true")
      */
     private int $duration;
-
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\Image", mappedBy="filmBanner",cascade={"persist", "remove"})
@@ -77,16 +71,28 @@ class FilmByProvider implements TranslatableInterface
     private ?Collection $actor;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\People", mappedBy="filmDirector")
-     * @ORM\JoinColumn(nullable="true")
+     * @ORM\ManyToMany(targetEntity="App\Entity\Country", mappedBy="films")
+     * @JoinTable(name="film_country")
      */
-    private ?Collection $director;
+    private ?Collection $country;
+
+    /**
+     * @ORM\ManyToMany(targetEntity="App\Entity\Genre", mappedBy="films")
+     * @JoinTable(name="film_genre")
+     */
+    private ?Collection $genre;
 
     /**
      * @ORM\ManyToMany(targetEntity="App\Entity\Audio", mappedBy="films")
      * @JoinTable(name="film_audio")
      */
     private Collection $audio;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\People", mappedBy="filmDirector")
+     * @ORM\JoinColumn(nullable="true")
+     */
+    private ?Collection $director;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Provider", inversedBy="films")
@@ -99,6 +105,8 @@ class FilmByProvider implements TranslatableInterface
         $this->audio = new ArrayCollection();
         $this->actor = new ArrayCollection();
         $this->director = new ArrayCollection();
+        $this->country = new ArrayCollection();
+        $this->genre = new ArrayCollection();
     }
 
     /**
@@ -182,18 +190,6 @@ class FilmByProvider implements TranslatableInterface
         $this->rating = $rating;
     }
 
-
-    public function getCountry(): ?string
-    {
-        return $this->country;
-    }
-
-    public function setCountry(string $country): self
-    {
-        $this->country = $country;
-
-        return $this;
-    }
 
     public function getAge(): ?string
     {
@@ -286,4 +282,39 @@ class FilmByProvider implements TranslatableInterface
     {
         $this->provider = $provider;
     }
+
+    /**
+     * @return Collection|Genre[]
+     */
+    public function getGenre(): Collection
+    {
+        return $this->genre;
+    }
+
+
+    public function setGenre(Genre $genre): self
+    {
+        if (!$this->genre->contains($genre)) {
+            $this->genre[] = $genre;
+        }
+        return $this;
+    }
+
+    /**
+     * @return Collection|Country []
+     */
+    public function getCountry (): Collection
+    {
+        return $this->country;
+    }
+
+
+    public function setCountry (Country $country): self
+    {
+        if (!$this->country->contains($country)) {
+            $this->country[] = $country;
+        }
+        return $this;
+    }
+
 }
