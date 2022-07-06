@@ -21,6 +21,11 @@ class FilmInput
     private ?Provider $provider;
 
     /**
+     * @var int|null
+     */
+    private ?int $movieId;
+
+    /**
      * @var string|null
      * @Assert\NotNull
      */
@@ -34,7 +39,47 @@ class FilmInput
     /**
      * @var int|null
      */
+    private ?int $years;
+
+    /**
+     * @var int|null
+     */
+    private ?int $rating;
+
+    /**
+     * @var int|null
+     */
     private ?int $duration;
+
+    /**
+     * @var ArrayCollection|null
+     */
+    private ?ArrayCollection $genreInput;
+
+    /**
+     * @var ArrayCollection|null
+     */
+    private ?ArrayCollection $audioInput;
+
+    /**
+     * @var ArrayCollection|null
+     */
+    private ?ArrayCollection $castInput;
+
+    /**
+     * @var ArrayCollection|null
+     */
+    private ?ArrayCollection $countryInput;
+
+    /**
+     * @var ArrayCollection|null
+     */
+    private ?ArrayCollection $imageInput;
+
+    /**
+     * @var ArrayCollection|null
+     */
+    private ?ArrayCollection $directorInput;
 
     /**
      * @var ArrayCollection|null
@@ -44,6 +89,13 @@ class FilmInput
     public function __construct()
     {
         $this->filmFieldTranslationInput = new ArrayCollection();
+        $this->countryInput = new ArrayCollection();
+        $this->directorInput = new ArrayCollection();
+        $this->castInput = new ArrayCollection();
+        $this->audioInput = new ArrayCollection();
+        $this->imageInput = new ArrayCollection();
+        $this->genreInput = new ArrayCollection();
+
     }
 
     /**
@@ -102,12 +154,63 @@ class FilmInput
         return $this->duration;
     }
 
+
     /**
      * @param int|null $duration
      */
     public function setDuration(?int $duration): void
     {
         $this->duration = $duration;
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getRating(): ?int
+    {
+        return $this->rating;
+    }
+
+
+    /**
+     * @param int|null $rating
+     */
+    public function setRating(?int $rating): void
+    {
+        $this->rating = $rating;
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getMovieId(): ?int
+    {
+        return $this->movieId;
+    }
+
+    /**
+     * @param int|null $movieId
+     */
+    public function setMovieId(?int $movieId): void
+    {
+        $this->movieId = $movieId;
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getYears(): ?int
+    {
+        return $this->years;
+    }
+
+
+    /**
+     * @param int|null $years
+     */
+    public function setYears(?int $years): void
+    {
+        $this->years = $years;
     }
 
     /**
@@ -125,4 +228,101 @@ class FilmInput
     {
         $this->filmFieldTranslationInput->add($filmFieldTranslationInput);
     }
+
+    /**
+     * @return ArrayCollection|null
+     */
+    public function getAudioInput(): ?ArrayCollection
+    {
+        return $this->audioInput;
+    }
+
+    /**
+     * @param AudioInput $audioInput
+     */
+    public function addAudioInput(AudioInput $audioInput): void
+    {
+        $this->audioInput->add($audioInput);
+    }
+
+    /**
+     * @return ArrayCollection|null
+     */
+    public function getCastInput(): ?ArrayCollection
+    {
+        return $this->castInput;
+    }
+
+    /**
+     * @param CastInput $castInput
+     */
+    public function addCastInput(CastInput $castInput): void
+    {
+        $this->castInput->add($castInput);
+    }
+
+    /**
+     * @return ArrayCollection|null
+     */
+    public function getCountryInput(): ?ArrayCollection
+    {
+        return $this->countryInput;
+    }
+
+    /**
+     * @param CountryInput $countryInput
+     */
+    public function addCountryInput(CountryInput $countryInput): void
+    {
+        $this->castInput->add($countryInput);
+    }
+
+    /**
+     * @return ArrayCollection|null
+     */
+    public function getDirectorInput(): ?ArrayCollection
+    {
+        return $this->directorInput;
+    }
+
+    /**
+     * @param DirectorInput $directorInput
+     */
+    public function addDirectorInput(DirectorInput $directorInput): void
+    {
+        $this->directorInput->add($directorInput);
+    }
+
+    /**
+     * @return ArrayCollection|null
+     */
+    public function getGenreInput(): ?ArrayCollection
+    {
+        return $this->genreInput;
+    }
+
+    /**
+     * @param GenreInput $genreInput
+     */
+    public function addGenreInput(GenreInput $genreInput): void
+    {
+        $this->genreInput->add($genreInput);
+    }
+
+    /**
+     * @return ArrayCollection|null
+     */
+    public function getImageInput(): ?ArrayCollection
+    {
+        return $this->imageInput;
+    }
+
+    /**
+     * @param ImageInput $imageInput
+     */
+    public function addImageInput(ImageInput $imageInput): void
+    {
+        $this->imageInput->add($imageInput);
+    }
+
 }
