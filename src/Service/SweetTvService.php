@@ -147,14 +147,14 @@ class SweetTvService
         return new ArrayCollection ($castGenre);
     }
 
-    private function parseCountry($crawlerChild):object
+    private function parseCountry($crawlerChild): ArrayCollection
     {
         $filmCountry = $crawlerChild->filter('div.film__countries a.film-left__link')->each(function (Crawler $node){
             $countryInput = new CountryInput($node->text());
             $this->validator->validate($countryInput);
             return $countryInput;
         });
-        return $filmCountry;
+        return new ArrayCollection($filmCountry);
     }
 
     private function parseDirector($crawlerChild):object
@@ -188,7 +188,7 @@ class SweetTvService
         return $rating;
     }
 
-    private function getfilmFieldTranslation($crawlerChild, $lang):object
+    private function getfilmFieldTranslation($crawlerChild, $lang): FilmFieldTranslationInput
     {
         $title = $crawlerChild->filter('.container-fluid_padding li')->last()->text();
         $description = $crawlerChild->filter('p.film-descr__text')->text();
@@ -202,9 +202,9 @@ class SweetTvService
     private function parseFilmBySweet(FilmInput $filmInput, $crawlerChild, string $lang = 'en')
     {
         $movieId = preg_replace("/[^0-9]/", '', $crawlerChild->filter('a.modal__lang-item')->link()->getUri());
-        $age =  $crawlerChild->filter('div.film__age div.film-left__details div.film-left__flex ')->text();
-        $years=  $crawlerChild->filter('.film__years > .film-left__details')->text();
-        $duration= $this->convertTime($crawlerChild->filter(' span.film-left__time')->text());
+        $age = $crawlerChild->filter('div.film__age div.film-left__details div.film-left__flex ')->text();
+        $years = $crawlerChild->filter('.film__years > .film-left__details')->text();
+        $duration = $this->convertTime($crawlerChild->filter(' span.film-left__time')->text());
         $ratingInput = $this->parseRating($crawlerChild);
         $filmFieldTranslation = $this->getfilmFieldTranslation($crawlerChild,$lang);
         $filmInput->addFilmFieldTranslationInput($filmFieldTranslation);
@@ -216,15 +216,15 @@ class SweetTvService
 
         if ($lang === 'en') {
             $countryInput = $this->parseCountry($crawlerChild);
-            $filmInput->addCountryInput($countryInput);
-                $genreInput = $this->parseGenre($crawlerChild);
-                $filmInput->addGenreInput($genreInput);
-                $directorInput = $this->parseDirector($crawlerChild);
-                $filmInput->addDirectorInput($directorInput);
-                $castInput = $this->parseCast($crawlerChild);
-                $filmInput->addCastInput($castInput);
-                $audioInput = $this->parseAudio($crawlerChild);
-                $filmInput->addAudioInput($audioInput);
+            $filmInput->setCountryInput($countryInput);
+            $genreInput = $this->parseGenre($crawlerChild);
+            $filmInput->addGenreInput($genreInput);
+            $directorInput = $this->parseDirector($crawlerChild);
+            $filmInput->addDirectorInput($directorInput);
+            $castInput = $this->parseCast($crawlerChild);
+            $filmInput->addCastInput($castInput);
+            $audioInput = $this->parseAudio($crawlerChild);
+            $filmInput->addAudioInput($audioInput);
         }
 
         sleep(rand(0,3));

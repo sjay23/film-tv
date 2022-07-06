@@ -270,6 +270,14 @@ class FilmInput
     }
 
     /**
+     * @param ArrayCollection|null $countryInput
+     */
+    public function setCountryInput(?ArrayCollection $countryInput): void
+    {
+        $this->countryInput = $countryInput;
+    }
+
+    /**
      * @param CountryInput $countryInput
      */
     public function addCountryInput(CountryInput $countryInput): void
