@@ -12,6 +12,7 @@ use App\DTO\CountryInput;
 use App\DTO\DirectorInput;
 use App\DTO\GenreInput;
 use App\DTO\ImageInput;
+use Doctrine\Common\Collections\ArrayCollection;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use Symfony\Component\DomCrawler\Crawler;
@@ -94,7 +95,8 @@ class SweetTvService
         return $time;
     }
 
-    private function getCrawlerChild( string $link, string $lang = 'en'){
+    private function getCrawlerChild( string $link, string $lang = 'en'):object
+    {
         $link = str_replace('en', $lang, $link);
         echo "Parse link: " . $link . "\n";
         $responseChild = $this->client->get($link);
@@ -103,34 +105,50 @@ class SweetTvService
         return $crawlerChild;
     }
 
-    private function parseGenre($crawlerChild) {
+    private function parseGenre($crawlerChild): ArrayCollection
+    {
+        $node = $crawlerChild->filter('div.film__genres a');
+        $filmGenre = [];
+        if ($node->count() !== 0) {
         $filmGenre = $crawlerChild->filter('div.film__genres a')->each(function (Crawler $node){
             $genreInput = new GenreInput($node->text());
             $this->validator->validate($genreInput);
         	return $genreInput;
         });
-        return $filmGenre;
+        }
+        return new ArrayCollection($filmGenre);
     }
 
-    private function parseAudio($crawlerChild){
-        $filmAudio = $crawlerChild->filter('div.film__sounds div.film__content a.film-audio__link span')->each(function (Crawler $node){
-            $audioInput = new AudioInput($node->text());
-            $this->validator->validate($audioInput);
-            return $audioInput;
-        });
-        return $filmAudio;
+    private function parseAudio($crawlerChild): ArrayCollection
+    {
+        $node = $crawlerChild->filter('a.film-audio__link');
+        $filmAudio = [];
+        if ($node->count() !== 0) {
+            $filmAudio = $crawlerChild->filter('div.film__sounds div.film__content a.film-audio__link span')->each(function (Crawler $node) {
+                $audioInput = new AudioInput($node->text());
+                $this->validator->validate($audioInput);
+                return $audioInput;
+            });
+        }
+        return new ArrayCollection ($filmAudio);
     }
 
-    private function parseCast($crawlerChild){
-        $castGenre = $crawlerChild->filter('div.film__actor a')->each(function (Crawler $node){
-            $castInput = new CastInput($node->text(),$node->link()->getUri());
-            $this->validator->validate($castInput);
-            return $castInput;
-        });
-        return $castGenre;
+    private function parseCast($crawlerChild): ArrayCollection
+    {
+        $node = $crawlerChild->filter('div.film__actor a');
+        $castGenre=[];
+        if ($node->count() !== 0) {
+            $castGenre = $crawlerChild->filter('div.film__actor a')->each(function (Crawler $node) {
+                $castInput = new CastInput($node->text(), $node->link()->getUri());
+                $this->validator->validate($castInput);
+                return $castInput;
+            });
+        }
+        return new ArrayCollection ($castGenre);
     }
 
-    private function parseCountry($crawlerChild){
+    private function parseCountry($crawlerChild):object
+    {
         $filmCountry = $crawlerChild->filter('div.film__countries a.film-left__link')->each(function (Crawler $node){
             $countryInput = new CountryInput($node->text());
             $this->validator->validate($countryInput);
@@ -139,16 +157,21 @@ class SweetTvService
         return $filmCountry;
     }
 
-    private function parseDirector($crawlerChild){
-        $filmDirector = $crawlerChild->filter('div.film__directors');
-        $directorName = $crawlerChild->filter('div.film__directors span')->text();
-        $directorLink = $crawlerChild->filter('div.film__directors  a')->link()->getUri();
-        $directorInput = new DirectorInput($directorName,$directorLink);
-        $this->validator->validate($directorInput);
-        return $filmDirector;
+    private function parseDirector($crawlerChild):object
+    {
+        $node = $crawlerChild->filter('div.film__directors');
+        if ($node->count() !== 0) {
+            $directorName = $crawlerChild->filter('div.film__directors span')->text();
+            $directorLink = $crawlerChild->filter('div.film__directors  a')->link()->getUri();
+            $directorInput = new DirectorInput($directorName, $directorLink);
+            $this->validator->validate($directorInput);
+        }
+        return $directorInput;
+
     }
 
-    private function parseImage($crawlerChild){
+    private function parseImage($crawlerChild):object
+    {
         $imageLink=$crawlerChild->filter('div.film-right  div.film-right__img picture img')->image()->getUri();
             $imageInput = new ImageInput($imageLink);
             $this->validator->validate($imageInput);
@@ -156,59 +179,54 @@ class SweetTvService
         return $imageInput;
     }
 
+    private function parseRating($crawlerChild){
+        $node = $crawlerChild->filter('.film__rating');
+        if ($node->count() !== 0) {
+            $rating = $node->filter('.film-left__details > span')->text();
+            }
+
+        return $rating;
+    }
+
+    private function getfilmFieldTranslation($crawlerChild, $lang):object
+    {
+        $title = $crawlerChild->filter('.container-fluid_padding li')->last()->text();
+        $description = $crawlerChild->filter('p.film-descr__text')->text();
+        $banner = $crawlerChild->filter('div.film-right  div.film-right__img picture img')->image()->getUri();
+        $filmFieldTranslation = new FilmFieldTranslationInput($title, $description, $banner, $lang);
+        $this->validator->validate($filmFieldTranslation);
+
+        return $filmFieldTranslation;
+    }
 
     private function parseFilmBySweet(FilmInput $filmInput, $crawlerChild, string $lang = 'en')
     {
         $movieId = preg_replace("/[^0-9]/", '', $crawlerChild->filter('a.modal__lang-item')->link()->getUri());
-        $title = $crawlerChild->filter('.container-fluid_padding li')->last()->text();
-        $description = $crawlerChild->filter('p.film-descr__text')->text();
-        $banner = $crawlerChild->filter('div.film-right  div.film-right__img picture img')->image()->getUri();
         $age =  $crawlerChild->filter('div.film__age div.film-left__details div.film-left__flex ')->text();
         $years=  $crawlerChild->filter('.film__years > .film-left__details')->text();
         $duration= $this->convertTime($crawlerChild->filter(' span.film-left__time')->text());
-        $ratingNode = $crawlerChild->filter('.film__rating');
-
-        if ($ratingNode->count() !== 0) {
-            $rating = $ratingNode->filter('.film-left__details > span')->text();
-            $filmInput->setRating($rating);
-        }
-
-        $filmFieldTranslation = new FilmFieldTranslationInput($title, $description, $banner, $lang);
-        $this->validator->validate($filmFieldTranslation);
+        $ratingInput = $this->parseRating($crawlerChild);
+        $filmFieldTranslation = $this->getfilmFieldTranslation($crawlerChild,$lang);
         $filmInput->addFilmFieldTranslationInput($filmFieldTranslation);
         $filmInput->setMovieId((int)$movieId);
         $filmInput->setAge((int)$age);
+        $filmInput->setRating($ratingInput);
         $filmInput->setYears($years);
         $filmInput->setDuration((int)$duration);
 
         if ($lang === 'en') {
             $countryInput = $this->parseCountry($crawlerChild);
             $filmInput->addCountryInput($countryInput);
-
-            $genreNode = $crawlerChild->filter('div.film__genres a');
-            if ($genreNode->count() !== 0) {
                 $genreInput = $this->parseGenre($crawlerChild);
                 $filmInput->addGenreInput($genreInput);
-            }
-
-            $directorNode = $crawlerChild->filter('div.film__directors');
-            if ($directorNode->count() !== 0) {
                 $directorInput = $this->parseDirector($crawlerChild);
                 $filmInput->addDirectorInput($directorInput);
-            }
-
-            $castNode = $crawlerChild->filter('div.film__actor a');
-            if ($castNode->count() !== 0) {
                 $castInput = $this->parseCast($crawlerChild);
                 $filmInput->addCastInput($castInput);
-            }
-
-            $audioNode = $crawlerChild->filter('a.film-audio__link');
-            if ($audioNode->count() !== 0) {
                 $audioInput = $this->parseAudio($crawlerChild);
                 $filmInput->addAudioInput($audioInput);
-            }
         }
+
         sleep(rand(0,3));
         return $filmInput;
     }
