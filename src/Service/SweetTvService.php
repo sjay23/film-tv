@@ -150,9 +150,9 @@ class SweetTvService
     private function parseCountry($crawlerChild): ArrayCollection
     {
         $filmCountry = $crawlerChild->filter('div.film__countries a.film-left__link')->each(function (Crawler $node){
-            $countryInput = new CountryInput($node->text());
-            $this->validator->validate($countryInput);
-            return $countryInput;
+            $countriesInput = new CountryInput($node->text());
+            $this->validator->validate($countriesInput);
+            return $countriesInput;
         });
         return new ArrayCollection($filmCountry);
     }
@@ -215,8 +215,8 @@ class SweetTvService
         $filmInput->setDuration((int)$duration);
 
         if ($lang === 'en') {
-            $countryInput = $this->parseCountry($crawlerChild);
-            $filmInput->setCountryInput($countryInput);
+            $countriesInput = $this->parseCountry($crawlerChild);
+            $filmInput->setCountryInput($countriesInput);
             $genreInput = $this->parseGenre($crawlerChild);
             $filmInput->addGenreInput($genreInput);
             $directorInput = $this->parseDirector($crawlerChild);
