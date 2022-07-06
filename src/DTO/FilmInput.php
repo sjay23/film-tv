@@ -32,9 +32,9 @@ class FilmInput
     private ?string $link;
 
     /**
-     * @var int|null
+     * @var string|null
      */
-    private ?int $age;
+    private ?string $age;
 
     /**
      * @var int|null
@@ -54,47 +54,47 @@ class FilmInput
     /**
      * @var ArrayCollection|null
      */
-    private ?ArrayCollection $genreInput;
+    private ?ArrayCollection $genresInput;
 
     /**
      * @var ArrayCollection|null
      */
-    private ?ArrayCollection $audioInput;
+    private ?ArrayCollection $audiosInput;
 
     /**
      * @var ArrayCollection|null
      */
-    private ?ArrayCollection $castInput;
+    private ?ArrayCollection $castsInput;
 
     /**
      * @var ArrayCollection|null
      */
-    private ?ArrayCollection $countryInput;
+    private ?ArrayCollection $countriesInput;
 
     /**
      * @var ArrayCollection|null
      */
-    private ?ArrayCollection $imageInput;
+    private ?ArrayCollection $imagesInput;
 
     /**
      * @var ArrayCollection|null
      */
-    private ?ArrayCollection $directorInput;
+    private ?ArrayCollection $directorsInput;
 
     /**
      * @var ArrayCollection|null
      */
-    private ?ArrayCollection $filmFieldTranslationInput;
+    private ?ArrayCollection $filmFieldsTranslationInput;
 
     public function __construct()
     {
-        $this->filmFieldTranslationInput = new ArrayCollection();
-        $this->countryInput = new ArrayCollection();
-        $this->directorInput = new ArrayCollection();
-        $this->castInput = new ArrayCollection();
-        $this->audioInput = new ArrayCollection();
-        $this->imageInput = new ArrayCollection();
-        $this->genreInput = new ArrayCollection();
+        $this->filmFieldsTranslationInput = new ArrayCollection();
+        $this->countriesInput = new ArrayCollection();
+        $this->directorsInput = new ArrayCollection();
+        $this->castsInput = new ArrayCollection();
+        $this->audiosInput = new ArrayCollection();
+        $this->imagesInput = new ArrayCollection();
+        $this->genresInput = new ArrayCollection();
 
     }
 
@@ -131,17 +131,17 @@ class FilmInput
     }
 
     /**
-     * @return int|null
+     * @return string|null
      */
-    public function getAge(): ?int
+    public function getAge(): ?string
     {
         return $this->age;
     }
 
     /**
-     * @param int|null $age
+     * @param string|null $age
      */
-    public function setAge(?int $age): void
+    public function setAge(?string $age): void
     {
         $this->age = $age;
     }
@@ -216,9 +216,17 @@ class FilmInput
     /**
      * @return ArrayCollection|null
      */
-    public function getFilmFieldTranslationInput(): ?ArrayCollection
+    public function getFilmFieldsTranslationInput(): ?ArrayCollection
     {
-        return $this->filmFieldTranslationInput;
+        return $this->filmFieldsTranslationInput;
+    }
+
+    /**
+     * @param ArrayCollection|null $filmFieldsTranslationInput
+     */
+    public function setFilmFieldsTranslationInput(?ArrayCollection $filmFieldsTranslationInput): void
+    {
+        $this->filmFieldsTranslationInput = $filmFieldsTranslationInput;
     }
 
     /**
@@ -226,15 +234,23 @@ class FilmInput
      */
     public function addFilmFieldTranslationInput(FilmFieldTranslationInput $filmFieldTranslationInput): void
     {
-        $this->filmFieldTranslationInput->add($filmFieldTranslationInput);
+        $this->filmFieldsTranslationInput->add($filmFieldTranslationInput);
     }
 
     /**
      * @return ArrayCollection|null
      */
-    public function getAudioInput(): ?ArrayCollection
+    public function getAudiosInput(): ?ArrayCollection
     {
-        return $this->audioInput;
+        return $this->audiosInput;
+    }
+
+    /**
+     * @param ArrayCollection|null $audiosInput
+     */
+    public function setAudiosInput(?ArrayCollection $audiosInput): void
+    {
+        $this->audiosInput = $audiosInput;
     }
 
     /**
@@ -242,15 +258,23 @@ class FilmInput
      */
     public function addAudioInput(AudioInput $audioInput): void
     {
-        $this->audioInput->add($audioInput);
+        $this->audiosInput->add($audioInput);
     }
 
     /**
      * @return ArrayCollection|null
      */
-    public function getCastInput(): ?ArrayCollection
+    public function getCastsInput(): ?ArrayCollection
     {
-        return $this->castInput;
+        return $this->castsInput;
+    }
+
+    /**
+     * @param ArrayCollection|null $castsInput
+     */
+    public function setCastsInput(?ArrayCollection $castsInput): void
+    {
+        $this->castsInput = $castsInput;
     }
 
     /**
@@ -258,23 +282,23 @@ class FilmInput
      */
     public function addCastInput(CastInput $castInput): void
     {
-        $this->castInput->add($castInput);
+        $this->castsInput->add($castInput);
     }
 
     /**
      * @return ArrayCollection|null
      */
-    public function getCountryInput(): ?ArrayCollection
+    public function getCountriesInput(): ?ArrayCollection
     {
-        return $this->countryInput;
+        return $this->countriesInput;
     }
 
     /**
-     * @param ArrayCollection|null $countryInput
+     * @param ArrayCollection|null $countriesInput
      */
-    public function setCountryInput(?ArrayCollection $countryInput): void
+    public function setCountriesInput(?ArrayCollection $countriesInput): void
     {
-        $this->countryInput = $countryInput;
+        $this->countriesInput = $countriesInput;
     }
 
     /**
@@ -282,15 +306,23 @@ class FilmInput
      */
     public function addCountryInput(CountryInput $countryInput): void
     {
-        $this->castInput->add($countryInput);
+        $this->castsInput->add($countryInput);
     }
 
     /**
      * @return ArrayCollection|null
      */
-    public function getDirectorInput(): ?ArrayCollection
+    public function getDirectorsInput(): ?ArrayCollection
     {
-        return $this->directorInput;
+        return $this->directorsInput;
+    }
+
+    /**
+     * @param ArrayCollection|null $directorsInput
+     */
+    public function setDirectorsInput(?ArrayCollection $directorsInput): void
+    {
+        $this->directorsInput = $directorsInput;
     }
 
     /**
@@ -298,15 +330,23 @@ class FilmInput
      */
     public function addDirectorInput(DirectorInput $directorInput): void
     {
-        $this->directorInput->add($directorInput);
+        $this->directorsInput->add($directorInput);
     }
 
     /**
      * @return ArrayCollection|null
      */
-    public function getGenreInput(): ?ArrayCollection
+    public function getGenresInput(): ?ArrayCollection
     {
-        return $this->genreInput;
+        return $this->genresInput;
+    }
+
+    /**
+     * @param ArrayCollection|null $genresInput
+     */
+    public function setGenresInput(?ArrayCollection $genresInput): void
+    {
+        $this->genresInput = $genresInput;
     }
 
     /**
@@ -314,15 +354,23 @@ class FilmInput
      */
     public function addGenreInput(GenreInput $genreInput): void
     {
-        $this->genreInput->add($genreInput);
+        $this->genresInput->add($genreInput);
     }
 
     /**
      * @return ArrayCollection|null
      */
-    public function getImageInput(): ?ArrayCollection
+    public function getImagesInput(): ?ArrayCollection
     {
-        return $this->imageInput;
+        return $this->imagesInput;
+    }
+
+    /**
+     * @param ArrayCollection|null $imagesInput
+     */
+    public function setImagesInput(?ArrayCollection $imagesInput): void
+    {
+        $this->imagesInput = $imagesInput;
     }
 
     /**
@@ -330,7 +378,7 @@ class FilmInput
      */
     public function addImageInput(ImageInput $imageInput): void
     {
-        $this->imageInput->add($imageInput);
+        $this->imagesInput->add($imageInput);
     }
 
 }
