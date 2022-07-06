@@ -7,26 +7,34 @@ namespace App\DTO;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * Class GenreInput
+ * Class PeopleInput
  * @package App\Dto
  */
-class CastInput
+class PeopleInput
 {
     /**
      * @var string|null
      * @Assert\NotNull
+     * @Assert\Length(
+     *      min = 2,
+     *      max = 50,
+     * )
      */
     private ?string $name;
 
     /**
      * @var string|null
      * @Assert\NotNull
+     * @Assert\NotBlank
+     * @Assert\Length(
+     *      max = 150,
+     * )
      */
     private ?string $link;
 
     public function __construct(
         ?string $name,
-         ?string $link
+        ?string $link
     )
     {
         $this->name = $name;

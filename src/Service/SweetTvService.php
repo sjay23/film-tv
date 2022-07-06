@@ -7,9 +7,8 @@ namespace App\Service;
 use App\DTO\FilmFieldTranslationInput;
 use App\DTO\FilmInput;
 use App\DTO\AudioInput;
-use App\DTO\CastInput;
 use App\DTO\CountryInput;
-use App\DTO\DirectorInput;
+use App\DTO\PeopleInput;
 use App\DTO\GenreInput;
 use App\DTO\ImageInput;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -188,7 +187,7 @@ class SweetTvService
         $castGenre=[];
         if ($node->count() !== 0) {
             $castGenre = $crawler->filter('div.film__actor a')->each(function (Crawler $node) {
-                $castInput = new CastInput($node->text(), $node->link()->getUri());
+                $castInput = new PeopleInput($node->text(), $node->link()->getUri());
                 $this->validator->validate($castInput);
                 return $castInput;
             });
@@ -213,7 +212,7 @@ class SweetTvService
         if ($node->count() !== 0) {
             $directorName = $crawler->filter('div.film__directors span')->text();
             $directorLink = $crawler->filter('div.film__directors  a')->link()->getUri();
-            $directorInput = new DirectorInput($directorName, $directorLink);
+            $directorInput = new PeopleInput($directorName, $directorLink);
             $this->validator->validate($directorInput);
             $directors[] = $directorInput;
         }

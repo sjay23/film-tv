@@ -22,32 +22,48 @@ class FilmInput
 
     /**
      * @var int|null
+     * @Assert\Positive
      */
     private ?int $movieId;
 
     /**
      * @var string|null
      * @Assert\NotNull
+     * @Assert\NotBlank
+     * @Assert\Length(
+     *      max = 150,
+     * )
      */
     private ?string $link;
 
     /**
      * @var string|null
+     * @Assert\Length(
+     *      min = 2,
+     *      max = 3,
+     * )
      */
     private ?string $age;
 
     /**
      * @var int|null
+     * @Assert\Positive
+      * @Assert\Length(
+     *      min = 4,
+     *      max = 4,
+     * )
      */
     private ?int $years;
 
     /**
-     * @var int|null
+     * @var float|null
+     * @Assert\Positive
      */
-    private ?int $rating;
+    private ?float $rating;
 
     /**
      * @var int|null
+     * @Assert\Positive
      */
     private ?int $duration;
 
@@ -164,18 +180,18 @@ class FilmInput
     }
 
     /**
-     * @return int|null
+     * @return float|null
      */
-    public function getRating(): ?int
+    public function getRating(): ?float
     {
         return $this->rating;
     }
 
 
     /**
-     * @param int|null $rating
+     * @param float|null $rating
      */
-    public function setRating(?int $rating): void
+    public function setRating(?float $rating): void
     {
         $this->rating = $rating;
     }

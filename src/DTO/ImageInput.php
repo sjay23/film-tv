@@ -15,6 +15,10 @@ class ImageInput
     /**
      * @var string|null
      * @Assert\NotNull
+     * @Assert\NotBlank
+     * @Assert\Length(
+     *      max = 150,
+     * )
      */
     private ?string $link;
 

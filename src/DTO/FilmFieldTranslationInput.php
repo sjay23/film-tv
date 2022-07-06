@@ -12,27 +12,41 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class FilmFieldTranslationInput
 {
+
     /**
      * @var string|null
      * @Assert\NotNull
+     * @Assert\Length(
+     *      min = 4,
+     *      max = 100,
+     * )
      */
     private ?string $title;
 
     /**
      * @var string|null
      * @Assert\NotNull
+     * @Assert\Length(
+     *      min = 50,
+     *      max = 3000,
+     * )
      */
     private ?string $description;
 
     /**
      * @var string|null
      * @Assert\NotNull
+     * @Assert\NotBlank
+     * @Assert\Length(
+     *      max = 150,
+     * )
      */
     private ?string $banner;
 
     /**
      * @var string|null
      * @Assert\NotNull
+     * @Assert\Choice({"EN", "RU", "UK"})
      */
     private ?string $lang;
 

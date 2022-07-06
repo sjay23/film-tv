@@ -15,6 +15,10 @@ class AudioInput
     /**
      * @var string|null
      * @Assert\NotNull
+     * @Assert\Length(
+     *      min = 3,
+     *      max = 15,
+     * )
      */
     private ?string $name;
 
