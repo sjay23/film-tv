@@ -23,15 +23,11 @@ class GenreService
 
     public function getGenre($genreInput)
     {
-        if ($this->genreRepository->findOneBy(['name' => $genreInput->getName()])) {
-            $genre = $this->genreRepository->findOneBy(['name' => $genreInput->getName()]);
-            return $genre;
-        } else {
+        if (!$genre = $this->genreRepository->findOneBy(['name' => $genreInput->getName()])) {
             $genre = new Genre();
             $genre->setName($genreInput->getName());
             $this->entityManager->persist($genre);
-            return $genre;
         }
-
+        return $genre;
     }
 }

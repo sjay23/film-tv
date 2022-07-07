@@ -117,7 +117,7 @@ class SweetTvService
             $filmInput->setProvider($provider);
             $this->validator->validate($filmInput);
             $film= $this->filmByProviderService->addFilmByProvider($filmInput);
-            var_dump($film);die();
+            dump($film);die();
             return $film;
         });
         return $filmsData;
@@ -302,9 +302,14 @@ class SweetTvService
     private function parseImage($crawler): ImageInput
     {
         $imageLink = $crawler->filter('.movie__item-img > img.img_wauto_hauto')->image()->getUri();
-        $imageInput = new ImageInput($imageLink);
-        $this->validator->validate($imageInput);
 
+        return $this->getImageInput($imageLink);
+    }
+
+    private function getImageInput(string $link): ImageInput
+    {
+        $imageInput = new ImageInput($link);
+        $this->validator->validate($imageInput);
         return $imageInput;
     }
 
@@ -332,8 +337,10 @@ class SweetTvService
     {
         $title = $crawlerChild->filter('.container-fluid_padding li')->last()->text();
         $description = $crawlerChild->filter('p.film-descr__text')->text();
-        $banner = $crawlerChild->filter('div.film-right  div.film-right__img picture img')->image()->getUri();
-        $filmFieldTranslation = new FilmFieldTranslationInput($title, $description, $banner, $lang);
+        $bannerLink = $crawlerChild->filter('div.film-right  div.film-right__img picture img')->image()->getUri();
+        $imageInput = $this->getImageInput($bannerLink);
+        $filmFieldTranslation = new FilmFieldTranslationInput($title, $description, $lang);
+        $filmFieldTranslation->setBannersInput($imageInput);
         $this->validator->validate($filmFieldTranslation);
 
         return $filmFieldTranslation;

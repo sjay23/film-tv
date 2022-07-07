@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\DTO;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -34,14 +35,9 @@ class FilmFieldTranslationInput
     private ?string $description;
 
     /**
-     * @var string|null
-     * @Assert\NotNull
-     * @Assert\NotBlank
-     * @Assert\Length(
-     *      max = 150,
-     * )
+     * @var ImageInput|null
      */
-    private ?string $banner;
+    private ?ImageInput $bannersInput;
 
     /**
      * @var string|null
@@ -53,13 +49,11 @@ class FilmFieldTranslationInput
     public function __construct(
         ?string $title,
         ?string $description,
-        ?string $banner,
         ?string $lang
     )
     {
         $this->title = $title;
         $this->description = $description;
-        $this->banner = $banner;
         $this->lang = $lang;
     }
 
@@ -96,19 +90,19 @@ class FilmFieldTranslationInput
     }
 
     /**
-     * @return string|null
+     * @return ImageInput|null
      */
-    public function getBanner(): ?string
+    public function getBannersInput(): ?ImageInput
     {
-        return $this->banner;
+        return $this->bannersInput;
     }
 
     /**
-     * @param string|null $banner
+     * @param ImageInput|null $bannersInput
      */
-    public function setBanner(?string $banner): void
+    public function setBannersInput(?ImageInput $bannersInput): void
     {
-        $this->banner = $banner;
+        $this->bannersInput = $bannersInput;
     }
 
     /**

@@ -24,11 +24,8 @@ class Genre
     private $name;
 
     /**
-     * @ORM\ManyToMany(targetEntity="App\Entity\FilmByProvider", inversedBy="genre")
-     * @JoinTable(name="film_genre",
-     *      joinColumns={@ORM\JoinColumn(name="genre_id", referencedColumnName="id")},
-     *      inverseJoinColumns={@ORM\JoinColumn(name="film_id", referencedColumnName="id")}
-     *      )
+     * @ORM\ManyToMany(targetEntity="App\Entity\FilmByProvider", mappedBy="films")
+     * @JoinTable(name="film_genre")
      */
     private $films;
 

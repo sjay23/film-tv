@@ -56,13 +56,14 @@ class FilmByProvider implements TranslatableInterface
      */
     private int $duration;
 
-
-
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Image", mappedBy="filmPoster",cascade={"persist", "remove"})
-     * @ORM\JoinColumn( nullable="true")
+     * @ORM\ManyToMany(targetEntity="App\Entity\Image", inversedBy="filmPoster")
+     * @ORM\JoinTable(name="film_poster",
+     *      joinColumns={@ORM\JoinColumn(name="image_id", referencedColumnName="id")},
+     *      inverseJoinColumns={@ORM\JoinColumn(name="film_id", referencedColumnName="id")}
+     *      )
      */
-    private $poster;
+    private ?Collection $poster;
 
     /**
      * @ORM\ManyToMany(targetEntity="People", inversedBy="films")
@@ -74,20 +75,29 @@ class FilmByProvider implements TranslatableInterface
     private ?Collection $actor;
 
     /**
-     * @ORM\ManyToMany(targetEntity="App\Entity\Country", mappedBy="films")
-     * @JoinTable(name="film_country")
+     * @ORM\ManyToMany(targetEntity="App\Entity\Country", inversedBy="films")
+     * @JoinTable(name="film_country",
+     *      joinColumns={@ORM\JoinColumn(name="country_id", referencedColumnName="id", onDelete="CASCADE")},
+     *      inverseJoinColumns={@ORM\JoinColumn(name="film_id", referencedColumnName="id", onDelete="CASCADE")}
+     *      )
      */
     private ?Collection $country;
 
     /**
-     * @ORM\ManyToMany(targetEntity="App\Entity\Genre", mappedBy="films")
-     * @JoinTable(name="film_genre")
+     * @ORM\ManyToMany(targetEntity="App\Entity\Genre", inversedBy="films")
+     * @JoinTable(name="film_genre",
+     *      joinColumns={@ORM\JoinColumn(name="genre_id", referencedColumnName="id", onDelete="CASCADE")},
+     *      inverseJoinColumns={@ORM\JoinColumn(name="film_id", referencedColumnName="id", onDelete="CASCADE")}
+     *      )
      */
     private ?Collection $genre;
 
     /**
-     * @ORM\ManyToMany(targetEntity="App\Entity\Audio", mappedBy="films")
-     * @JoinTable(name="film_audio")
+     * @ORM\ManyToMany(targetEntity="App\Entity\Audio", inversedBy="films")
+     * @JoinTable(name="film_audio",
+     *      joinColumns={@ORM\JoinColumn(name="audio_id", referencedColumnName="id", onDelete="CASCADE")},
+     *      inverseJoinColumns={@ORM\JoinColumn(name="film_id", referencedColumnName="id", onDelete="CASCADE")}
+     *      )
      */
     private Collection $audio;
 
@@ -113,24 +123,7 @@ class FilmByProvider implements TranslatableInterface
         $this->director = new ArrayCollection();
         $this->country = new ArrayCollection();
         $this->genre = new ArrayCollection();
-    }
-
-
-
-    /**
-     * @return mixed
-     */
-    public function getPoster()
-    {
-        return $this->poster;
-    }
-
-    /**
-     * @param mixed $poster
-     */
-    public function setPoster($poster): void
-    {
-        $this->poster = $poster;
+        $this->poster = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -207,6 +200,22 @@ class FilmByProvider implements TranslatableInterface
         return $this;
     }
 
+    /**
+     * @return Collection|People[]
+     */
+    public function getPoster(): Collection
+    {
+        return $this->poster;
+    }
+
+
+    public function setPoster(Image $poster): self
+    {
+        if (!$this->poster->contains($poster)) {
+            $this->poster[] = $poster;
+        }
+        return $this;
+    }
 
     /**
      * @return Collection|People[]
@@ -325,7 +334,4 @@ class FilmByProvider implements TranslatableInterface
     {
         $this->movieId = $movieId;
     }
-
-
-
 }
