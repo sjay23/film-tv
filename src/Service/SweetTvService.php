@@ -11,6 +11,8 @@ use App\DTO\CountryInput;
 use App\DTO\PeopleInput;
 use App\DTO\GenreInput;
 use App\DTO\ImageInput;
+use App\Entity\Provider;
+use App\Repository\ProviderRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
@@ -34,6 +36,11 @@ class SweetTvService
      * @var Client
      */
     private Client $client;
+    
+    /**
+     * @var ProviderRepository
+     */
+    private ProviderRepository $providerRepository;
 
     /**
      * @var ValidatorInterface
@@ -42,12 +49,15 @@ class SweetTvService
 
     /**
      * @param ValidatorInterface $validator
+     * @param ProviderRepository $providerRepository
      */
     public function __construct(
-        ValidatorInterface $validator
+        ValidatorInterface $validator,
+        ProviderRepository $providerRepository
     )
     {
         $this->validator = $validator;
+        $this->providerRepository = $providerRepository;
         $this->client = new Client();
     }
 
@@ -93,6 +103,9 @@ class SweetTvService
             }
             $posterInput = $this->parseImage($node);
             $filmInput->addImageInput($posterInput);
+            $provider = $this->getProvider();
+            $filmInput->setProvider($provider);
+            $this->validator->validate($filmInput);
             dump($filmInput);die();
             return $filmInput;
         });
@@ -156,6 +169,14 @@ class SweetTvService
     private function getCrawler(string $html): Crawler
     {
         return new Crawler($html);
+    }
+
+    /**
+     * @return Provider|null
+     */
+    private function getProvider(): ?Provider
+    {
+        return $this->providerRepository->findOneBy(['name' => Provider::SWEET_TV]);
     }
 
     /**
