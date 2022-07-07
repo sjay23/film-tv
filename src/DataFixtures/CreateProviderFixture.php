@@ -30,7 +30,7 @@ class CreateProviderFixture extends Fixture
     public function load(ObjectManager $manager): void
     {
         $provider = new Provider(
-            'SweetTv'
+            Provider::SWEET_TV
         );
 
         try {

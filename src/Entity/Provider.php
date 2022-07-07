@@ -14,6 +14,8 @@ use Symfony\Component\Uid\Uuid;
  */
 class Provider
 {
+    public const SWEET_TV = 'SweetTv';
+
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
