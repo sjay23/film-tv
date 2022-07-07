@@ -105,6 +105,7 @@ class SweetTvService
             $filmInput->addImageInput($posterInput);
             $provider = $this->getProvider();
             $filmInput->setProvider($provider);
+            $this->validator->validate($filmInput);
             dump($filmInput);die();
             return $filmInput;
         });
