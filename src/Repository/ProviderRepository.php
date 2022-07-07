@@ -21,23 +21,21 @@ class ProviderRepository extends ServiceEntityRepository
         parent::__construct($registry, Provider::class);
     }
 
-    public function add(Provider $entity, bool $flush = false): void
+    /**
+     * @param Provider $provider
+     */
+    public function save(Provider $provider)
     {
-        $this->getEntityManager()->persist($entity);
-
-        if ($flush) {
-            $this->getEntityManager()->flush();
-        }
+        $this->_em->persist($provider);
+        $this->_em->flush();
     }
 
-    public function remove(Provider $entity, bool $flush = false): void
+    /**
+     * @param Provider $provider
+     */
+    public function delete(Provider $provider)
     {
-        $this->getEntityManager()->remove($entity);
-
-        if ($flush) {
-            $this->getEntityManager()->flush();
-        }
+        $this->_em->remove($provider);
+        $this->_em->flush();
     }
-
-
 }

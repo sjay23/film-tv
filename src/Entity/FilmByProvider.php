@@ -26,9 +26,16 @@ class FilmByProvider implements TranslatableInterface
     private int $id;
 
     /**
+     * @ORM\Column(type="integer", length=30)
+     * @ORM\JoinColumn(name="movie_id", nullable="false")
+     */
+    private $movieId;
+
+    /**
      * @ORM\Column(type="string", length=500, unique="true")
      */
     private ?string $link;
+
     /**
      * @ORM\Column(type="smallint" ,length=4, nullable="true")
      */
@@ -40,11 +47,6 @@ class FilmByProvider implements TranslatableInterface
     private $rating;
 
     /**
-     * @ORM\Column(type="string", length=30,nullable="true")
-     */
-    private ?string $country;
-
-    /**
      * @ORM\Column(type="string", length=5,nullable="true")
      */
     private ?string $age;
@@ -53,7 +55,6 @@ class FilmByProvider implements TranslatableInterface
      * @ORM\Column(type="integer" ,nullable="true")
      */
     private int $duration;
-
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\Image", mappedBy="filmBanner",cascade={"persist", "remove"})
@@ -77,16 +78,31 @@ class FilmByProvider implements TranslatableInterface
     private ?Collection $actor;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\People", mappedBy="filmDirector")
-     * @ORM\JoinColumn(nullable="true")
+     * @ORM\ManyToMany(targetEntity="App\Entity\Country", mappedBy="films")
+     * @JoinTable(name="film_country")
      */
-    private ?Collection $director;
+    private ?Collection $country;
+
+    /**
+     * @ORM\ManyToMany(targetEntity="App\Entity\Genre", mappedBy="films")
+     * @JoinTable(name="film_genre")
+     */
+    private ?Collection $genre;
 
     /**
      * @ORM\ManyToMany(targetEntity="App\Entity\Audio", mappedBy="films")
      * @JoinTable(name="film_audio")
      */
     private Collection $audio;
+
+    /**
+     * @ORM\ManyToMany(targetEntity="People", inversedBy="filmDirector")
+     * @ORM\JoinTable(name="film_director",
+     *      joinColumns={@ORM\JoinColumn(name="film_id", referencedColumnName="id", onDelete="CASCADE")},
+     *      inverseJoinColumns={@ORM\JoinColumn(name="director_id", referencedColumnName="id", onDelete="CASCADE")}
+     *      )
+     */
+    private ?Collection $director;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Provider", inversedBy="films")
@@ -99,6 +115,8 @@ class FilmByProvider implements TranslatableInterface
         $this->audio = new ArrayCollection();
         $this->actor = new ArrayCollection();
         $this->director = new ArrayCollection();
+        $this->country = new ArrayCollection();
+        $this->genre = new ArrayCollection();
     }
 
     /**
@@ -183,18 +201,6 @@ class FilmByProvider implements TranslatableInterface
     }
 
 
-    public function getCountry(): ?string
-    {
-        return $this->country;
-    }
-
-    public function setCountry(string $country): self
-    {
-        $this->country = $country;
-
-        return $this;
-    }
-
     public function getAge(): ?string
     {
         return $this->age;
@@ -263,12 +269,13 @@ class FilmByProvider implements TranslatableInterface
         return $this->director;
     }
 
-    /**
-     * @param Collection $director
-     */
-    public function setDirector(Collection $director): void
+
+    public function setDirector(People $director): self
     {
-        $this->director = $director;
+        if (!$this->director->contains($director)) {
+            $this->director[] = $director;
+        }
+        return $this;
     }
 
     /**
@@ -286,4 +293,57 @@ class FilmByProvider implements TranslatableInterface
     {
         $this->provider = $provider;
     }
+
+    /**
+     * @return Collection|Genre[]
+     */
+    public function getGenre(): Collection
+    {
+        return $this->genre;
+    }
+
+
+    public function setGenre(Genre $genre): self
+    {
+        if (!$this->genre->contains($genre)) {
+            $this->genre[] = $genre;
+        }
+        return $this;
+    }
+
+    /**
+     * @return Collection|Country []
+     */
+    public function getCountry (): Collection
+    {
+        return $this->country;
+    }
+
+
+    public function setCountry (Country $country): self
+    {
+        if (!$this->country->contains($country)) {
+            $this->country[] = $country;
+        }
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getMovieId()
+    {
+        return $this->movieId;
+    }
+
+    /**
+     * @param mixed $movieId
+     */
+    public function setMovieId($movieId): void
+    {
+        $this->movieId = $movieId;
+    }
+
+
+
 }
