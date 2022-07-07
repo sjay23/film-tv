@@ -26,6 +26,12 @@ class FilmByProviderTranslation implements TranslationInterface
     private ?string $title;
 
     /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Image", mappedBy="filmBanner",cascade={"persist", "remove"})
+     * @ORM\JoinColumn( nullable="true")
+     */
+    private $banner;
+
+    /**
      * @ORM\Column(type="string", length=5000, nullable="true")
      */
     private ?string $description;
@@ -78,5 +84,20 @@ class FilmByProviderTranslation implements TranslationInterface
         $this->description = $description;
     }
 
+    /**
+     * @return mixed
+     */
+    public function getBanner()
+    {
+        return $this->banner;
+    }
+
+    /**
+     * @param mixed $banner
+     */
+    public function setBanner($banner): void
+    {
+        $this->banner = $banner;
+    }
 
 }

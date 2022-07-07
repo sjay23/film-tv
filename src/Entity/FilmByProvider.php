@@ -56,11 +56,7 @@ class FilmByProvider implements TranslatableInterface
      */
     private int $duration;
 
-    /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Image", mappedBy="filmBanner",cascade={"persist", "remove"})
-     * @ORM\JoinColumn( nullable="true")
-     */
-    private $banner;
+
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\Image", mappedBy="filmPoster",cascade={"persist", "remove"})
@@ -119,21 +115,7 @@ class FilmByProvider implements TranslatableInterface
         $this->genre = new ArrayCollection();
     }
 
-    /**
-     * @return mixed
-     */
-    public function getBanner()
-    {
-        return $this->banner;
-    }
 
-    /**
-     * @param mixed $banner
-     */
-    public function setBanner($banner): void
-    {
-        $this->banner = $banner;
-    }
 
     /**
      * @return mixed

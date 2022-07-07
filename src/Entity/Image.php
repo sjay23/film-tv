@@ -28,7 +28,7 @@ class Image
     private ?string $link;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\FilmByProvider", inversedBy="banner")
+     * @ORM\ManyToOne(targetEntity="App\Entity\FilmByProviderTranslation", inversedBy="banner")
      * @ORM\JoinColumn(name="film_id", referencedColumnName="id")
      */
     private $filmBanner;

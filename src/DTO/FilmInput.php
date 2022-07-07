@@ -294,9 +294,9 @@ class FilmInput
     }
 
     /**
-     * @param CastInput $castInput
+     * @param PeopleInput $castInput
      */
-    public function addCastInput(CastInput $castInput): void
+    public function addCastInput(PeopleInput $castInput): void
     {
         $this->castsInput->add($castInput);
     }
@@ -342,9 +342,9 @@ class FilmInput
     }
 
     /**
-     * @param DirectorInput $directorInput
+     * @param PeopleInput $directorInput
      */
-    public function addDirectorInput(DirectorInput $directorInput): void
+    public function addDirectorInput(PeopleInput $directorInput): void
     {
         $this->directorsInput->add($directorInput);
     }

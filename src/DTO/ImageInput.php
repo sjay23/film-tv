@@ -7,7 +7,7 @@ namespace App\DTO;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * Class GenreInput
+ * Class ImageInput
  * @package App\Dto
  */
 class ImageInput

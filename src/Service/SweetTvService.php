@@ -13,11 +13,13 @@ use App\DTO\GenreInput;
 use App\DTO\ImageInput;
 use App\Entity\Provider;
 use App\Repository\ProviderRepository;
+use App\Service\FilmByProviderService;
 use Doctrine\Common\Collections\ArrayCollection;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+
 
 /**
  * Class SweetTvService
@@ -43,20 +45,28 @@ class SweetTvService
     private ProviderRepository $providerRepository;
 
     /**
+     * @var FilmByProviderService
+     */
+    private FilmByProviderService $filmByProviderService;
+
+    /**
      * @var ValidatorInterface
      */
     private ValidatorInterface $validator;
 
     /**
      * @param ValidatorInterface $validator
+     * @param FilmByProviderService $filmByProviderService
      * @param ProviderRepository $providerRepository
      */
     public function __construct(
         ValidatorInterface $validator,
-        ProviderRepository $providerRepository
+        ProviderRepository $providerRepository,
+        FilmByProviderService $filmByProviderService
     )
     {
         $this->validator = $validator;
+        $this->filmByProviderService = $filmByProviderService;
         $this->providerRepository = $providerRepository;
         $this->client = new Client();
     }
@@ -106,8 +116,9 @@ class SweetTvService
             $provider = $this->getProvider();
             $filmInput->setProvider($provider);
             $this->validator->validate($filmInput);
-            dump($filmInput);die();
-            return $filmInput;
+            $film= $this->filmByProviderService->addFilmByProvider($filmInput);
+            var_dump($film);die();
+            return $film;
         });
         return $filmsData;
     }
@@ -131,7 +142,7 @@ class SweetTvService
             $rating = $this->parseRating($crawlerChild);
             $filmInput->setMovieId((int)$movieId);
             $filmInput->setAge($age);
-            $filmInput->setRating($rating);
+            $filmInput->setRating((float)$rating);
             $filmInput->setYears((int)$years);
             $filmInput->setDuration((int)$duration);
 
@@ -148,6 +159,7 @@ class SweetTvService
         }
 
         sleep(rand(0,3));
+
         return $filmInput;
     }
 
