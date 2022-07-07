@@ -22,6 +22,14 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  */
 class SweetTvService
 {
+    public const LANG_DEFAULT = 'en';
+
+    public const LANGS = [
+        'en',
+        'ru',
+        'uk'
+    ];
+
     /**
      * @var Client
      */
@@ -44,6 +52,7 @@ class SweetTvService
     }
 
     /**
+     * @return void
      * @throws GuzzleException
      */
     public function exec()
@@ -56,7 +65,6 @@ class SweetTvService
 
         $page = 1;
         while ($page <= $pageMax) {
-            sleep(rand(0,3));
             $filmsData = $this->parseFilmsByPage($linkByFilms . '/page/$page', $page);
             dump($filmsData);
             die();
@@ -64,24 +72,21 @@ class SweetTvService
     }
 
     /**
+     * @param string $link
+     * @param int $page
+     * @return array
      * @throws GuzzleException
      */
     private function parseFilmsByPage(string $link, int $page): array
     {
-        $page = $page . ''; //переделать в строку
-        $link = str_replace('$page', $page, $link);
-        echo "Parse link: " . $link . "\n";
-        $response = $this->client->get($link);
-        $html = (string) $response->getBody();
-        $crawler = new Crawler($html);
+        $link = str_replace('$page', (string)$page, $link);
+        $html = $this->getContentLink($link);
+        $crawler = $this->getCrawler($html);
         $filmsData = $crawler->filter('.movie__item-link')->each(function ($node) {
             $filmInput = new FilmInput();
             $linkFilm = $node->link()->getUri();
             $filmInput->setLink($linkFilm);
-
-            sleep(rand(0,3));
-            $langs = ['en', 'ru', 'uk'];
-            foreach ($langs as $lang) {
+            foreach (self::LANGS as $lang) {
                 $htmlChild = $this->getContentLink($linkFilm, $lang);
                 $crawlerChild = $this->getCrawler($htmlChild);
                 $filmInput = $this->parseFilmBySweet($filmInput, $crawlerChild, $lang);
@@ -94,13 +99,18 @@ class SweetTvService
         return $filmsData;
     }
 
-
-    private function parseFilmBySweet(FilmInput $filmInput, $crawlerChild, string $lang = 'en'): FilmInput
+    /**
+     * @param FilmInput $filmInput
+     * @param $crawlerChild
+     * @param string $lang
+     * @return FilmInput
+     */
+    private function parseFilmBySweet(FilmInput $filmInput, $crawlerChild, string $lang = self::LANG_DEFAULT): FilmInput
     {
         $filmFieldTranslation = $this->getFilmFieldTranslation($crawlerChild,$lang);
         $filmInput->addFilmFieldTranslationInput($filmFieldTranslation);
 
-        if ($lang === 'en') {
+        if ($lang === self::LANG_DEFAULT) {
             $movieId = preg_replace("/[^0-9]/", '', $crawlerChild->filter('a.modal__lang-item')->link()->getUri());
             $age = $crawlerChild->filter('div.film__age div.film-left__details div.film-left__flex ')->text();
             $years = $crawlerChild->filter('.film__years > .film-left__details')->text();
@@ -112,40 +122,53 @@ class SweetTvService
             $filmInput->setYears((int)$years);
             $filmInput->setDuration((int)$duration);
 
-            $countriesInput = $this->parseCountry($crawlerChild);
-            $filmInput->setCountriesInput($countriesInput);
-            $genreInput = $this->parseGenre($crawlerChild);
-            $filmInput->setGenresInput($genreInput);
-            $directorInput = $this->parseDirector($crawlerChild);
-            $filmInput->setDirectorsInput($directorInput);
-            $castInput = $this->parseCast($crawlerChild);
-            $filmInput->setCastsInput($castInput);
-            $audioInput = $this->parseAudio($crawlerChild);
-            $filmInput->setAudiosInput($audioInput);
+            $countriesCollect = $this->parseCountry($crawlerChild);
+            $filmInput->setCountriesInput($countriesCollect);
+            $genreCollect = $this->parseGenre($crawlerChild);
+            $filmInput->setGenresInput($genreCollect);
+            $directorCollect = $this->parseDirector($crawlerChild);
+            $filmInput->setDirectorsInput($directorCollect);
+            $castCollect = $this->parseCast($crawlerChild);
+            $filmInput->setCastsInput($castCollect);
+            $audioCollect = $this->parseAudio($crawlerChild);
+            $filmInput->setAudiosInput($audioCollect);
         }
 
         sleep(rand(0,3));
         return $filmInput;
     }
 
-    private function convertTime(string $str){
+    /**
+     * @param string $str
+     * @return int
+     */
+    private function convertTime(string $str): int
+    {
         $a = preg_replace("/[^0-9]/", '', $str);
         $time = ((substr($a,0,2))*60)+((substr($a,-2,2)));
         return $time;
     }
 
+    /**
+     * @param string $html
+     * @return Crawler
+     */
     private function getCrawler(string $html): Crawler
     {
         return new Crawler($html);
     }
 
     /**
+     * @param string $link
+     * @param string $lang
+     * @return string|null
      * @throws GuzzleException
      */
-    private function getContentLink(string $link, string $lang = 'en'): ?string
+    private function getContentLink(string $link, string $lang = self::LANG_DEFAULT): ?string
     {
-        if ($lang !== 'en') {
-            $link = str_replace('en', $lang, $link);
+        sleep(rand(0,3));
+        if ($lang !== self::LANG_DEFAULT) {
+            $link = str_replace(self::LANG_DEFAULT, $lang, $link);
         }
         echo "Parse link: " . $link . "\n";
         $response = $this->client->get($link);
@@ -153,6 +176,10 @@ class SweetTvService
         return (string) $response->getBody();
     }
 
+    /**
+     * @param $crawler
+     * @return ArrayCollection
+     */
     private function parseGenre($crawler): ArrayCollection
     {
         $node = $crawler->filter('div.film__genres a');
@@ -167,6 +194,10 @@ class SweetTvService
         return new ArrayCollection($filmGenre);
     }
 
+    /**
+     * @param $crawler
+     * @return ArrayCollection
+     */
     private function parseAudio($crawler): ArrayCollection
     {
         $node = $crawler->filter('a.film-audio__link');
@@ -181,6 +212,10 @@ class SweetTvService
         return new ArrayCollection ($filmAudio);
     }
 
+    /**
+     * @param $crawler
+     * @return ArrayCollection
+     */
     private function parseCast($crawler): ArrayCollection
     {
         $node = $crawler->filter('div.film__actor a');
@@ -195,6 +230,10 @@ class SweetTvService
         return new ArrayCollection ($castGenre);
     }
 
+    /**
+     * @param $crawler
+     * @return ArrayCollection
+     */
     private function parseCountry($crawler): ArrayCollection
     {
         $filmCountry = $crawler->filter('div.film__countries a.film-left__link')->each(function (Crawler $node){
@@ -205,6 +244,10 @@ class SweetTvService
         return new ArrayCollection($filmCountry);
     }
 
+    /**
+     * @param $crawler
+     * @return ArrayCollection
+     */
     private function parseDirector($crawler): ArrayCollection
     {
         $node = $crawler->filter('div.film__directors');
@@ -219,6 +262,10 @@ class SweetTvService
         return new ArrayCollection($directors);
     }
 
+    /**
+     * @param $crawler
+     * @return ImageInput
+     */
     private function parseImage($crawler): ImageInput
     {
         $imageLink = $crawler->filter('.movie__item-img > img.img_wauto_hauto')->image()->getUri();
@@ -228,6 +275,10 @@ class SweetTvService
         return $imageInput;
     }
 
+    /**
+     * @param $crawler
+     * @return string|null
+     */
     private function parseRating($crawler): ?string
     {
         $rating = null;
@@ -239,6 +290,11 @@ class SweetTvService
         return $rating;
     }
 
+    /**
+     * @param $crawlerChild
+     * @param $lang
+     * @return FilmFieldTranslationInput
+     */
     private function getFilmFieldTranslation($crawlerChild, $lang): FilmFieldTranslationInput
     {
         $title = $crawlerChild->filter('.container-fluid_padding li')->last()->text();
