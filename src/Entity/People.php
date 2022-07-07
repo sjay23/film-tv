@@ -39,7 +39,7 @@ class People
      *
      * @ORM\Column(type="datetime", nullable="false", options={"default": "CURRENT_TIMESTAMP"})
      */
-    private $uploadedAt;
+    private DateTimeInterface $uploadedAt;
 
     /**
      * @ORM\Column(type="boolean")

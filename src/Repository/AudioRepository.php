@@ -4,6 +4,8 @@ namespace App\Repository;
 
 use App\Entity\Audio;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\OptimisticLockException;
+use Doctrine\ORM\ORMException;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -21,23 +23,21 @@ class AudioRepository extends ServiceEntityRepository
         parent::__construct($registry, Audio::class);
     }
 
-    public function add(Audio $entity, bool $flush = false): void
+    /**
+     * @param Audio $audio
+     */
+    public function save(Audio $audio)
     {
-        $this->getEntityManager()->persist($entity);
-
-        if ($flush) {
-            $this->getEntityManager()->flush();
-        }
+        $this->_em->persist($audio);
+        $this->_em->flush();
     }
 
-    public function remove(Audio $entity, bool $flush = false): void
+    /**
+     * @param Audio $audio
+     */
+    public function delete(Audio $audio)
     {
-        $this->getEntityManager()->remove($entity);
-
-        if ($flush) {
-            $this->getEntityManager()->flush();
-        }
+        $this->_em->remove($audio);
+        $this->_em->flush();
     }
-
-
 }
