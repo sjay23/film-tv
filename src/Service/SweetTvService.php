@@ -108,7 +108,14 @@ class SweetTvService
         $pageMax = (int) $crawler->filter('.pagination li')->last()->text();
         $page = 1;
         while ($page <= $pageMax) {
-            $filmsData = $this->parseFilmsByPage($linkByFilms . '/page/$page', $page);
+            try {
+                $filmsData = $this->parseFilmsByPage($linkByFilms . '/page/$page', $page);
+            } catch (\Exception $e) {
+                dump($e);
+                // добавить сюда обновление статуса
+                die();
+            }
+
 
             dump($filmsData);
             die();
