@@ -23,7 +23,10 @@ class PeopleService
 
     public function getPeople($peopleInput)
     {
-        if (!$people = $this->peopleRepository->findOneBy(['name' => $peopleInput->getName()])) {
+        $people= $this->peopleRepository->findOneBy(['link' => $peopleInput->getLink()]);
+        $peopleName= $this->peopleRepository->findOneBy(['name' => $peopleInput->getName()]);
+        $peopleLink= $this->peopleRepository->findOneBy(['link' => $peopleInput->getLink()]);
+        if ($peopleName == null and $peopleLink == null) {
             $people = new People();
             $people->setName($peopleInput->getName());
             $people->setLink($peopleInput->getLink());

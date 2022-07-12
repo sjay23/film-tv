@@ -42,7 +42,7 @@ class FilmFieldTranslationInput
     /**
      * @var string|null
      * @Assert\NotNull
-     * @Assert\Choice({"EN", "RU", "UK"})
+     * @Assert\Choice({"en", "ru", "uk"})
      */
     private ?string $lang;
 

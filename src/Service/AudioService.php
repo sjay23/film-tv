@@ -14,11 +14,9 @@ class AudioService
     public function __construct(
         EntityManagerInterface $entityManager,
         AudioRepository $audioRepository
-
     ) {
         $this->entityManager = $entityManager;
         $this->audioRepository = $audioRepository;
-
     }
 
     public function getAudio($audioInput)

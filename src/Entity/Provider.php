@@ -34,6 +34,11 @@ class Provider
     private Collection $films;
 
     /**
+     * @ORM\OneToMany(targetEntity="App\Entity\CommandTask", mappedBy="provider",cascade={"persist", "remove"})
+     */
+    private Collection $tasks;
+
+    /**
      * @param string $name
      */
     public function __construct(
@@ -41,6 +46,7 @@ class Provider
     )
     {
         $this->name = $name;
+        $this->tasks = new ArrayCollection();
         $this->films = new ArrayCollection();
     }
 
@@ -66,6 +72,22 @@ class Provider
     }
 
     /**
+     * @return ArrayCollection
+     */
+    public function getTasks(): ArrayCollection
+    {
+        return $this->tasks;
+    }
+
+    /**
+     * @param ArrayCollection $tasks
+     */
+    public function setTasks(ArrayCollection $tasks): void
+    {
+        $this->tasks = $tasks;
+    }
+
+    /**
      * @return string|null
      */
     public function getName(): ?string
@@ -80,4 +102,7 @@ class Provider
     {
         $this->name = $name;
     }
+
+
+
 }
