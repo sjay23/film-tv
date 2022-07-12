@@ -31,17 +31,7 @@ class AudioRepository extends ServiceEntityRepository
         $this->_em->persist($audio);
         $this->_em->flush();
     }
-
-
-    public function getAudio($name)
-    {
-        return $this->createQueryBuilder('a')
-            ->select('a')
-            ->Where('a.name LIKE :name')
-            ->setParameter('name', $name)
-            ->getQuery()
-            ->getResult();
-    }
+    
 
     /**
      * @param Audio $audio
