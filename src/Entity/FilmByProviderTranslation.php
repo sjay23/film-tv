@@ -24,7 +24,7 @@ class FilmByProviderTranslation implements TranslationInterface
     private int $id;
 
     /**
-     * @ORM\Column(type="string", length=500, unique="true")
+     * @ORM\Column(type="string", length=500)
      */
     private ?string $title;
 

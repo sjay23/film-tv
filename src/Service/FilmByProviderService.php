@@ -95,11 +95,19 @@ class FilmByProviderService
             $film->translate($filmFieldsTranslationInputByLang->getLang())->setBanner($banner);
        }
 
+       $actors = [];
         foreach ($filmInput->getCastsInput() as $peopleInput) {
-            $film->setActor($this->peopleService->getPeople($peopleInput));
+            $actor = $this->peopleService->getPeople($peopleInput);
+            $actors[] = $actor;
+            $film->setActor($actor);
         }
+
         foreach ($filmInput->getDirectorsInput() as $peopleInput) {
-            $film->setDirector($this->peopleService->getPeople($peopleInput));
+            $director = $this->peopleService->checkActors($peopleInput, $actors);
+            if ($director === null) {
+                $director = $this->peopleService->getPeople($peopleInput);
+            }
+            $film->setDirector($director);
         }
 
         foreach ($filmInput->getCountriesInput() as $countryInput) {

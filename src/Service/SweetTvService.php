@@ -130,7 +130,9 @@ class SweetTvService
             $filmInput = new FilmInput();
             $linkFilm = $node->link()->getUri();
             $filmInput->setLink($linkFilm);
-            if (!$film = $this->filmByProviderRepository->findOneBy(['movieId' => $this->getFilmId($linkFilm)])) {
+            $movieId = $this->getFilmId($linkFilm);
+            $filmInput->setMovieId((int)$movieId);
+            if (!$film = $this->filmByProviderRepository->findOneBy(['movieId' => $movieId])) {
                 foreach (self::LANGS as $lang) {
                     $htmlChild = $this->getContentLink($linkFilm, $lang);
                     $crawlerChild = $this->getCrawler($htmlChild);
@@ -143,8 +145,6 @@ class SweetTvService
                 $this->validator->validate($filmInput);
                 $film = $this->filmByProviderService->addFilmByProvider($filmInput);
                 $this->addTask($film);
-                dump($film);
-                die();
             }
             return $film;
         });
@@ -163,12 +163,10 @@ class SweetTvService
         $filmInput->addFilmFieldTranslationInput($filmFieldTranslation);
 
         if ($lang === self::LANG_DEFAULT) {
-            $movieId = preg_replace("/[^0-9]/", '', $crawlerChild->filter('a.modal__lang-item')->link()->getUri());
-            $age = $crawlerChild->filter('div.film__age div.film-left__details div.film-left__flex ')->text();
+            $age = $this->parseAge($crawlerChild);
             $years = $crawlerChild->filter('.film__years > .film-left__details')->text();
             $duration = $this->convertTime($crawlerChild->filter(' span.film-left__time')->text());
             $rating = $this->parseRating($crawlerChild);
-            $filmInput->setMovieId((int)$movieId);
             $filmInput->setAge($age);
             $filmInput->setRating((float)$rating);
             $filmInput->setYears((int)$years);
@@ -378,6 +376,21 @@ class SweetTvService
         }
 
         return $rating;
+    }
+
+    /**
+     * @param $crawler
+     * @return string|null
+     */
+    private function parseAge($crawler): ?string
+    {
+        $age = null;
+        $node = $crawler->filter('.film__age');
+        if ($node->count() !== 0) {
+            $age = $node->filter('.film-left__details div.film-left__flex ')->text();
+        }
+
+        return $age;
     }
 
     /**

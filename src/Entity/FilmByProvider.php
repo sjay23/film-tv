@@ -181,7 +181,7 @@ class FilmByProvider implements TranslatableInterface
         return $this->age;
     }
 
-    public function setAge(string $age): self
+    public function setAge(?string $age): self
     {
         $this->age = $age;
 
