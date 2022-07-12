@@ -206,7 +206,7 @@ class SweetTvService
      */
     private function addTask(object $film): object
     {
-        $task=$this->commandTaskRepository->findOneBy(['provider'=>$film->getProvider()]);
+        $task=$this->commandTaskRepository->findOneBy(['provider'=>$this->getProvider()]);
         $task->setLastId($film->getMovieId());
         $task->setCountTask( $task->getCountTask() + 1);
         $this->entityManager->flush();
