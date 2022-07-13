@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Entity\CommandTask;
 use App\Repository\CommandTaskRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -20,12 +21,11 @@ class TaskService
 
     /**
      * @param object $provider
-     * @return object
+     * @return CommandTask|null
      */
-    public function getTask(object $provider): object
+    public function getTask(object $provider): ?CommandTask
     {
-        $task=$this->commandTaskRepository->findOneBy(['provider'=> $provider]);
-        return $task;
+        return $this->commandTaskRepository->findOneBy(['provider'=> $provider]);
 
     }
 

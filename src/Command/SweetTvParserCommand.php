@@ -42,8 +42,6 @@ class SweetTvParserCommand extends Command
         ]);
         $this->sweetTvService->exec();
 
-        die();
-
         return Command::SUCCESS;
     }
 }

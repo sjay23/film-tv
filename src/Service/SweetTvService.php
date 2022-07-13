@@ -11,6 +11,7 @@ use App\DTO\CountryInput;
 use App\DTO\PeopleInput;
 use App\DTO\GenreInput;
 use App\DTO\ImageInput;
+use App\Entity\CommandTask;
 use App\Service\TaskService;
 use App\Entity\Provider;
 use App\Repository\ProviderRepository;
@@ -72,13 +73,19 @@ class SweetTvService
      */
     private EntityManagerInterface $entityManager;
 
+    private CommandTaskRepository $commandTaskRepository;
+
+    private ?CommandTask $task;
+
+
     /**
-     * @param ValidatorInterface $validator
-     * @param TaskService $taskService
      * @param EntityManagerInterface $entityManager
-     * @param FilmByProviderService $filmByProviderService
-     * @param FilmByProviderRepository $filmByProviderRepository
+     * @param TaskService $taskService
+     * @param ValidatorInterface $validator
      * @param ProviderRepository $providerRepository
+     * @param FilmByProviderRepository $filmByProviderRepository
+     * @param FilmByProviderService $filmByProviderService
+     * @param CommandTaskRepository $commandTaskRepository
      */
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -104,6 +111,7 @@ class SweetTvService
     /**
      * @return void
      * @throws GuzzleException
+     * @throws \Exception
      */
     public function exec()
     {
@@ -112,39 +120,33 @@ class SweetTvService
         $crawler = $this->getCrawler($html);
         $pageMax = (int) $crawler->filter('.pagination li')->last()->text();
         $page = 1;
-        $taskStatus=$this->task->getStatus();
+        $taskStatus = $this->task->getStatus();
+        if ( $taskStatus != 0 ) {
+            throw new \Exception("Task is running or stop with error.");
+        }
         while ($page <= $pageMax) {
             try {
-                if ( $taskStatus == 0 ) {
-                    $filmsData = $this->parseFilmsByPage($linkByFilms . '/page/$page', $page);
-                    $this->taskService->setWorkStatus($this->task);
-                }
+                $this->parseFilmsByPage($linkByFilms . '/page/$page', $page);
+                $this->taskService->setWorkStatus($this->task);
             } catch (\Exception $e) {
-                dump($e);
-
                 $this->taskService->setErrorStatus($this->task);
-                $this->entityManager->flush();
-                die();
             }
-
-      dump($filmsData);
-
-            die();
         }
+        $this->taskService->setNotWorkStatus($this->task);
     }
 
     /**
      * @param string $link
      * @param int $page
-     * @return array
+     * @return void
      * @throws GuzzleException
      */
-    private function parseFilmsByPage(string $link, int $page): array
+    private function parseFilmsByPage(string $link, int $page): void
     {
         $link = str_replace('$page', (string)$page, $link);
         $html = $this->getContentLink($link);
         $crawler = $this->getCrawler($html);
-        $filmsData = $crawler->filter('.movie__item-link')->each(function ($node) {
+        $crawler->filter('.movie__item-link')->each(function ($node) {
             $filmInput = new FilmInput();
             $linkFilm = $node->link()->getUri();
             $filmInput->setLink($linkFilm);
@@ -167,7 +169,6 @@ class SweetTvService
             }
             return $film;
         });
-        return $filmsData;
     }
 
     /**
