@@ -117,6 +117,7 @@ class SweetTvService
             try {
                 if ( $taskStatus == 0 ) {
                     $filmsData = $this->parseFilmsByPage($linkByFilms . '/page/$page', $page);
+                    $this->taskService->setWorkStatus($this->task);
                 }
             } catch (\Exception $e) {
                 dump($e);
@@ -161,8 +162,8 @@ class SweetTvService
                 $filmInput->setProvider($provider);
                 $this->validator->validate($filmInput);
                 $film = $this->filmByProviderService->addFilmByProvider($filmInput);
-
                 $this->taskService->updateTask($film,$this->task);
+                $this->taskService->setNotWorkStatus($this->task);
             }
             return $film;
         });
