@@ -11,6 +11,7 @@ use App\DTO\CountryInput;
 use App\DTO\PeopleInput;
 use App\DTO\GenreInput;
 use App\DTO\ImageInput;
+use App\Service\TaskService;
 use App\Entity\Provider;
 use App\Repository\ProviderRepository;
 use App\Repository\CommandTaskRepository;
@@ -40,7 +41,12 @@ class SweetTvService
      * @var Client
      */
     private Client $client;
-    
+
+    /**
+     * @var TaskService
+     */
+    private TaskService $taskService;
+
     /**
      * @var ProviderRepository
      */
@@ -52,16 +58,6 @@ class SweetTvService
     private FilmByProviderRepository $filmByProviderRepository;
 
     /**
-     * @var EntityManagerInterface
-     */
-    private EntityManagerInterface $entityManager;
-
-    /**
-     * @var CommandTaskRepository
-     */
-    private CommandTaskRepository $commandTaskRepository;
-
-    /**
      * @var FilmByProviderService
      */
     private FilmByProviderService $filmByProviderService;
@@ -71,8 +67,11 @@ class SweetTvService
      */
     private ValidatorInterface $validator;
 
+    private EntityManagerInterface $entityManager;
+
     /**
      * @param ValidatorInterface $validator
+     * @param TaskService $taskService
      * @param EntityManagerInterface $entityManager
      * @param FilmByProviderService $filmByProviderService
      * @param FilmByProviderRepository $filmByProviderRepository
@@ -80,6 +79,7 @@ class SweetTvService
      */
     public function __construct(
         EntityManagerInterface $entityManager,
+        TaskService $taskService,
         ValidatorInterface $validator,
         ProviderRepository $providerRepository,
         FilmByProviderRepository $filmByProviderRepository,
@@ -88,11 +88,13 @@ class SweetTvService
     )
     {
         $this->entityManager = $entityManager;
+        $this->taskService = $taskService;
         $this->validator = $validator;
         $this->filmByProviderService = $filmByProviderService;
         $this->filmByProviderRepository = $filmByProviderRepository;
         $this->commandTaskRepository = $commandTaskRepository;
         $this->providerRepository = $providerRepository;
+        $this->task = $this->taskService->getTask($this->getProvider());
         $this->client = new Client();
     }
 
@@ -110,14 +112,17 @@ class SweetTvService
         while ($page <= $pageMax) {
             try {
                 $filmsData = $this->parseFilmsByPage($linkByFilms . '/page/$page', $page);
+
             } catch (\Exception $e) {
                 dump($e);
-                // добавить сюда обновление статуса
+
+                $this->taskService->setErrorStatus($this->task);
+                $this->entityManager->flush();
                 die();
             }
 
+      dump($filmsData);
 
-            dump($filmsData);
             die();
         }
     }
@@ -139,7 +144,8 @@ class SweetTvService
             $filmInput->setLink($linkFilm);
             $movieId = $this->getFilmId($linkFilm);
             $filmInput->setMovieId((int)$movieId);
-            if (!$film = $this->filmByProviderRepository->findOneBy(['movieId' => $movieId])) {
+            $taskStatus=$this->task->getStatus();
+            if (!$film = $this->filmByProviderRepository->findOneBy(['movieId' => $movieId]) and $taskStatus !== 1 and $taskStatus !== 2) {
                 foreach (self::LANGS as $lang) {
                     $htmlChild = $this->getContentLink($linkFilm, $lang);
                     $crawlerChild = $this->getCrawler($htmlChild);
@@ -151,7 +157,8 @@ class SweetTvService
                 $filmInput->setProvider($provider);
                 $this->validator->validate($filmInput);
                 $film = $this->filmByProviderService->addFilmByProvider($filmInput);
-                $this->addTask($film);
+
+                $this->taskService->updateTask($film,$this->task);
             }
             return $film;
         });
@@ -205,19 +212,6 @@ class SweetTvService
         $a = preg_replace("/[^0-9]/", '', $str);
         $time = ((substr($a,0,2))*60)+((substr($a,-2,2)));
         return $time;
-    }
-
-    /**
-     * @param object $film
-     * @return object
-     */
-    private function addTask(object $film): object
-    {
-        $task=$this->commandTaskRepository->findOneBy(['provider'=>$this->getProvider()]);
-        $task->setLastId($film->getMovieId());
-        $task->setCountTask( $task->getCountTask() + 1);
-        $this->entityManager->flush();
-        return $task;
     }
 
     /**
