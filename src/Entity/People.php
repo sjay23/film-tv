@@ -5,9 +5,9 @@ namespace App\Entity;
 use App\Repository\PeopleRepository;
 use DateTimeInterface;
 
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\JoinTable;
-use Ramsey\Collection\Collection;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Uid\Uuid;
 

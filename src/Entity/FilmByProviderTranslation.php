@@ -2,7 +2,10 @@
 
 namespace App\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\Mapping\JoinTable;
 use Knp\DoctrineBehaviors\Contract\Entity\TranslationInterface;
 use Knp\DoctrineBehaviors\Model\Translatable\TranslationTrait;
 
@@ -21,20 +24,28 @@ class FilmByProviderTranslation implements TranslationInterface
     private int $id;
 
     /**
-     * @ORM\Column(type="string", length=500, unique="true")
+     * @ORM\Column(type="string", length=500)
      */
     private ?string $title;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Image", mappedBy="filmBanner",cascade={"persist", "remove"})
-     * @ORM\JoinColumn( nullable="true")
+     * @ORM\ManyToMany(targetEntity="App\Entity\Image", inversedBy="filmBanner")
+     * @ORM\JoinTable(name="film_banner",
+     *      joinColumns={@ORM\JoinColumn(name="image_id", referencedColumnName="id")},
+     *      inverseJoinColumns={@ORM\JoinColumn(name="film_translation_id", referencedColumnName="id")}
+     *      )
      */
-    private $banner;
+    private ?Collection $banner;
 
     /**
      * @ORM\Column(type="string", length=5000, nullable="true")
      */
     private ?string $description;
+
+    public function __construct()
+    {
+        $this->banner = new ArrayCollection();
+    }
 
     /**
      * @return int
@@ -85,19 +96,18 @@ class FilmByProviderTranslation implements TranslationInterface
     }
 
     /**
-     * @return mixed
+     * @return ArrayCollection|Collection|null
      */
     public function getBanner()
     {
         return $this->banner;
     }
 
-    /**
-     * @param mixed $banner
-     */
-    public function setBanner($banner): void
+    public function setBanner(Image $banner): self
     {
-        $this->banner = $banner;
+        if (!$this->banner->contains($banner)) {
+            $this->banner[] = $banner;
+        }
+        return $this;
     }
-
 }

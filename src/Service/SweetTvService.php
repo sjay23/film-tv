@@ -11,10 +11,14 @@ use App\DTO\CountryInput;
 use App\DTO\PeopleInput;
 use App\DTO\GenreInput;
 use App\DTO\ImageInput;
+use App\Entity\CommandTask;
+use App\Service\TaskService;
 use App\Entity\Provider;
 use App\Repository\ProviderRepository;
-use App\Service\FilmByProviderService;
+use App\Repository\CommandTaskRepository;
+use App\Repository\FilmByProviderRepository;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ORM\EntityManagerInterface;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use Symfony\Component\DomCrawler\Crawler;
@@ -38,11 +42,21 @@ class SweetTvService
      * @var Client
      */
     private Client $client;
-    
+
+    /**
+     * @var TaskService
+     */
+    private TaskService $taskService;
+
     /**
      * @var ProviderRepository
      */
     private ProviderRepository $providerRepository;
+
+    /**
+     * @var FilmByProviderRepository
+     */
+    private FilmByProviderRepository $filmByProviderRepository;
 
     /**
      * @var FilmByProviderService
@@ -55,72 +69,106 @@ class SweetTvService
     private ValidatorInterface $validator;
 
     /**
+     * @var EntityManagerInterface
+     */
+    private EntityManagerInterface $entityManager;
+
+    private CommandTaskRepository $commandTaskRepository;
+
+    private ?CommandTask $task;
+
+
+    /**
+     * @param EntityManagerInterface $entityManager
+     * @param TaskService $taskService
      * @param ValidatorInterface $validator
-     * @param FilmByProviderService $filmByProviderService
      * @param ProviderRepository $providerRepository
+     * @param FilmByProviderRepository $filmByProviderRepository
+     * @param FilmByProviderService $filmByProviderService
+     * @param CommandTaskRepository $commandTaskRepository
      */
     public function __construct(
+        EntityManagerInterface $entityManager,
+        TaskService $taskService,
         ValidatorInterface $validator,
         ProviderRepository $providerRepository,
-        FilmByProviderService $filmByProviderService
+        FilmByProviderRepository $filmByProviderRepository,
+        FilmByProviderService $filmByProviderService,
+        CommandTaskRepository $commandTaskRepository
     )
     {
+        $this->entityManager = $entityManager;
+        $this->taskService = $taskService;
         $this->validator = $validator;
         $this->filmByProviderService = $filmByProviderService;
+        $this->filmByProviderRepository = $filmByProviderRepository;
+        $this->commandTaskRepository = $commandTaskRepository;
         $this->providerRepository = $providerRepository;
+        $this->task = $this->taskService->getTask($this->getProvider());
         $this->client = new Client();
     }
 
     /**
      * @return void
      * @throws GuzzleException
+     * @throws \Exception
      */
     public function exec()
     {
         $linkByFilms = 'https://sweet.tv/en/movies/all-movies/sort=5';
         $html = $this->getContentLink($linkByFilms);
         $crawler = $this->getCrawler($html);
-
         $pageMax = (int) $crawler->filter('.pagination li')->last()->text();
-
         $page = 1;
-        while ($page <= $pageMax) {
-            $filmsData = $this->parseFilmsByPage($linkByFilms . '/page/$page', $page);
-            dump($filmsData);
-            die();
+        $taskStatus = $this->task->getStatus();
+        if ( $taskStatus != 0 ) {
+            throw new \Exception("Task is running or stop with error.");
         }
+        while ($page <= $pageMax) {
+            try {
+                $this->parseFilmsByPage($linkByFilms . '/page/$page', $page);
+                $this->taskService->setWorkStatus($this->task);
+            } catch (\Exception $e) {
+                $this->taskService->setErrorStatus($this->task);
+            }
+        }
+        $this->taskService->setNotWorkStatus($this->task);
     }
 
     /**
      * @param string $link
      * @param int $page
-     * @return array
+     * @return void
      * @throws GuzzleException
      */
-    private function parseFilmsByPage(string $link, int $page): array
+    private function parseFilmsByPage(string $link, int $page): void
     {
         $link = str_replace('$page', (string)$page, $link);
         $html = $this->getContentLink($link);
         $crawler = $this->getCrawler($html);
-        $filmsData = $crawler->filter('.movie__item-link')->each(function ($node) {
+        $crawler->filter('.movie__item-link')->each(function ($node) {
             $filmInput = new FilmInput();
             $linkFilm = $node->link()->getUri();
             $filmInput->setLink($linkFilm);
-            foreach (self::LANGS as $lang) {
-                $htmlChild = $this->getContentLink($linkFilm, $lang);
-                $crawlerChild = $this->getCrawler($htmlChild);
-                $filmInput = $this->parseFilmBySweet($filmInput, $crawlerChild, $lang);
+            $movieId = $this->getFilmId($linkFilm);
+            $filmInput->setMovieId((int)$movieId);
+            if (!$film = $this->filmByProviderRepository->findOneBy(['movieId' => $movieId])) {
+                foreach (self::LANGS as $lang) {
+                    $htmlChild = $this->getContentLink($linkFilm, $lang);
+                    $crawlerChild = $this->getCrawler($htmlChild);
+                    $filmInput = $this->parseFilmBySweet($filmInput, $crawlerChild, $lang);
+                }
+                $posterInput = $this->parseImage($node);
+                $filmInput->addImageInput($posterInput);
+                $provider = $this->getProvider();
+                $filmInput->setProvider($provider);
+                $this->validator->validate($filmInput);
+                $film = $this->filmByProviderService->addFilmByProvider($filmInput);
+                $this->taskService->updateTask($film,$this->task);
+                $this->taskService->setNotWorkStatus($this->task);
             }
-            $posterInput = $this->parseImage($node);
-            $filmInput->addImageInput($posterInput);
-            $provider = $this->getProvider();
-            $filmInput->setProvider($provider);
-            $this->validator->validate($filmInput);
-            $film= $this->filmByProviderService->addFilmByProvider($filmInput);
-            var_dump($film);die();
             return $film;
         });
-        return $filmsData;
     }
 
     /**
@@ -135,12 +183,10 @@ class SweetTvService
         $filmInput->addFilmFieldTranslationInput($filmFieldTranslation);
 
         if ($lang === self::LANG_DEFAULT) {
-            $movieId = preg_replace("/[^0-9]/", '', $crawlerChild->filter('a.modal__lang-item')->link()->getUri());
-            $age = $crawlerChild->filter('div.film__age div.film-left__details div.film-left__flex ')->text();
+            $age = $this->parseAge($crawlerChild);
             $years = $crawlerChild->filter('.film__years > .film-left__details')->text();
             $duration = $this->convertTime($crawlerChild->filter(' span.film-left__time')->text());
             $rating = $this->parseRating($crawlerChild);
-            $filmInput->setMovieId((int)$movieId);
             $filmInput->setAge($age);
             $filmInput->setRating((float)$rating);
             $filmInput->setYears((int)$years);
@@ -172,6 +218,17 @@ class SweetTvService
         $a = preg_replace("/[^0-9]/", '', $str);
         $time = ((substr($a,0,2))*60)+((substr($a,-2,2)));
         return $time;
+    }
+
+    /**
+     * @param string $linkFilm
+     * @return string
+     */
+    private function getFilmId(string $linkFilm): string
+    {
+        $re = '/https:\/\/sweet.tv\/en\/movie\/([0-9]*)-(.*)/';
+        preg_match($re, $linkFilm, $matches, PREG_OFFSET_CAPTURE, 0);
+        return $matches[1][0];
     }
 
     /**
@@ -237,12 +294,12 @@ class SweetTvService
         $filmAudio = [];
         if ($node->count() !== 0) {
             $filmAudio = $crawler->filter('div.film__sounds div.film__content a.film-audio__link span')->each(function (Crawler $node) {
-                $audioInput = new AudioInput($node->text());
+                $audioInput = new AudioInput(rtrim($node->text(), ','));
                 $this->validator->validate($audioInput);
                 return $audioInput;
             });
         }
-        return new ArrayCollection ($filmAudio);
+        return new ArrayCollection (array_unique( $filmAudio, SORT_REGULAR ));
     }
 
     /**
@@ -302,9 +359,14 @@ class SweetTvService
     private function parseImage($crawler): ImageInput
     {
         $imageLink = $crawler->filter('.movie__item-img > img.img_wauto_hauto')->image()->getUri();
-        $imageInput = new ImageInput($imageLink);
-        $this->validator->validate($imageInput);
 
+        return $this->getImageInput($imageLink);
+    }
+
+    private function getImageInput(string $link): ImageInput
+    {
+        $imageInput = new ImageInput($link);
+        $this->validator->validate($imageInput);
         return $imageInput;
     }
 
@@ -324,6 +386,21 @@ class SweetTvService
     }
 
     /**
+     * @param $crawler
+     * @return string|null
+     */
+    private function parseAge($crawler): ?string
+    {
+        $age = null;
+        $node = $crawler->filter('.film__age');
+        if ($node->count() !== 0) {
+            $age = $node->filter('.film-left__details div.film-left__flex ')->text();
+        }
+
+        return $age;
+    }
+
+    /**
      * @param $crawlerChild
      * @param $lang
      * @return FilmFieldTranslationInput
@@ -332,8 +409,10 @@ class SweetTvService
     {
         $title = $crawlerChild->filter('.container-fluid_padding li')->last()->text();
         $description = $crawlerChild->filter('p.film-descr__text')->text();
-        $banner = $crawlerChild->filter('div.film-right  div.film-right__img picture img')->image()->getUri();
-        $filmFieldTranslation = new FilmFieldTranslationInput($title, $description, $banner, $lang);
+        $bannerLink = $crawlerChild->filter('div.film-right  div.film-right__img picture img')->image()->getUri();
+        $imageInput = $this->getImageInput($bannerLink);
+        $filmFieldTranslation = new FilmFieldTranslationInput($title, $description, $lang);
+        $filmFieldTranslation->setBannersInput($imageInput);
         $this->validator->validate($filmFieldTranslation);
 
         return $filmFieldTranslation;

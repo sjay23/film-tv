@@ -23,15 +23,11 @@ class CountryService
 
     public function getCountry($countryInput)
     {
-        if ($this->countryRepository->findOneBy(['name' => $countryInput->getName()])) {
-            $country = $this->countryRepository->findOneBy(['name' => $countryInput->getName()]);
-            return $country;
-        } else {
+        if (!$country = $this->countryRepository->findOneBy(['name' => $countryInput->getName()])) {
             $country = new Country();
             $country->setName($countryInput->getName());
             $this->entityManager->persist($country);
-            return $country;
         }
-
+        return $country;
     }
 }

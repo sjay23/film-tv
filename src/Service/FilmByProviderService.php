@@ -2,6 +2,8 @@
 
 namespace App\Service;
 
+use App\DTO\FilmFieldTranslationInput;
+use App\DTO\FilmInput;
 use App\Entity\FilmByProvider;
 use App\Repository\FilmByProviderRepository;
 use App\Repository\ProviderRepository;
@@ -49,11 +51,12 @@ class FilmByProviderService
     private CountryService $countryService;
 
     /**
+     * @param EntityManagerInterface $entityManager
      * @param GenreService $genreService
      * @param ImageService $imageService
+     * @param AudioService $audioService
      * @param CountryService $countryService
      * @param PeopleService $peopleService
-     * @param AudioService $audioService
      */
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -72,25 +75,39 @@ class FilmByProviderService
         $this->peopleService = $peopleService;
     }
 
-
-     function addFilmByProvider($filmInput)
+    /**
+     * @param FilmInput $filmInput
+     * @return FilmByProvider
+     */
+    public function addFilmByProvider(FilmInput $filmInput): FilmByProvider
     {
        $film= new FilmByProvider();
-       $filmFieldsTranslationInput=$filmInput->getFilmFieldsTranslationInput();
+       $filmFieldsTranslationInput = $filmInput->getFilmFieldsTranslationInput();
        $film->setYear($filmInput->getYears());
        $film->setProvider($filmInput->getProvider());
-        foreach ($filmFieldsTranslationInput as $filmFieldsTranslationInputByLang){
+       foreach ($filmFieldsTranslationInput as $filmFieldsTranslationInputByLang){
+            /**
+             * @var FilmFieldTranslationInput $filmFieldsTranslationInputByLang
+             */
             $film->translate($filmFieldsTranslationInputByLang->getLang())->setTitle($filmFieldsTranslationInputByLang->getTitle());
             $film->translate($filmFieldsTranslationInputByLang->getLang())->setDescription($filmFieldsTranslationInputByLang->getDescription());
-            $film->translate($filmFieldsTranslationInputByLang->getLang())->setBanner($filmFieldsTranslationInputByLang->getBanner());
+            $banner = $this->imageService->getImage($filmFieldsTranslationInputByLang->getBannersInput());
+            $film->translate($filmFieldsTranslationInputByLang->getLang())->setBanner($banner);
+       }
 
-        }
-
+       $actors = [];
         foreach ($filmInput->getCastsInput() as $peopleInput) {
-            $film->setActor($this->peopleService->getPeople($peopleInput));
+            $actor = $this->peopleService->getPeople($peopleInput);
+            $actors[] = $actor;
+            $film->setActor($actor);
         }
+
         foreach ($filmInput->getDirectorsInput() as $peopleInput) {
-            $film->setDirector($this->peopleService->getPeople($peopleInput));
+            $director = $this->peopleService->checkActors($peopleInput, $actors);
+            if ($director === null) {
+                $director = $this->peopleService->getPeople($peopleInput);
+            }
+            $film->setDirector($director);
         }
 
         foreach ($filmInput->getCountriesInput() as $countryInput) {
@@ -110,12 +127,13 @@ class FilmByProviderService
         }
 
         $film->setAge($filmInput->getAge());
-        $film->setPoster($filmInput->getImagesInput());
         $film->setDuration($filmInput->getDuration());
         $film->setLink($filmInput->getLink());
         $film->setMovieId($filmInput->getMovieId());
         $film->setRating($filmInput->getRating());
+
         $this->entityManager->persist($film);
+        $film->mergeNewTranslations();
         $this->entityManager->flush();
 
         return $film;

@@ -21,18 +21,27 @@ class PeopleService
 
     }
 
-    public function getPeople($peopleInput)
+    public function getPeople($peopleInput): People
     {
-        if ($this->peopleRepository->findOneBy(['name' => $peopleInput->getName()])) {
-            $people = $this->peopleRepository->findOneBy(['name' => $peopleInput->getName()]);
-            return $people;
-        } else {
+        if (!$people = $this->peopleRepository->findOneBy(['link' => $peopleInput->getLink()])) {
             $people = new People();
             $people->setName($peopleInput->getName());
             $people->setLink($peopleInput->getLink());
             $this->entityManager->persist($people);
-            return $people;
         }
+        return $people;
+    }
 
+    public function checkActors($peopleInput, array $actors): ?People
+    {
+        foreach ($actors as $actor) {
+            /**
+             * @var People $actor
+             */
+            if ($actor->getLink() === $peopleInput->getLink()) {
+                return $actor;
+            }
+        }
+        return null;
     }
 }

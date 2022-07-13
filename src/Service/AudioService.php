@@ -14,24 +14,18 @@ class AudioService
     public function __construct(
         EntityManagerInterface $entityManager,
         AudioRepository $audioRepository
-
     ) {
         $this->entityManager = $entityManager;
         $this->audioRepository = $audioRepository;
-
     }
 
     public function getAudio($audioInput)
     {
-        if ($this->audioRepository->findOneBy(['name' => $audioInput->getName()])) {
-            $audio = $this->audioRepository->findOneBy(['name' => $audioInput->getName()]);
-            return $audio;
-        } else {
+        if (!$audio = $this->audioRepository->findOneBy(['name' => $audioInput->getName()])) {
             $audio = new Audio();
             $audio->setName($audioInput->getName());
             $this->entityManager->persist($audio);
-            return $audio;
         }
-
+        return $audio;
     }
 }

@@ -24,16 +24,13 @@ class Audio
     private int $id;
 
     /**
-     * @ORM\Column(type="string", length=30, )
+     * @ORM\Column(type="string", length=30, unique="true")
      */
     private string $name;
 
     /**
-     * @ORM\ManyToMany(targetEntity="App\Entity\FilmByProvider", inversedBy="audio")
-     * @JoinTable(name="film_audio",
-     *      joinColumns={@ORM\JoinColumn(name="audio_id", referencedColumnName="id")},
-     *      inverseJoinColumns={@ORM\JoinColumn(name="film_id", referencedColumnName="id")}
-     *      )
+     * @ORM\ManyToMany(targetEntity="App\Entity\FilmByProvider", mappedBy="audio")
+     * @JoinTable(name="film_audio")
      */
     private $films;
 

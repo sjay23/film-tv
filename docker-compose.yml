@@ -9,6 +9,7 @@ services:
     env_file:
       - .env
     environment:
+      XDEBUG_SESSION: "docker-server"
       XDEBUG_CONFIG: "remote_host=192.168.220.1 remote_enable=1"
       PHP_IDE_CONFIG: "serverName=Docker"
     volumes:
@@ -16,6 +17,7 @@ services:
       - ./docker/php/xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
       - ./docker/php/error_reporting.ini:/usr/local/etc/php/conf.d/error_reporting.ini
       - ./docker/php/uploads.ini:/usr/local/etc/php/conf.d/uploads.ini
+      - ./xdebug.ini:/usr/local/etc/php/conf.d/xdebug.ini
 
   film_nginx:
     container_name: nginx_film
