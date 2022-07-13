@@ -67,6 +67,9 @@ class SweetTvService
      */
     private ValidatorInterface $validator;
 
+    /**
+     * @var EntityManagerInterface
+     */
     private EntityManagerInterface $entityManager;
 
     /**
@@ -109,10 +112,12 @@ class SweetTvService
         $crawler = $this->getCrawler($html);
         $pageMax = (int) $crawler->filter('.pagination li')->last()->text();
         $page = 1;
+        $taskStatus=$this->task->getStatus();
         while ($page <= $pageMax) {
             try {
-                $filmsData = $this->parseFilmsByPage($linkByFilms . '/page/$page', $page);
-
+                if ( $taskStatus == 0 ) {
+                    $filmsData = $this->parseFilmsByPage($linkByFilms . '/page/$page', $page);
+                }
             } catch (\Exception $e) {
                 dump($e);
 
@@ -144,8 +149,7 @@ class SweetTvService
             $filmInput->setLink($linkFilm);
             $movieId = $this->getFilmId($linkFilm);
             $filmInput->setMovieId((int)$movieId);
-            $taskStatus=$this->task->getStatus();
-            if (!$film = $this->filmByProviderRepository->findOneBy(['movieId' => $movieId]) and $taskStatus !== 1 and $taskStatus !== 2) {
+            if (!$film = $this->filmByProviderRepository->findOneBy(['movieId' => $movieId])) {
                 foreach (self::LANGS as $lang) {
                     $htmlChild = $this->getContentLink($linkFilm, $lang);
                     $crawlerChild = $this->getCrawler($htmlChild);
