@@ -21,7 +21,7 @@ class TestController extends AbstractController
         $client = new Client();
         $response = $client->get('https://sweet.tv/en/movie/10565-hercules');
         $html = (string) $response->getBody();
-
+$test=2;
         $crawler = new Crawler($html);
         dd($crawler);
         return $this->render('main/mainPage.html.twig');
