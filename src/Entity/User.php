@@ -6,6 +6,7 @@ use App\Repository\UserRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Uid\UuidV6;
 
 /**
  * @ORM\Entity(repositoryClass=UserRepository::class)
@@ -29,6 +30,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     private $roles = [];
 
+    public function __construct(
+        ?string $email,
+        ?string $password,
+        ?array $roles
+    )
+    {
+        $this->uuid = new UuidV6();
+        $this->email = $email;
+        $this->password = $password;
+        $this->roles = $roles;
+    }
     /**
      * @var string The hashed password
      * @ORM\Column(type="string")

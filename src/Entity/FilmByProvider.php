@@ -14,28 +14,27 @@ use ApiPlatform\Core\Annotation\ApiProperty;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
- * @ApiResource (
- *     collectionOperations={
- *     "get"={
- *     "normalization_context"={"groups"="filmByProvider:list"}
- *     },
- *     "post"={
- *    "normalization_context"={"groups"="filmByProvider:list:write"}
- *     }
- *     },
- *     itemOperations={
- *     "get"={
- *           "normalization_context"={"groups"="filmByProvider:item"}
- *     },
- *     "patch"={
- *     "normalization_context"={"groups"="filmByProvider:item:write"}
- *     }
- *     }
- * )
- *
  * @ORM\Entity(repositoryClass=FilmByProviderRepository::class)
  * @ORM\Table(name="film_by_provider")
  */
+#[ApiResource(
+    itemOperations: [
+        'get',
+        'delete'
+    ],
+    denormalizationContext: [
+        'groups' => [
+            'get',
+            'post',
+        ]
+    ],
+    normalizationContext: [
+        'groups' => [
+            'get',
+            'post',
+        ]
+    ]
+)]
 class FilmByProvider implements TranslatableInterface
 {
     use TranslatableTrait;
@@ -44,48 +43,44 @@ class FilmByProvider implements TranslatableInterface
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
-     * @Groups({"filmByProvider:list","filmByProvider:item"})
+     * @Groups({"post", "get"})
      */
     private int $id;
 
     /**
      * @ORM\Column(type="integer", length=30)
      * @ORM\JoinColumn(name="movie_id", nullable="false")
-     * @Groups({"filmByProvider:list","filmByProvider:item"})
+     * @Groups({"post", "get"})
      */
     private $movieId;
 
     /**
      * @ORM\Column(type="string", length=500, unique="true")
-     * @Groups({"filmByProvider:list","filmByProvider:item"})
+     * @Groups({"post", "get"})
      */
     private ?string $link;
 
     /**
      * @ORM\Column(type="smallint" ,length=4, nullable="true")
-     * @Groups({"filmByProvider:list","filmByProvider:item"})
+     * @Groups({"post", "get"})
      */
     private $year;
 
-
-
     /**
      * @ORM\Column(type="decimal", precision="4", scale="2", nullable="true")
-     * @Groups({"filmByProvider:list","filmByProvider:item"})
+     * @Groups({"post", "get"})
      */
     private $rating;
 
-
-
     /**
      * @ORM\Column(type="string", length=5,nullable="true")
-     * @Groups({"filmByProvider:list","filmByProvider:item"})
+     * @Groups({"post", "get"})
      */
     private ?string $age;
 
     /**
      * @ORM\Column(type="integer" ,nullable="true")
-     * @Groups({"filmByProvider:list","filmByProvider:item"})
+     * @Groups({"post", "get"})
      */
     private int $duration;
 
@@ -95,7 +90,7 @@ class FilmByProvider implements TranslatableInterface
      *      joinColumns={@ORM\JoinColumn(name="image_id", referencedColumnName="id")},
      *      inverseJoinColumns={@ORM\JoinColumn(name="film_id", referencedColumnName="id")}
      *      )
-     * @Groups({"filmByProvider:list","filmByProvider:item"})
+     * @Groups({"post", "get"})
      */
     private ?Collection $poster;
 
@@ -105,7 +100,7 @@ class FilmByProvider implements TranslatableInterface
      *      joinColumns={@ORM\JoinColumn(name="film_id", referencedColumnName="id", onDelete="CASCADE")},
      *      inverseJoinColumns={@ORM\JoinColumn(name="actor_id", referencedColumnName="id", onDelete="CASCADE")}
      *      )
-     * @Groups({"filmByProvider:list","filmByProvider:item"})
+     * @Groups({"post", "get"})
      */
     private ?Collection $actor;
 
@@ -115,7 +110,7 @@ class FilmByProvider implements TranslatableInterface
      *      joinColumns={@ORM\JoinColumn(name="country_id", referencedColumnName="id", onDelete="CASCADE")},
      *      inverseJoinColumns={@ORM\JoinColumn(name="film_id", referencedColumnName="id", onDelete="CASCADE")}
      *      )
-     * @Groups({"filmByProvider:list","filmByProvider:item"})
+     * @Groups({"post", "get"})
      */
     private ?Collection $country;
 
@@ -125,7 +120,7 @@ class FilmByProvider implements TranslatableInterface
      *      joinColumns={@ORM\JoinColumn(name="genre_id", referencedColumnName="id", onDelete="CASCADE")},
      *      inverseJoinColumns={@ORM\JoinColumn(name="film_id", referencedColumnName="id", onDelete="CASCADE")}
      *      )
-     * @Groups({"filmByProvider:list","filmByProvider:item"})
+     * @Groups({"post", "get"})
      */
     private ?Collection $genre;
 
@@ -135,7 +130,7 @@ class FilmByProvider implements TranslatableInterface
      *      joinColumns={@ORM\JoinColumn(name="audio_id", referencedColumnName="id", onDelete="CASCADE")},
      *      inverseJoinColumns={@ORM\JoinColumn(name="film_id", referencedColumnName="id", onDelete="CASCADE")}
      *      )
-     * @Groups({"filmByProvider:list","filmByProvider:item"})
+     * @Groups({"post", "get"})
      */
     private Collection $audio;
 
@@ -145,14 +140,14 @@ class FilmByProvider implements TranslatableInterface
      *      joinColumns={@ORM\JoinColumn(name="film_id", referencedColumnName="id", onDelete="CASCADE")},
      *      inverseJoinColumns={@ORM\JoinColumn(name="director_id", referencedColumnName="id", onDelete="CASCADE")}
      *      )
-     * @Groups({"filmByProvider:list","filmByProvider:item"})
+     * @Groups({"post", "get"})
      */
     private ?Collection $director;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Provider", inversedBy="films")
      * @ORM\JoinColumn(name="provider_id", referencedColumnName="id")
-     * @Groups({"filmByProvider:list","filmByProvider:item"})
+     * @Groups({"post", "get"})
      */
     private ?Provider $provider;
 

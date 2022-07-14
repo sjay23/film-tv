@@ -34,12 +34,10 @@ class CreateSuperAdminFixture extends Fixture
     public function load(ObjectManager $manager): void
     {
         $superAdmin = new User(
-            'Super Admin', //name
             self::SUPER_ADMIN_EMAIL, //email
             null, //password
             ['ROLE_SUPER_ADMIN'] // role
         );
-
 
         $superAdmin->setPassword($this->passwordHasher->hashPassword($superAdmin, '123Qwerty'));
 
