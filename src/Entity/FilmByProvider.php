@@ -95,7 +95,7 @@ class FilmByProvider implements TranslatableInterface
     private ?Collection $poster;
 
     /**
-     * @ORM\ManyToMany(targetEntity="People", inversedBy="films")
+     * @ORM\ManyToMany(targetEntity="People", inversedBy="filmActor")
      * @ORM\JoinTable(name="film_actor",
      *      joinColumns={@ORM\JoinColumn(name="film_id", referencedColumnName="id", onDelete="CASCADE")},
      *      inverseJoinColumns={@ORM\JoinColumn(name="actor_id", referencedColumnName="id", onDelete="CASCADE")}
