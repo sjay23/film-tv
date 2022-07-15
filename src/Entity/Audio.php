@@ -16,6 +16,32 @@ use Symfony\Component\Serializer\Annotation\Groups;
  * @ORM\Table(name="`audio`")
  */
 #[ApiResource(
+    collectionOperations: [
+        'add_audio' => [
+            'route_name' => 'add_audio',
+            'method' => 'POST',
+            'openapi_context' => [
+                'requestBody' => [
+                    'content' => [
+                        'multipart/form-data' => [
+                            'schema' => [
+                                'type' => 'object',
+                                'required' => [
+                                    'name'
+                                ],
+                                'properties' => [
+                                    'name' => [
+                                        'type' => 'string',
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ]
+                ]
+            ]
+        ],
+        'get'
+    ],
     itemOperations: [
         'get',
         'delete'
@@ -31,7 +57,9 @@ use Symfony\Component\Serializer\Annotation\Groups;
             'get',
             'post',
         ]
-    ]
+    ],
+
+
 )]
 class Audio
 {

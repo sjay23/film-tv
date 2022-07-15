@@ -10,3 +10,27 @@ authentication_token:
 gesdinet_jwt_refresh_token:
   path:       /api/refresh-token
   controller: gesdinet.jwtrefreshtoken::refresh
+add_country:
+  path: /api/countries
+  methods: ['POST']
+  defaults:
+    _api_resource_class: App\Entity\Country
+    _api_item_operation_name: add_country
+    _api_receive: false
+    _controller: App\Controller\CountryController::addCountry
+add_genre:
+  path: /api/genres
+  methods: ['POST']
+  defaults:
+    _api_resource_class: App\Entity\Genre
+    _api_item_operation_name: add_genre
+    _api_receive: false
+    _controller: App\Controller\GenreController::addGenre
+add_audio:
+  path: /api/audios
+  methods: ['POST']
+  defaults:
+    _api_resource_class: App\Entity\Audio
+    _api_item_operation_name: add_audio
+    _api_receive: false
+    _controller: App\Controller\AudioController::addAudio

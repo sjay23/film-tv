@@ -12,6 +12,32 @@ use Symfony\Component\Serializer\Annotation\Groups;
  * @ORM\Entity(repositoryClass=GenreRepository::class)
  */
 #[ApiResource(
+    collectionOperations: [
+        'add_genre' => [
+            'route_name' => 'add_genre',
+            'method' => 'POST',
+            'openapi_context' => [
+                'requestBody' => [
+                    'content' => [
+                        'multipart/form-data' => [
+                            'schema' => [
+                                'type' => 'object',
+                                'required' => [
+                                    'name'
+                                ],
+                                'properties' => [
+                                    'name' => [
+                                        'type' => 'string',
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ]
+                ]
+            ]
+        ],
+        'get'
+    ],
     itemOperations: [
         'get',
         'delete'

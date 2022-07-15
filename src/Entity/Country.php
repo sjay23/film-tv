@@ -12,6 +12,32 @@ use Symfony\Component\Serializer\Annotation\Groups;
  * @ORM\Entity(repositoryClass=CountryRepository::class)
  */
 #[ApiResource(
+    collectionOperations: [
+        'add_country' => [
+            'route_name' => 'add_country',
+            'method' => 'POST',
+            'openapi_context' => [
+                'requestBody' => [
+                    'content' => [
+                        'multipart/form-data' => [
+                            'schema' => [
+                                'type' => 'object',
+                                'required' => [
+                                    'name'
+                                ],
+                                'properties' => [
+                                    'name' => [
+                                        'type' => 'string',
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ]
+                ]
+            ]
+        ],
+        'get'
+    ],
     itemOperations: [
         'get',
         'delete'
