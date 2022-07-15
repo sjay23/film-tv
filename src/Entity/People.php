@@ -2,35 +2,56 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Core\Annotation\ApiResource;
 use App\Repository\PeopleRepository;
 use DateTimeInterface;
-
+use Symfony\Component\Serializer\Annotation\Groups;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\JoinTable;
-use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Uid\Uuid;
 
 /**
  * @ORM\Entity(repositoryClass=PeopleRepository::class)
  * @ORM\Table(name="`people`")
  */
+#[ApiResource(
+    itemOperations: [
+        'get',
+        'delete'
+    ],
+    denormalizationContext: [
+        'groups' => [
+            'get',
+            'post',
+        ]
+    ],
+    normalizationContext: [
+        'groups' => [
+            'get',
+            'post',
+        ]
+    ]
+)]
 class People
 {
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
+     * @Groups({"post", "get"})
      */
     private int $id;
 
     /**
      * @ORM\Column(type="string", length=255,)
+     * @Groups({"post", "get"})
      */
     private ?string $name;
 
     /**
      * @ORM\Column(type="string", length=500, unique="true")
+     * @Groups({"post", "get"})
      */
     private ?string $link;
 
@@ -38,11 +59,13 @@ class People
      * @var DateTimeInterface
      *
      * @ORM\Column(type="datetime", nullable="false", options={"default": "CURRENT_TIMESTAMP"})
+     * @Groups({"post", "get"})
      */
     private DateTimeInterface $uploadedAt;
 
     /**
      * @ORM\Column(type="boolean")
+     * @Groups({"post", "get"})
      */
     private bool $uploaded = false;
 

@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Core\Annotation\ApiResource;
 use App\Repository\ProviderRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -9,9 +10,28 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Uid\Uuid;
 
+
 /**
  * @ORM\Entity(repositoryClass=ProviderRepository::class)
  */
+#[ApiResource(
+    itemOperations: [
+        'get',
+        'delete'
+    ],
+    denormalizationContext: [
+        'groups' => [
+            'get',
+            'post',
+        ]
+    ],
+    normalizationContext: [
+        'groups' => [
+            'get',
+            'post',
+        ]
+    ]
+)]
 class Provider
 {
     public const SWEET_TV = 'SweetTv';
@@ -20,11 +40,13 @@ class Provider
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
+     * @Groups({"post", "get"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255,)
+     * @Groups({"post", "get"})
      */
     private string $name;
 

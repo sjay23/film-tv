@@ -2,38 +2,62 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Core\Annotation\ApiResource;
 use App\Repository\ImageRepository;
 use DateTimeInterface;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Carbon\Carbon;
 
 /**
  * @ORM\Entity(repositoryClass=ImageRepository::class)
  * @ORM\Table(name="`image`")
  */
+#[ApiResource(
+    itemOperations: [
+        'get',
+        'delete'
+    ],
+    denormalizationContext: [
+        'groups' => [
+            'get',
+            'post',
+        ]
+    ],
+    normalizationContext: [
+        'groups' => [
+            'get',
+            'post',
+        ]
+    ]
+)]
 class Image
 {
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
+     * @Groups({"post", "get"})
      */
     private int $id;
 
     /**
      * @ORM\Column(type="string", length=500, unique="true")
+     * @Groups({"post", "get"})
      */
     private ?string $link;
 
     /**
      * @ORM\ManyToMany(targetEntity="App\Entity\FilmByProviderTranslation", mappedBy="banner")
      * @ORM\JoinTable(name="film_banner")
+     * @Groups({"post", "get"})
      */
     private $filmBanner;
 
     /**
      * @ORM\ManyToMany(targetEntity="App\Entity\FilmByProvider", mappedBy="poster")
      * @ORM\JoinTable(name="film_poster")
+     * @Groups({"post", "get"})
      */
     private $filmPoster;
 
@@ -41,11 +65,13 @@ class Image
      * @var DateTimeInterface
      *
      * @ORM\Column(type="datetime", nullable="false", options={"default": "CURRENT_TIMESTAMP"})
+     * @Groups({"post", "get"})
      */
     private DateTimeInterface $uploadedAt;
 
     /**
      * @ORM\Column(type="boolean")
+     * @Groups({"post", "get"})
      */
     private bool $uploaded;
 
