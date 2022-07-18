@@ -35,16 +35,14 @@ class CountryController
         CountryRepository $countryRepository,
         ValidatorInterface $validator,
         EntityManagerInterface $entityManager,
-    )
-    {
+    ) {
         $this->countryRepository = $countryRepository;
         $this->validator = $validator;
         $this->entityManager = $entityManager;
     }
 
-    function addCountry(Request $request): Country
+    public function addCountry(Request $request): Country
     {
-
         $countryInput = new CountryInput(
             $request->get('name')
         );

@@ -24,7 +24,6 @@ use GuzzleHttp\Exception\GuzzleException;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-
 /**
  * Class SweetTvService
  */
@@ -95,8 +94,7 @@ class SweetTvService
         FilmByProviderRepository $filmByProviderRepository,
         FilmByProviderService $filmByProviderService,
         CommandTaskRepository $commandTaskRepository
-    )
-    {
+    ) {
         $this->entityManager = $entityManager;
         $this->taskService = $taskService;
         $this->validator = $validator;
@@ -121,8 +119,8 @@ class SweetTvService
         $pageMax = (int) $crawler->filter('.pagination li')->last()->text();
         $page = 1;
         $taskStatus = $this->task->getStatus();
-        if ( $taskStatus != 0 ) {
-            throw new \Exception("Task is running or stop with error.");
+        if ($taskStatus != 0) {
+            throw new \Exception('Task is running or stop with error.');
         }
         while ($page <= $pageMax) {
             try {
@@ -256,11 +254,11 @@ class SweetTvService
      */
     private function getContentLink(string $link, string $lang = self::LANG_DEFAULT): ?string
     {
-        sleep(rand(0,3));
+        sleep(rand(0, 3));
         if ($lang !== self::LANG_DEFAULT) {
             $link = str_replace(self::LANG_DEFAULT, $lang, $link);
         }
-        echo "Parse link: " . $link . "\n";
+        echo 'Parse link: ' . $link . "\n";
         $response = $this->client->get($link);
 
         return (string) $response->getBody();
@@ -293,13 +291,14 @@ class SweetTvService
         $node = $crawler->filter('a.film-audio__link');
         $filmAudio = [];
         if ($node->count() !== 0) {
-            $filmAudio = $crawler->filter('div.film__sounds div.film__content a.film-audio__link span')->each(function (Crawler $node) {
-                $audioInput = new AudioInput(rtrim($node->text(), ','));
-                $this->validator->validate($audioInput);
-                return $audioInput;
-            });
+            $filmAudio = $crawler->filter('div.film__sounds div.film__content a.film-audio__link span')
+                ->each(function (Crawler $node) {
+                    $audioInput = new AudioInput(rtrim($node->text(), ','));
+                    $this->validator->validate($audioInput);
+                    return $audioInput;
+                });
         }
-        return new ArrayCollection (array_unique($filmAudio, SORT_REGULAR));
+        return new ArrayCollection(array_unique($filmAudio, SORT_REGULAR));
     }
 
     /**
@@ -317,7 +316,7 @@ class SweetTvService
                 return $castInput;
             });
         }
-        return new ArrayCollection ($castGenre);
+        return new ArrayCollection($castGenre);
     }
 
     /**

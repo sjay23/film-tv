@@ -50,8 +50,7 @@ class FilmFieldTranslationInput
         ?string $title,
         ?string $description,
         ?string $lang
-    )
-    {
+    ) {
         $this->title = $title;
         $this->description = $description;
         $this->lang = $lang;

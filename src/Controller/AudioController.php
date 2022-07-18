@@ -6,9 +6,13 @@ use App\DTO\AudioInput;
 use App\Entity\Audio;
 use App\Repository\AudioRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Exception;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
+/**
+ *
+ */
 class AudioController
 {
     /**
@@ -35,15 +39,18 @@ class AudioController
         AudioRepository $audioRepository,
         ValidatorInterface $validator,
         EntityManagerInterface $entityManager,
-    )
-    {
+    ) {
         $this->audioRepository = $audioRepository;
         $this->validator = $validator;
         $this->entityManager = $entityManager;
     }
 
-
-    function addAudio(Request $request): Audio
+    /**
+     * @param Request $request
+     * @return Audio
+     * @throws Exception
+     */
+    public function addAudio(Request $request): Audio
     {
         $audioInput = new AudioInput(
             $request->get('name')
@@ -51,7 +58,7 @@ class AudioController
         $this->validator->validate($audioInput);
 
         if ($audio = $this->audioRepository->findOneBy(['name' => $audioInput->getName()])) {
-            throw new \Exception('The audio already exists');
+            throw new Exception('The audio already exists');
         } else {
             $audio = new Audio();
             $audio->setName($audioInput->getName());
@@ -59,5 +66,5 @@ class AudioController
             $this->entityManager->flush();
         }
         return $audio;
-}
+    }
 }

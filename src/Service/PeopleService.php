@@ -14,11 +14,9 @@ class PeopleService
     public function __construct(
         EntityManagerInterface $entityManager,
         PeopleRepository $peopleRepository
-
     ) {
         $this->entityManager = $entityManager;
         $this->peopleRepository = $peopleRepository;
-
     }
 
     public function getPeople($peopleInput): People

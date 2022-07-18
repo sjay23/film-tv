@@ -16,13 +16,12 @@ class CreateSuperAdminFixture extends Fixture
      * run console - php bin/console doctrine:fixtures:load --append --group=CreateSuperAdminFixture
      */
 
-    const SUPER_ADMIN_EMAIL = 'test@jelvix.com';
+    public const SUPER_ADMIN_EMAIL = 'test@jelvix.com';
 
     public function __construct(
-         UserRepository $userRepository,
-         UserPasswordHasherInterface $passwordHasher
-    )
-    {
+        UserRepository $userRepository,
+        UserPasswordHasherInterface $passwordHasher
+    ) {
         $this->userRepository = $userRepository;
         $this->passwordHasher = $passwordHasher;
     }

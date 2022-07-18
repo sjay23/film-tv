@@ -37,7 +37,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 )]
 class Image
 {
-    public const UPLOAD= 1;
+    public const UPLOAD = 1;
     public const NO_UPLOAD = 0;
 
     /**
@@ -87,7 +87,7 @@ class Image
      * @Assert\NotBlank
      * @Vich\UploadableField(mapping="image", fileNameProperty="filePath")
      */
-    public  $imageFile;
+    public $imageFile;
 
     /**
      * @ORM\Column(type="string", nullable=true)
@@ -98,8 +98,7 @@ class Image
 
     public function __construct(
         ?string $link
-    )
-    {
+    ) {
         $this->link = $link;
         $this->uploaded = self::NO_UPLOAD;
         $this->uploadedAt = Carbon::now();
@@ -172,7 +171,6 @@ class Image
     public function setImageFile(?File $imageFile): void
     {
         $this->imageFile = $imageFile;
-
     }
 
     public function getImageFile(): ?File
@@ -202,5 +200,4 @@ class Image
     {
         [$this->id] = unserialize($data);
     }
-
 }

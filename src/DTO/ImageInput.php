@@ -25,8 +25,7 @@ class ImageInput
 
     public function __construct(
         ?string $link
-    )
-    {
+    ) {
         $this->link = $link;
     }
 
@@ -45,6 +44,4 @@ class ImageInput
     {
         $this->link = $link;
     }
-
-
 }

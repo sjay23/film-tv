@@ -20,7 +20,8 @@ final class JwtDecorator implements OpenApiFactoryInterface
      */
     public function __construct(
         private OpenApiFactoryInterface $decorated
-    ) {}
+    ) {
+    }
 
     /**
      * @param array $context

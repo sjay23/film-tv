@@ -5,12 +5,10 @@ namespace App\Command\Cron;
 use App\Entity\Provider;
 use App\Repository\ProviderRepository;
 use App\Repository\ImageRepository;
-use Doctrine\ORM\EntityManagerInterface;
 use App\Service\ImageFileService;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-
 
 class CommandTask extends Command
 {
@@ -33,8 +31,11 @@ class CommandTask extends Command
 
 
 
-    public function __construct(ImageFileService $imageFileService, ProviderRepository $providerRepository, ImageRepository $imageRepository)
-    {
+    public function __construct(
+        ImageFileService $imageFileService,
+        ProviderRepository $providerRepository,
+        ImageRepository $imageRepository
+    ) {
         parent::__construct();
         $this->imageFileService = $imageFileService;
         $this->imageRepository = $imageRepository;

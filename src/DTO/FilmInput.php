@@ -6,6 +6,7 @@ namespace App\DTO;
 
 use App\Entity\Provider;
 use Doctrine\Common\Collections\ArrayCollection;
+use JetBrains\PhpStorm\Pure;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -102,7 +103,7 @@ class FilmInput
      */
     private ?ArrayCollection $filmFieldsTranslationInput;
 
-    public function __construct()
+    #[Pure] public function __construct()
     {
         $this->filmFieldsTranslationInput = new ArrayCollection();
         $this->countriesInput = new ArrayCollection();
@@ -111,7 +112,6 @@ class FilmInput
         $this->audiosInput = new ArrayCollection();
         $this->imagesInput = new ArrayCollection();
         $this->genresInput = new ArrayCollection();
-
     }
 
     /**
@@ -396,5 +396,4 @@ class FilmInput
     {
         $this->imagesInput->add($imageInput);
     }
-
 }

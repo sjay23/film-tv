@@ -35,14 +35,13 @@ class GenreController
         GenreRepository $genreRepository,
         ValidatorInterface $validator,
         EntityManagerInterface $entityManager,
-    )
-    {
+    ) {
         $this->genreRepository = $genreRepository;
         $this->validator = $validator;
         $this->entityManager = $entityManager;
     }
 
-    function addGenre(Request $request): Genre
+    public function addGenre(Request $request): Genre
     {
         $genreInput = new GenreInput(
             $request->get('name')

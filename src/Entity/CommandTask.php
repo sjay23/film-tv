@@ -60,8 +60,7 @@ class CommandTask
      */
     public function __construct(
         string $name
-    )
-    {
+    ) {
         $this->name = $name;
     }
 

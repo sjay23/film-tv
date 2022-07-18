@@ -19,7 +19,6 @@ use Doctrine\ORM\EntityManagerInterface;
  */
 class FilmByProviderService
 {
-
     /**
      * @var GenreService
      */
@@ -65,8 +64,7 @@ class FilmByProviderService
         AudioService $audioService,
         CountryService $countryService,
         PeopleService $peopleService
-    )
-    {
+    ) {
         $this->entityManager = $entityManager;
         $this->imageService = $imageService;
         $this->genreService = $genreService;
@@ -81,21 +79,25 @@ class FilmByProviderService
      */
     public function addFilmByProvider(FilmInput $filmInput): FilmByProvider
     {
-       $film= new FilmByProvider();
-       $filmFieldsTranslationInput = $filmInput->getFilmFieldsTranslationInput();
-       $film->setYear($filmInput->getYears());
-       $film->setProvider($filmInput->getProvider());
-       foreach ($filmFieldsTranslationInput as $filmFieldsTranslationInputByLang){
+        $film = new FilmByProvider();
+        $filmFieldsTranslationInput = $filmInput->getFilmFieldsTranslationInput();
+        $film->setYear($filmInput->getYears());
+        $film->setProvider($filmInput->getProvider());
+        foreach ($filmFieldsTranslationInput as $filmFieldsTranslationInputByLang) {
             /**
              * @var FilmFieldTranslationInput $filmFieldsTranslationInputByLang
              */
-            $film->translate($filmFieldsTranslationInputByLang->getLang())->setTitle($filmFieldsTranslationInputByLang->getTitle());
-            $film->translate($filmFieldsTranslationInputByLang->getLang())->setDescription($filmFieldsTranslationInputByLang->getDescription());
+            $film->translate(
+                $filmFieldsTranslationInputByLang->getLang()
+            )->setTitle($filmFieldsTranslationInputByLang->getTitle());
+            $film->translate(
+                $filmFieldsTranslationInputByLang->getLang()
+            )->setDescription($filmFieldsTranslationInputByLang->getDescription());
             $banner = $this->imageService->getImage($filmFieldsTranslationInputByLang->getBannersInput());
             $film->translate($filmFieldsTranslationInputByLang->getLang())->setBanner($banner);
-       }
+        }
 
-       $actors = [];
+        $actors = [];
         foreach ($filmInput->getCastsInput() as $peopleInput) {
             $actor = $this->peopleService->getPeople($peopleInput);
             $actors[] = $actor;
@@ -116,7 +118,7 @@ class FilmByProviderService
 
         foreach ($filmInput->getGenresInput() as $genreInput) {
             $film->setGenre($this->genreService->getGenre($genreInput));
-}
+        }
 
         foreach ($filmInput->getAudiosInput() as $audioInput) {
             $film->setAudio($this->audioService->getAudio($audioInput));
@@ -138,6 +140,4 @@ class FilmByProviderService
 
         return $film;
     }
-
-
 }

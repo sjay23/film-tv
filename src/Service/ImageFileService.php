@@ -9,7 +9,6 @@ use phpDocumentor\Reflection\Types\Void_;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
-
 class ImageFileService
 {
     private Imagine $imagine;
@@ -26,7 +25,9 @@ class ImageFileService
 
     public function getUploadFileByUrl(?string $url): ?UploadedFile
     {
-        if ($url == null) return null;
+        if ($url == null) {
+            return null;
+        }
         $url = str_replace(" ", "%20", $url);
         try {
             $image = $this->imagine->open($url);
@@ -44,11 +45,7 @@ class ImageFileService
 
     public function updateUploadedStatus(?Image $poster): void
     {
-        $poster = $poster->setUploaded(true);
+        $poster->setUploaded(true);
         $this->imageRepository->save($poster);
     }
-
 }
-
-
-

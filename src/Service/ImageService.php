@@ -18,7 +18,6 @@ class ImageService
     ) {
         $this->entityManager = $entityManager;
         $this->imageRepository = $imageRepository;
-
     }
 
     public function getImage($imageInput): Image
