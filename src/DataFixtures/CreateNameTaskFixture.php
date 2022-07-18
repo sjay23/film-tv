@@ -9,7 +9,6 @@ use Doctrine\Persistence\ObjectManager;
 
 class CreateNameTaskFixture extends Fixture
 {
-
     private CommandTaskRepository $taskRepository;
 
     /**
@@ -18,8 +17,7 @@ class CreateNameTaskFixture extends Fixture
 
     public function __construct(
         CommandTaskRepository $taskRepository
-    )
-    {
+    ) {
         $this->taskRepository = $taskRepository;
     }
 
@@ -30,7 +28,7 @@ class CreateNameTaskFixture extends Fixture
     public function load(ObjectManager $manager): void
     {
         $task = new CommandTask(
-            "addFilmByParser_".rand(1, 100)
+            'addFilmByParser_' . rand(1, 100)
         );
 
         try {

@@ -2,16 +2,36 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Core\Annotation\ApiResource;
 use App\Repository\ProviderRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use JetBrains\PhpStorm\Pure;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Uid\Uuid;
 
 /**
  * @ORM\Entity(repositoryClass=ProviderRepository::class)
  */
+#[ApiResource(
+    itemOperations: [
+        'get',
+        'delete'
+    ],
+    denormalizationContext: [
+        'groups' => [
+            'get',
+            'post',
+        ]
+    ],
+    normalizationContext: [
+        'groups' => [
+            'get',
+            'post',
+        ]
+    ]
+)]
 class Provider
 {
     public const SWEET_TV = 'SweetTv';
@@ -20,11 +40,13 @@ class Provider
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
+     * @Groups({"post", "get"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255,)
+     * @Groups({"post", "get"})
      */
     private string $name;
 
@@ -41,10 +63,9 @@ class Provider
     /**
      * @param string $name
      */
-    public function __construct(
+    #[Pure] public function __construct(
         string $name
-    )
-    {
+    ) {
         $this->name = $name;
         $this->tasks = new ArrayCollection();
         $this->films = new ArrayCollection();
@@ -56,17 +77,17 @@ class Provider
     }
 
     /**
-     * @return ArrayCollection
+     * @return Collection
      */
-    public function getFilms(): ArrayCollection
+    public function getFilms(): Collection
     {
         return $this->films;
     }
 
     /**
-     * @param ArrayCollection $films
+     * @param Collection $films
      */
-    public function setFilms(ArrayCollection $films): void
+    public function setFilms(Collection $films): void
     {
         $this->films = $films;
     }
@@ -102,7 +123,4 @@ class Provider
     {
         $this->name = $name;
     }
-
-
-
 }

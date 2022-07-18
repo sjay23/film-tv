@@ -18,10 +18,9 @@ class CountryService
     ) {
         $this->entityManager = $entityManager;
         $this->countryRepository = $countryRepository;
-
     }
 
-    public function getCountry($countryInput)
+    public function getCountry($countryInput): ?Country
     {
         if (!$country = $this->countryRepository->findOneBy(['name' => $countryInput->getName()])) {
             $country = new Country();

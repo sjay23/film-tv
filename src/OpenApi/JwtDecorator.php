@@ -20,7 +20,8 @@ final class JwtDecorator implements OpenApiFactoryInterface
      */
     public function __construct(
         private OpenApiFactoryInterface $decorated
-    ) {}
+    ) {
+    }
 
     /**
      * @param array $context
@@ -57,32 +58,32 @@ final class JwtDecorator implements OpenApiFactoryInterface
         $pathItem = new Model\PathItem(
             ref: 'JWT Token',
             post: new Model\Operation(
-            operationId: 'postCredentialsItem',
-            tags: ['Authentication'],
-            responses: [
-            '200' => [
-                'description' => 'Get JWT token',
-                'content' => [
-                    'application/json' => [
-                        'schema' => [
-                            '$ref' => '#/components/schemas/Token',
+                operationId: 'postCredentialsItem',
+                tags: ['Authentication'],
+                responses: [
+                    '200' => [
+                        'description' => 'Get JWT token',
+                        'content' => [
+                            'application/json' => [
+                                'schema' => [
+                                    '$ref' => '#/components/schemas/Token',
+                                ],
+                            ],
                         ],
                     ],
                 ],
-            ],
-        ],
-            summary: 'Get JWT token to login.',
-            requestBody: new Model\RequestBody(
-            description: 'Generate new JWT Token',
-            content: new \ArrayObject([
-            'application/json' => [
-                'schema' => [
-                    '$ref' => '#/components/schemas/Credentials',
-                ],
-            ],
-        ]),
-        ),
-        ),
+                summary: 'Get JWT token to login.',
+                requestBody: new Model\RequestBody(
+                    description: 'Generate new JWT Token',
+                    content: new \ArrayObject([
+                        'application/json' => [
+                            'schema' => [
+                                '$ref' => '#/components/schemas/Credentials',
+                            ],
+                        ],
+                    ]),
+                ),
+            ),
         );
         $openApi->getPaths()->addPath('/api/login', $pathItem);
 

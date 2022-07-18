@@ -35,8 +35,7 @@ class PeopleInput
     public function __construct(
         ?string $name,
         ?string $link
-    )
-    {
+    ) {
         $this->name = $name;
         $this->link = $link;
     }
@@ -72,5 +71,4 @@ class PeopleInput
     {
         $this->link = $link;
     }
-
 }

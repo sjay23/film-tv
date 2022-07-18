@@ -18,8 +18,7 @@ class CreateProviderFixture extends Fixture
 
     public function __construct(
         ProviderRepository $providerRepository
-    )
-    {
+    ) {
         $this->providerRepository = $providerRepository;
     }
 

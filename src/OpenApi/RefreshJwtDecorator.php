@@ -20,7 +20,8 @@ final class RefreshJwtDecorator implements OpenApiFactoryInterface
      */
     public function __construct(
         private OpenApiFactoryInterface $decorated
-    ) {}
+    ) {
+    }
 
     /**
      * @param array $context
@@ -44,32 +45,32 @@ final class RefreshJwtDecorator implements OpenApiFactoryInterface
         $pathItem = new Model\PathItem(
             ref: 'Refresh JWT Token',
             post: new Model\Operation(
-            operationId: 'postCredentialsItem',
-            tags: ['Authentication'],
-            responses: [
-            '200' => [
-                'description' => 'Refresh JWT token',
-                'content' => [
-                    'application/json' => [
-                        'schema' => [
-                            '$ref' => '#/components/schemas/Token',
+                operationId: 'postCredentialsItem',
+                tags: ['Authentication'],
+                responses: [
+                    '200' => [
+                        'description' => 'Refresh JWT token',
+                        'content' => [
+                            'application/json' => [
+                                'schema' => [
+                                    '$ref' => '#/components/schemas/Token',
+                                ],
+                            ],
                         ],
                     ],
                 ],
-            ],
-        ],
-            summary: 'Refresh JWT token',
-            requestBody: new Model\RequestBody(
-            description: 'Refresh JWT Token',
-            content: new \ArrayObject([
-            'application/json' => [
-                'schema' => [
-                    '$ref' => '#/components/schemas/Refresh_Credentials',
-                ],
-            ],
-        ]),
-        ),
-        ),
+                summary: 'Refresh JWT token',
+                requestBody: new Model\RequestBody(
+                    description: 'Refresh JWT Token',
+                    content: new \ArrayObject([
+                        'application/json' => [
+                            'schema' => [
+                                '$ref' => '#/components/schemas/Refresh_Credentials',
+                            ],
+                        ],
+                    ]),
+                ),
+            ),
         );
         $openApi->getPaths()->addPath('/api/refresh-token', $pathItem);
 

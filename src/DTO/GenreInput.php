@@ -25,8 +25,7 @@ class GenreInput
 
     public function __construct(
         ?string $name
-    )
-    {
+    ) {
         $this->name = $name;
     }
 
@@ -45,6 +44,4 @@ class GenreInput
     {
         $this->name = $name;
     }
-
-
 }

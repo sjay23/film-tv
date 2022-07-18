@@ -14,14 +14,12 @@ class GenreService
     public function __construct(
         EntityManagerInterface $entityManager,
         GenreRepository $genreRepository
-
     ) {
         $this->entityManager = $entityManager;
         $this->genreRepository = $genreRepository;
-
     }
 
-    public function getGenre($genreInput)
+    public function getGenre($genreInput): ?Genre
     {
         if (!$genre = $this->genreRepository->findOneBy(['name' => $genreInput->getName()])) {
             $genre = new Genre();

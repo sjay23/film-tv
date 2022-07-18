@@ -25,8 +25,7 @@ class TaskService
      */
     public function getTask(object $provider): ?CommandTask
     {
-        return $this->commandTaskRepository->findOneBy(['provider'=> $provider]);
-
+        return $this->commandTaskRepository->findOneBy(['provider' => $provider]);
     }
 
     /**
@@ -34,19 +33,18 @@ class TaskService
      * @param object $task
      * @return object
      */
-    public function updateTask(object $film,object $task): object
+    public function updateTask(object $film, object $task): object
     {
         $task->setLastId($film->getMovieId());
-        $task->setCountTask( $task->getCountTask() + 1);
+        $task->setCountTask($task->getCountTask() + 1);
         $this->entityManager->flush();
         return $task;
-
     }
 
     /**
      * @param object $task
      */
-    function setErrorStatus(object $task)
+    public function setErrorStatus(object $task)
     {
         $task->setStatus(2);
         $this->entityManager->flush();
@@ -55,7 +53,7 @@ class TaskService
     /**
      * @param object $task
      */
-    function setWorkStatus(object $task)
+    public function setWorkStatus(object $task)
     {
         $task->setStatus(1);
         $this->entityManager->flush();
@@ -64,10 +62,9 @@ class TaskService
     /**
      * @param object $task
      */
-    function setNotWorkStatus(object $task)
+    public function setNotWorkStatus(object $task)
     {
         $task->setStatus(0);
         $this->entityManager->flush();
     }
-
 }

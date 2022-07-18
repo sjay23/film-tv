@@ -2,16 +2,36 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Core\Annotation\ApiResource;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\JoinTable;
 use Knp\DoctrineBehaviors\Contract\Entity\TranslationInterface;
 use Knp\DoctrineBehaviors\Model\Translatable\TranslationTrait;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity()
  */
+#[ApiResource(
+    itemOperations: [
+        'get',
+        'delete'
+    ],
+    denormalizationContext: [
+        'groups' => [
+            'get',
+            'post',
+        ]
+    ],
+    normalizationContext: [
+        'groups' => [
+            'get',
+            'post',
+        ]
+    ]
+)]
 class FilmByProviderTranslation implements TranslationInterface
 {
     use TranslationTrait;
@@ -20,11 +40,13 @@ class FilmByProviderTranslation implements TranslationInterface
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
+     * @Groups({"post", "get"})
      */
     private int $id;
 
     /**
      * @ORM\Column(type="string", length=500)
+     * @Groups({"post", "get"})
      */
     private ?string $title;
 
@@ -34,11 +56,13 @@ class FilmByProviderTranslation implements TranslationInterface
      *      joinColumns={@ORM\JoinColumn(name="image_id", referencedColumnName="id")},
      *      inverseJoinColumns={@ORM\JoinColumn(name="film_translation_id", referencedColumnName="id")}
      *      )
+     * @Groups({"post", "get"})
      */
     private ?Collection $banner;
 
     /**
      * @ORM\Column(type="string", length=5000, nullable="true")
+     * @Groups({"post", "get"})
      */
     private ?string $description;
 

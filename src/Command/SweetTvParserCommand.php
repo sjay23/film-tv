@@ -7,8 +7,6 @@ use GuzzleHttp\Exception\GuzzleException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use GuzzleHttp\Client;
-use Symfony\Component\DomCrawler\Crawler;
 
 class SweetTvParserCommand extends Command
 {
@@ -18,7 +16,7 @@ class SweetTvParserCommand extends Command
      * @var SweetTvService
      */
     private SweetTvService $sweetTvService;
-    
+
     public function __construct(
         SweetTvService $sweetTvService
     ) {

@@ -20,32 +20,38 @@ class CommandTask
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
+     * @Groups({"post", "get"})
      */
     private int $id;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"post", "get"})
      */
     private string $name;
 
     /**
      * @ORM\Column(type="integer")
+     * @Groups({"post", "get"})
      */
     private int $countTask = 0;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Provider", inversedBy="films")
+     * @ORM\ManyToOne(targetEntity="App\Entity\Provider", inversedBy="tasks")
      * @ORM\JoinColumn(name="provider_id", referencedColumnName="id")
+     * @Groups({"post", "get"})
      */
     private ?Provider $provider;
 
     /**
      * @ORM\Column(type="integer",nullable="true")
+     * @Groups({"post", "get"})
      */
     private int $lastId;
 
     /**
      * @ORM\Column(type="smallint", options={"default":0})
+     * @Groups({"post", "get"})
      */
     private int $status = self::STATUS_NOT_WORK;
 
@@ -54,8 +60,7 @@ class CommandTask
      */
     public function __construct(
         string $name
-    )
-    {
+    ) {
         $this->name = $name;
     }
 

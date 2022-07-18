@@ -19,7 +19,7 @@ class AudioService
         $this->audioRepository = $audioRepository;
     }
 
-    public function getAudio($audioInput)
+    public function getAudio($audioInput): ?Audio
     {
         if (!$audio = $this->audioRepository->findOneBy(['name' => $audioInput->getName()])) {
             $audio = new Audio();
