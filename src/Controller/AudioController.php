@@ -43,20 +43,21 @@ class AudioController
     }
 
 
-function addAudio(Request $request):Audio{
-    $audioInput = new AudioInput(
-        $request->get('name')
-    );
-    $this->validator->validate($audioInput);
+    function addAudio(Request $request): Audio
+    {
+        $audioInput = new AudioInput(
+            $request->get('name')
+        );
+        $this->validator->validate($audioInput);
 
-    if($audio = $this->audioRepository->findOneBy(['name' => $audioInput->getName()])){
-        throw new \Exception('The audio already exists');
-    }else{
-        $audio = new Audio();
-        $audio->setName($audioInput->getName());
-        $this->entityManager->persist($audio);
-        $this->entityManager->flush();
-    }
-    return $audio;
+        if ($audio = $this->audioRepository->findOneBy(['name' => $audioInput->getName()])) {
+            throw new \Exception('The audio already exists');
+        } else {
+            $audio = new Audio();
+            $audio->setName($audioInput->getName());
+            $this->entityManager->persist($audio);
+            $this->entityManager->flush();
+        }
+        return $audio;
 }
 }

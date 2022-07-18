@@ -42,21 +42,22 @@ class CountryController
         $this->entityManager = $entityManager;
     }
 
-function addCountry(Request $request):Country{
+    function addCountry(Request $request): Country
+    {
 
-    $countryInput = new CountryInput(
-        $request->get('name')
-    );
-    $this->validator->validate($countryInput);
+        $countryInput = new CountryInput(
+            $request->get('name')
+        );
+        $this->validator->validate($countryInput);
 
-    if($country = $this->countryRepository->findOneBy(['name' => $countryInput->getName()])){
-        throw new \Exception('The country already exists');
-    }else{
-    $country = new Country();
-    $country->setName($countryInput->getName());
-    $this->entityManager->persist($country);
-    $this->entityManager->flush();
+        if ($country = $this->countryRepository->findOneBy(['name' => $countryInput->getName()])) {
+            throw new \Exception('The country already exists');
+        } else {
+            $country = new Country();
+            $country->setName($countryInput->getName());
+            $this->entityManager->persist($country);
+            $this->entityManager->flush();
+        }
+        return $country;
     }
-    return $country;
-}
 }

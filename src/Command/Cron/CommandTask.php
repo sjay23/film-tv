@@ -33,7 +33,7 @@ class CommandTask extends Command
 
 
 
-    public function __construct( ImageFileService $imageFileService,ProviderRepository $providerRepository,ImageRepository $imageRepository)
+    public function __construct(ImageFileService $imageFileService, ProviderRepository $providerRepository, ImageRepository $imageRepository)
     {
         parent::__construct();
         $this->imageFileService = $imageFileService;
@@ -45,11 +45,11 @@ class CommandTask extends Command
     {
         $provider = $this->providerRepository->findOneBy(['name' => Provider::SWEET_TV]);
         $films = $provider->getFilms();
-        foreach ($films as $film){
+        foreach ($films as $film) {
             $posters = $film->getPoster();
-            foreach ($posters as $poster){
-                if($poster->getUploaded() == 0){
-                    $uploadedFile=$this->imageFileService->getUploadFileByUrl($poster->getLink());
+            foreach ($posters as $poster) {
+                if ($poster->getUploaded() == 0) {
+                    $uploadedFile = $this->imageFileService->getUploadFileByUrl($poster->getLink());
                     $this->imageFileService->updateUploadedStatus($poster);
                     $poster->setImageFile($uploadedFile);
                     $this->imageRepository->save($poster);

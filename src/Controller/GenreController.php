@@ -42,20 +42,21 @@ class GenreController
         $this->entityManager = $entityManager;
     }
 
-function addGenre(Request $request):Genre{
-    $genreInput = new GenreInput(
-        $request->get('name')
-    );
-    $this->validator->validate($genreInput);
+    function addGenre(Request $request): Genre
+    {
+        $genreInput = new GenreInput(
+            $request->get('name')
+        );
+        $this->validator->validate($genreInput);
 
-    if($genre = $this->genreRepository->findOneBy(['name' => $genreInput->getName()])){
-        throw new \Exception('The genre already exists');
-    }else{
-        $genre = new Genre();
-        $genre->setName($genreInput->getName());
-        $this->entityManager->persist($genre);
-        $this->entityManager->flush();
+        if ($genre = $this->genreRepository->findOneBy(['name' => $genreInput->getName()])) {
+            throw new \Exception('The genre already exists');
+        } else {
+            $genre = new Genre();
+            $genre->setName($genreInput->getName());
+            $this->entityManager->persist($genre);
+            $this->entityManager->flush();
+        }
+        return $genre;
     }
-    return $genre;
-}
 }

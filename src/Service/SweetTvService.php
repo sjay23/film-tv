@@ -164,7 +164,7 @@ class SweetTvService
                 $filmInput->setProvider($provider);
                 $this->validator->validate($filmInput);
                 $film = $this->filmByProviderService->addFilmByProvider($filmInput);
-                $this->taskService->updateTask($film,$this->task);
+                $this->taskService->updateTask($film, $this->task);
                 $this->taskService->setNotWorkStatus($this->task);
             }
             return $film;
@@ -179,7 +179,7 @@ class SweetTvService
      */
     private function parseFilmBySweet(FilmInput $filmInput, $crawlerChild, string $lang = self::LANG_DEFAULT): FilmInput
     {
-        $filmFieldTranslation = $this->getFilmFieldTranslation($crawlerChild,$lang);
+        $filmFieldTranslation = $this->getFilmFieldTranslation($crawlerChild, $lang);
         $filmInput->addFilmFieldTranslationInput($filmFieldTranslation);
 
         if ($lang === self::LANG_DEFAULT) {
@@ -204,7 +204,7 @@ class SweetTvService
             $filmInput->setAudiosInput($audioCollect);
         }
 
-        sleep(rand(0,3));
+        sleep(rand(0, 3));
 
         return $filmInput;
     }
@@ -216,7 +216,7 @@ class SweetTvService
     private function convertTime(string $str): int
     {
         $a = preg_replace("/[^0-9]/", '', $str);
-        $time = ((substr($a,0,2))*60)+((substr($a,-2,2)));
+        $time = ((substr($a, 0, 2)) * 60) + ((substr($a, -2, 2)));
         return $time;
     }
 
@@ -275,11 +275,11 @@ class SweetTvService
         $node = $crawler->filter('div.film__genres a');
         $filmGenre = [];
         if ($node->count() !== 0) {
-        $filmGenre = $crawler->filter('div.film__genres a')->each(function (Crawler $node){
-            $genreInput = new GenreInput($node->text());
-            $this->validator->validate($genreInput);
-        	return $genreInput;
-        });
+            $filmGenre = $crawler->filter('div.film__genres a')->each(function (Crawler $node) {
+                $genreInput = new GenreInput($node->text());
+                $this->validator->validate($genreInput);
+                return $genreInput;
+            });
         }
         return new ArrayCollection($filmGenre);
     }
@@ -299,7 +299,7 @@ class SweetTvService
                 return $audioInput;
             });
         }
-        return new ArrayCollection (array_unique( $filmAudio, SORT_REGULAR ));
+        return new ArrayCollection (array_unique($filmAudio, SORT_REGULAR));
     }
 
     /**
@@ -309,7 +309,7 @@ class SweetTvService
     private function parseCast($crawler): ArrayCollection
     {
         $node = $crawler->filter('div.film__actor a');
-        $castGenre=[];
+        $castGenre = [];
         if ($node->count() !== 0) {
             $castGenre = $crawler->filter('div.film__actor a')->each(function (Crawler $node) {
                 $castInput = new PeopleInput($node->text(), $node->link()->getUri());
@@ -326,7 +326,7 @@ class SweetTvService
      */
     private function parseCountry($crawler): ArrayCollection
     {
-        $filmCountry = $crawler->filter('div.film__countries a.film-left__link')->each(function (Crawler $node){
+        $filmCountry = $crawler->filter('div.film__countries a.film-left__link')->each(function (Crawler $node) {
             $countriesInput = new CountryInput($node->text());
             $this->validator->validate($countriesInput);
             return $countriesInput;
