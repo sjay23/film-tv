@@ -4,6 +4,7 @@ namespace App\Command\Cron;
 
 use App\Entity\Provider;
 use App\Repository\ProviderRepository;
+use App\Repository\ImageRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Service\ImageFileService;
 use Symfony\Component\Console\Command\Command;
@@ -19,39 +20,43 @@ class CommandTask extends Command
      * @var ImageFileService
      */
     private ImageFileService $imageFileService;
+
     /**
      * @var ProviderRepository
      */
     private ProviderRepository $providerRepository;
+
     /**
-     * @var EntityManagerInterface
+     * @var ImageRepository
      */
-    private  EntityManagerInterface $entityManager;
+    private ImageRepository $imageRepository;
 
 
-    public function __construct( ImageFileService $imageFileService,ProviderRepository $providerRepository,EntityManagerInterface $entityManager)
+
+    public function __construct( ImageFileService $imageFileService,ProviderRepository $providerRepository,ImageRepository $imageRepository)
     {
         parent::__construct();
         $this->imageFileService = $imageFileService;
-        $this->entityManager = $entityManager;
+        $this->imageRepository = $imageRepository;
         $this->providerRepository = $providerRepository;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $provider = $this->providerRepository->findOneBy(['name' => Provider::SWEET_TV]);
-        $films=$provider->getFilms();
+        $films = $provider->getFilms();
         foreach ($films as $film){
-            $posters= $film->getPoster();
+            $posters = $film->getPoster();
             foreach ($posters as $poster){
                 if($poster->getUploaded() == 0){
                     $uploadedFile=$this->imageFileService->getUploadFileByUrl($poster->getLink());
+                    $this->imageFileService->updateUploadedStatus($poster);
                     $poster->setImageFile($uploadedFile);
+                    $this->imageRepository->save($poster);
                 }
             }
-
         }
-        $this->entityManager->flush();
+
         $output->writeln('Done!');
 
         return Command::SUCCESS;

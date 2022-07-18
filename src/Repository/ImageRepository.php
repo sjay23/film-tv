@@ -39,5 +39,22 @@ class ImageRepository extends ServiceEntityRepository
         }
     }
 
+    /**
+     * @param Image $provider
+     */
+    public function save(Image $provider)
+    {
+        $this->_em->persist($provider);
+        $this->_em->flush();
+    }
+
+    /**
+     * @param Image $provider
+     */
+    public function delete(Image $provider)
+    {
+        $this->_em->remove($provider);
+        $this->_em->flush();
+    }
 
 }
