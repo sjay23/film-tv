@@ -5,11 +5,11 @@ vich_uploader:
     mappings:
         image:
             uri_prefix: /public/images
-            upload_destination: '%kernel.project_dir%/var/images'
+            upload_destination: '%kernel.project_dir%/public/images'
             namer: Vich\UploaderBundle\Naming\OrignameNamer
             directory_namer:
                 service: Vich\UploaderBundle\Naming\CurrentDateTimeDirectoryNamer
                 options:
                     date_time_format: 'Y/m/d'
-                    date_time_property: uploadTimestamp
+                    date_time_property: uploadedAt
 

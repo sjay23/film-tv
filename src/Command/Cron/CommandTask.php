@@ -51,9 +51,7 @@ class CommandTask extends Command
             foreach ($posters as $poster) {
                 if ($poster->getUploaded() == 0) {
                     $uploadedFile = $this->imageFileService->getUploadFileByUrl($poster->getLink());
-                    $this->imageFileService->updateUploadedStatus($poster);
-                    $poster->setImageFile($uploadedFile);
-                    $this->imageRepository->save($poster);
+                    $this->imageFileService->updateFile($poster, $uploadedFile);
                 }
             }
         }

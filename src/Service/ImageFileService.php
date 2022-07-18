@@ -4,8 +4,7 @@ namespace App\Service;
 
 use App\Entity\Image;
 use App\Repository\ImageRepository;
-use Imagine\Imagick\Imagine;
-use phpDocumentor\Reflection\Types\Void_;
+use Imagine\Gd\Imagine;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
@@ -20,7 +19,7 @@ class ImageFileService
     ) {
         $this->imagine = new Imagine();
         $this->imageRepository = $imageRepository;
-        $this->importFolder = $params->get('import_product_file');
+        $this->importFolder = $params->get('import_images_file');
     }
 
     public function getUploadFileByUrl(?string $url): ?UploadedFile
@@ -43,9 +42,10 @@ class ImageFileService
         return new UploadedFile($pathThumb, $filename, null, null, true);
     }
 
-    public function updateUploadedStatus(?Image $poster): void
+    public function updateFile(?Image $poster, ?UploadedFile $uploadedFile): void
     {
         $poster->setUploaded(true);
+        $poster->setImageFile($uploadedFile);
         $this->imageRepository->save($poster);
     }
 }

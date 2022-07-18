@@ -7,9 +7,9 @@ use App\Repository\ProviderRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use JetBrains\PhpStorm\Pure;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Uid\Uuid;
-
 
 /**
  * @ORM\Entity(repositoryClass=ProviderRepository::class)
@@ -63,10 +63,9 @@ class Provider
     /**
      * @param string $name
      */
-    public function __construct(
+    #[Pure] public function __construct(
         string $name
-    )
-    {
+    ) {
         $this->name = $name;
         $this->tasks = new ArrayCollection();
         $this->films = new ArrayCollection();
@@ -78,17 +77,17 @@ class Provider
     }
 
     /**
-     * @return ArrayCollection
+     * @return Collection
      */
-    public function getFilms(): ArrayCollection
+    public function getFilms(): Collection
     {
         return $this->films;
     }
 
     /**
-     * @param ArrayCollection $films
+     * @param Collection $films
      */
-    public function setFilms(ArrayCollection $films): void
+    public function setFilms(Collection $films): void
     {
         $this->films = $films;
     }
@@ -124,7 +123,4 @@ class Provider
     {
         $this->name = $name;
     }
-
-
-
 }

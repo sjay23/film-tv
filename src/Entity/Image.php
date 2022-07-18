@@ -77,6 +77,12 @@ class Image
     private DateTimeInterface $uploadedAt;
 
     /**
+     * @var string|null
+     * @ORM\Column(nullable=true)
+     */
+    public ?string $filePath;
+
+    /**
      * @ORM\Column(type="smallint", options={"default":0})
      * @Groups({"post", "get"})
      */
@@ -188,6 +194,21 @@ class Image
         return $this->imageName;
     }
 
+    /**
+     * @return string|null
+     */
+    public function getFilePath(): ?string
+    {
+        return $this->filePath;
+    }
+
+    /**
+     * @param string|null $filePath
+     */
+    public function setFilePath(?string $filePath): void
+    {
+        $this->filePath = $filePath;
+    }
 
     public function serialize(): ?string
     {
@@ -196,6 +217,7 @@ class Image
             $this->imageName,
         ]);
     }
+
     public function unserialize($data)
     {
         [$this->id] = unserialize($data);
