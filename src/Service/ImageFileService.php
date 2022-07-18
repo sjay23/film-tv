@@ -21,9 +21,9 @@ class ImageFileService
 
     }
 
-    public function getUploadFileByUrl(?object $poster): ?UploadedFile
+    public function getUploadFileByUrl(?string $url): ?UploadedFile
     {
-        $url=$poster->getLink();
+       
         if ($url == null) return null;
         $url = str_replace(" ", "%20", $url);
         try {

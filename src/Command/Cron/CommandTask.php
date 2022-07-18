@@ -45,7 +45,7 @@ class CommandTask extends Command
             $posters= $film->getPoster();
             foreach ($posters as $poster){
                 if($poster->getUploaded() == 0){
-                    $uploadedFile=$this->imageFileService->getUploadFileByUrl($poster);
+                    $uploadedFile=$this->imageFileService->getUploadFileByUrl($poster->getLink());
                     $poster->setImageFile($uploadedFile);
                 }
             }
