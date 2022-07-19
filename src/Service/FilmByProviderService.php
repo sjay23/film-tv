@@ -50,10 +50,6 @@ class FilmByProviderService
      */
     private CountryService $countryService;
 
-    /**
-     * @var SweetTvService
-     */
-    private SweetTvService $sweetTvService;
 
     /**
      * @var ImageFileService
@@ -75,10 +71,8 @@ class FilmByProviderService
         AudioService $audioService,
         CountryService $countryService,
         PeopleService $peopleService,
-        SweetTvService $sweetTvService,
         ImageFileService $imageFileService,
     ) {
-        $this->sweetTvService = $sweetTvService;
         $this->entityManager = $entityManager;
         $this->imageService = $imageService;
         $this->genreService = $genreService;
@@ -167,7 +161,7 @@ class FilmByProviderService
 
     public function uploadBanner(FilmByProvider $film): void
     {
-        foreach ($this->sweetTvService::LANGS as $lang) {
+        foreach (SweetTvService::LANGS as $lang) {
             $filmByTranslation = $film->translate($lang);
             $banner = $filmByTranslation->getBanner();
             $bannerFile = $this->imageFileService->getUploadFileByUrl($banner->getLink());
