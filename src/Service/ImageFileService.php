@@ -2,8 +2,12 @@
 
 namespace App\Service;
 
+use App\Entity\FilmByProvider;
+use App\Entity\FilmByProviderTranslation;
 use App\Entity\Image;
 use App\Repository\ImageRepository;
+use App\Repository\FilmByProviderRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Imagine\Gd\Imagine;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
@@ -12,13 +16,22 @@ class ImageFileService
 {
     private Imagine $imagine;
     private ImageRepository $imageRepository;
+    private FilmByProviderRepository $filmByProviderRepository;
+    /**
+     * @var EntityManagerInterface
+     */
+    private EntityManagerInterface $entityManager;
 
     public function __construct(
+        EntityManagerInterface $entityManager,
         ParameterBagInterface $params,
+        FilmByProviderRepository $filmByProviderRepository,
         ImageRepository $imageRepository
     ) {
         $this->imagine = new Imagine();
+        $this->entityManager = $entityManager;
         $this->imageRepository = $imageRepository;
+        $this->filmByProviderRepository = $filmByProviderRepository;
         $this->importFolder = $params->get('import_images_file');
     }
 
@@ -48,4 +61,6 @@ class ImageFileService
         $image->setImageFile($uploadedFile);
         $this->imageRepository->save($image);
     }
+
+
 }

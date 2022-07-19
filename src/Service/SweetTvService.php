@@ -10,6 +10,7 @@ use App\DTO\AudioInput;
 use App\DTO\CountryInput;
 use App\DTO\PeopleInput;
 use App\DTO\GenreInput;
+use App\Command\Cron\CommandTaskUpload;
 use App\DTO\ImageInput;
 use App\Entity\CommandTask;
 use App\Service\TaskService;
@@ -69,22 +70,6 @@ class SweetTvService
     private ValidatorInterface $validator;
 
     /**
-     * @var EntityManagerInterface
-     */
-    private EntityManagerInterface $entityManager;
-
-    /**
-     * @var ImageFileService
-     */
-    private ImageFileService $imageFileService;
-
-    private CommandTaskRepository $commandTaskRepository;
-
-    private ?CommandTask $task;
-
-
-    /**
-     * @param EntityManagerInterface $entityManager
      * @param TaskService $taskService
      * @param ValidatorInterface $validator
      * @param ProviderRepository $providerRepository
@@ -93,8 +78,6 @@ class SweetTvService
      * @param CommandTaskRepository $commandTaskRepository
      */
     public function __construct(
-        ImageFileService $imageFileService,
-        EntityManagerInterface $entityManager,
         TaskService $taskService,
         ValidatorInterface $validator,
         ProviderRepository $providerRepository,
@@ -102,8 +85,6 @@ class SweetTvService
         FilmByProviderService $filmByProviderService,
         CommandTaskRepository $commandTaskRepository
     ) {
-        $this->imageFileService = $imageFileService;
-        $this->entityManager = $entityManager;
         $this->taskService = $taskService;
         $this->validator = $validator;
         $this->filmByProviderService = $filmByProviderService;
@@ -170,8 +151,8 @@ class SweetTvService
                 $filmInput->setProvider($provider);
                 $this->validator->validate($filmInput);
                 $film = $this->filmByProviderService->addFilmByProvider($filmInput);
-                $this->uploadBanner($film);
-                $this->uploadPoster($film);
+                $this->filmByProviderService->uploadPoster($film);
+                $this->filmByProviderService->uploadBanner($film);
                 $this->taskService->updateTask($film, $this->task);
                 $this->taskService->setNotWorkStatus($this->task);
             }
@@ -214,53 +195,6 @@ class SweetTvService
         sleep(rand(0, 3));
 
         return $filmInput;
-    }
-
-    /**
-     * @param $film
-     * @return void
-     */
-    private function uploadPoster($film): void
-    {
-        foreach ($film->getPoster() as $poster) {
-            $posterFile = $this->imageFileService->getUploadFileByUrl($poster->getLink());
-            $this->imageFileService->updateFile($poster, $posterFile);
-        }
-        $this->updateStatusPoster($film);
-    }
-
-    /**
-     * @param $film
-     * @return void
-     */
-    private function uploadBanner($film): void
-    {
-        foreach (self::LANGS as $lang) {
-            $banner = $film->translate($lang)->getBanner();
-            $bannerFile = $this->imageFileService->getUploadFileByUrl($banner->getLink());
-            $this->imageFileService->updateFile($banner, $bannerFile);
-        }
-        $this->updateStatusBanner($banner);
-    }
-
-    /**
-     * @param $film
-     * @return void
-     */
-    private function updateStatusPoster($film): void
-    {
-        $film->setPosterUploaded(1);
-        $this->entityManager->flush();
-    }
-
-    /**
-     * @param $film
-     * @return void
-     */
-    private function updateStatusBanner($film): void
-    {
-        $film->setBannerUploaded(1);
-        $this->entityManager->flush();
     }
 
     /**
