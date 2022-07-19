@@ -42,10 +42,10 @@ class ImageFileService
         return new UploadedFile($pathThumb, $filename, null, null, true);
     }
 
-    public function updateFile(?Image $poster, ?UploadedFile $uploadedFile): void
+    public function updateFile(?Image $image, ?UploadedFile $uploadedFile): void
     {
-        $poster->setUploaded(true);
-        $poster->setImageFile($uploadedFile);
-        $this->imageRepository->save($poster);
+        $image->setUploaded(true);
+        $image->setImageFile($uploadedFile);
+        $this->imageRepository->save($image);
     }
 }

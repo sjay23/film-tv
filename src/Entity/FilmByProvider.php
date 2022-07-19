@@ -37,7 +37,11 @@ use Symfony\Component\Serializer\Annotation\Groups;
 )]
 class FilmByProvider implements TranslatableInterface
 {
+
     use TranslatableTrait;
+
+    public const UPLOAD = 1;
+    public const NO_UPLOAD = 0;
 
     /**
      * @ORM\Id
@@ -93,6 +97,12 @@ class FilmByProvider implements TranslatableInterface
      * @Groups({"post", "get"})
      */
     private ?Collection $poster;
+
+    /**
+     * @ORM\Column(type="smallint", options={"default":0})
+     * @Groups({"post", "get"})
+     */
+    private int $posterUploaded = self::NO_UPLOAD;
 
     /**
      * @ORM\ManyToMany(targetEntity="People", inversedBy="filmActor")
@@ -153,6 +163,7 @@ class FilmByProvider implements TranslatableInterface
 
     public function __construct()
     {
+        $this->posterUploaded = self::NO_UPLOAD;
         $this->audio = new ArrayCollection();
         $this->actor = new ArrayCollection();
         $this->director = new ArrayCollection();
@@ -369,4 +380,21 @@ class FilmByProvider implements TranslatableInterface
     {
         $this->movieId = $movieId;
     }
+
+    /**
+     * @return int
+     */
+    public function getPosterUploaded(): int
+    {
+        return $this->posterUploaded;
+    }
+
+    /**
+     * @param int $posterUploaded
+     */
+    public function setPosterUploaded(int $posterUploaded): void
+    {
+        $this->posterUploaded = $posterUploaded;
+    }
+
 }

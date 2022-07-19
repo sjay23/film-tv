@@ -40,4 +40,5 @@ class FilmByProviderRepository extends ServiceEntityRepository
             $this->getEntityManager()->flush();
         }
     }
+
 }

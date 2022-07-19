@@ -44,18 +44,10 @@ class CommandTask extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $provider = $this->providerRepository->findOneBy(['name' => Provider::SWEET_TV]);
-        $films = $provider->getFilms();
-        foreach ($films as $film) {
-            $posters = $film->getPoster();
-            foreach ($posters as $poster) {
-                if ($poster->getUploaded() == 0) {
-                    $uploadedFile = $this->imageFileService->getUploadFileByUrl($poster->getLink());
-                    $this->imageFileService->updateFile($poster, $uploadedFile);
-                }
-            }
+        $images = $this->imageRepository->getNoUploadedImage();
+        foreach ($images as $image) {
+            $this->imageFileService->getUploadFileByUrl($image->getLink());
         }
-
         $output->writeln('Done!');
 
         return Command::SUCCESS;
