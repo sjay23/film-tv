@@ -163,10 +163,12 @@ class FilmByProviderService
     {
         foreach (SweetTvService::LANGS as $lang) {
             $filmByTranslation = $film->translate($lang);
-            $banner = $filmByTranslation->getBanner();
-            $bannerFile = $this->imageFileService->getUploadFileByUrl($banner->getLink());
-            $this->imageFileService->updateFile($banner, $bannerFile);
-            $this->updateFilmByTranslation($filmByTranslation);
+            $banners = $filmByTranslation->getBanner();
+            foreach ($banners as $banner) {
+                $bannerFile = $this->imageFileService->getUploadFileByUrl($banner->getLink());
+                $this->imageFileService->updateFile($banner, $bannerFile);
+                $this->updateFilmByTranslation($filmByTranslation);
+            }
         }
     }
 
