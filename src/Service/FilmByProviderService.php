@@ -153,7 +153,7 @@ class FilmByProviderService
     {
         $posters = $film->getPoster();
         foreach ($posters as $poster) {
-            $posterFile = $this->imageFileService->getUploadFileByUrl($film->getPoster()->getLink());
+            $posterFile = $this->imageFileService->getUploadFileByUrl($poster->getLink());
             $this->imageFileService->updateFile($poster, $posterFile);
         }
         $this->updateFilmStatus($film);

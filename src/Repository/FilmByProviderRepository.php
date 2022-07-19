@@ -65,7 +65,7 @@ class FilmByProviderRepository extends ServiceEntityRepository
             ->select('f')
             ->join('f.provider', 'provider')
             ->Where('provider.id= :id')
-            ->andWhere('f.posterUploaded == 0')
+            ->andWhere('f.posterUploaded = 0')
             ->setParameter('id', $providerId)
             ->getQuery()
             ->getResult();
