@@ -36,6 +36,9 @@ class FilmByProviderTranslation implements TranslationInterface
 {
     use TranslationTrait;
 
+    public const UPLOAD = 1;
+    public const NO_UPLOAD = 0;
+
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
@@ -61,6 +64,12 @@ class FilmByProviderTranslation implements TranslationInterface
     private ?Collection $banner;
 
     /**
+     * @ORM\Column(type="smallint", options={"default":0})
+     * @Groups({"post", "get"})
+     */
+    private int $bannerUploaded = self::NO_UPLOAD;
+
+    /**
      * @ORM\Column(type="string", length=5000, nullable="true")
      * @Groups({"post", "get"})
      */
@@ -68,6 +77,7 @@ class FilmByProviderTranslation implements TranslationInterface
 
     public function __construct()
     {
+        $this->bannerUploaded = self::NO_UPLOAD;
         $this->banner = new ArrayCollection();
     }
 
@@ -134,4 +144,21 @@ class FilmByProviderTranslation implements TranslationInterface
         }
         return $this;
     }
+
+    /**
+     * @return int
+     */
+    public function getBannerUploaded(): int
+    {
+        return $this->bannerUploaded;
+    }
+
+    /**
+     * @param int $bannerUploaded
+     */
+    public function setBannerUploaded(int $bannerUploaded): void
+    {
+        $this->bannerUploaded = $bannerUploaded;
+    }
+
 }

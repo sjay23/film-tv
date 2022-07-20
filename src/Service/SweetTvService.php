@@ -10,6 +10,7 @@ use App\DTO\AudioInput;
 use App\DTO\CountryInput;
 use App\DTO\PeopleInput;
 use App\DTO\GenreInput;
+use App\Command\Cron\CommandTaskUpload;
 use App\DTO\ImageInput;
 use App\Entity\CommandTask;
 use App\Service\TaskService;
@@ -20,6 +21,7 @@ use App\Repository\FilmByProviderRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
 use GuzzleHttp\Client;
+use App\Service\ImageFileService;
 use GuzzleHttp\Exception\GuzzleException;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -68,17 +70,6 @@ class SweetTvService
     private ValidatorInterface $validator;
 
     /**
-     * @var EntityManagerInterface
-     */
-    private EntityManagerInterface $entityManager;
-
-    private CommandTaskRepository $commandTaskRepository;
-
-    private ?CommandTask $task;
-
-
-    /**
-     * @param EntityManagerInterface $entityManager
      * @param TaskService $taskService
      * @param ValidatorInterface $validator
      * @param ProviderRepository $providerRepository
@@ -87,7 +78,6 @@ class SweetTvService
      * @param CommandTaskRepository $commandTaskRepository
      */
     public function __construct(
-        EntityManagerInterface $entityManager,
         TaskService $taskService,
         ValidatorInterface $validator,
         ProviderRepository $providerRepository,
@@ -95,7 +85,6 @@ class SweetTvService
         FilmByProviderService $filmByProviderService,
         CommandTaskRepository $commandTaskRepository
     ) {
-        $this->entityManager = $entityManager;
         $this->taskService = $taskService;
         $this->validator = $validator;
         $this->filmByProviderService = $filmByProviderService;
@@ -162,6 +151,8 @@ class SweetTvService
                 $filmInput->setProvider($provider);
                 $this->validator->validate($filmInput);
                 $film = $this->filmByProviderService->addFilmByProvider($filmInput);
+                $this->filmByProviderService->uploadPoster($film);
+                $this->filmByProviderService->uploadBanner($film);
                 $this->taskService->updateTask($film, $this->task);
                 $this->taskService->setNotWorkStatus($this->task);
             }
@@ -189,7 +180,6 @@ class SweetTvService
             $filmInput->setRating((float)$rating);
             $filmInput->setYears((int)$years);
             $filmInput->setDuration((int)$duration);
-
             $countriesCollect = $this->parseCountry($crawlerChild);
             $filmInput->setCountriesInput($countriesCollect);
             $genreCollect = $this->parseGenre($crawlerChild);

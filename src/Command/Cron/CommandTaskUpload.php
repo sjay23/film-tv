@@ -4,20 +4,20 @@ namespace App\Command\Cron;
 
 use App\Entity\Provider;
 use App\Repository\ProviderRepository;
-use App\Repository\ImageRepository;
-use App\Service\ImageFileService;
+use App\Repository\FilmByProviderRepository;
+use App\Service\FilmByProviderService;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class CommandTask extends Command
+class CommandTaskUpload extends Command
 {
     protected static $defaultName = 'cron:upload_images';
 
     /**
-     * @var ImageFileService
+     * @var FilmByProviderService
      */
-    private ImageFileService $imageFileService;
+    private FilmByProviderService $filmByProviderService;
 
     /**
      * @var ProviderRepository
@@ -25,37 +25,31 @@ class CommandTask extends Command
     private ProviderRepository $providerRepository;
 
     /**
-     * @var ImageRepository
+     * @var FilmByProviderRepository
      */
-    private ImageRepository $imageRepository;
-
+    private FilmByProviderRepository $filmByProviderRepository;
 
 
     public function __construct(
-        ImageFileService $imageFileService,
+        FilmByProviderService $filmByProviderService,
         ProviderRepository $providerRepository,
-        ImageRepository $imageRepository
-    ) {
+        FilmByProviderRepository $filmByProviderRepository
+    )
+    {
         parent::__construct();
-        $this->imageFileService = $imageFileService;
-        $this->imageRepository = $imageRepository;
+        $this->filmByProviderService = $filmByProviderService;
+        $this->filmByProviderRepository = $filmByProviderRepository;
         $this->providerRepository = $providerRepository;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $provider = $this->providerRepository->findOneBy(['name' => Provider::SWEET_TV]);
-        $films = $provider->getFilms();
+        $films = $this->filmByProviderRepository->getFilmByNoUploadedImage($provider->getId());
         foreach ($films as $film) {
-            $posters = $film->getPoster();
-            foreach ($posters as $poster) {
-                if ($poster->getUploaded() == 0) {
-                    $uploadedFile = $this->imageFileService->getUploadFileByUrl($poster->getLink());
-                    $this->imageFileService->updateFile($poster, $uploadedFile);
-                }
-            }
+            $this->filmByProviderService->uploadPoster($film);
+            $this->filmByProviderService->uploadBanner($film);
         }
-
         $output->writeln('Done!');
 
         return Command::SUCCESS;

@@ -40,4 +40,35 @@ class FilmByProviderRepository extends ServiceEntityRepository
             $this->getEntityManager()->flush();
         }
     }
+
+    /**
+     * @param FilmByProvider $provider
+     */
+    public function save(FilmByProvider $provider)
+    {
+        $this->_em->persist($provider);
+        $this->_em->flush();
+    }
+
+    /**
+     * @param FilmByProvider $provider
+     */
+    public function delete(FilmByProvider $provider)
+    {
+        $this->_em->remove($provider);
+        $this->_em->flush();
+    }
+
+    public function getFilmByNoUploadedImage($providerId)
+    {
+        return $this->createQueryBuilder('f')
+            ->select('f')
+            ->join('f.provider', 'provider')
+            ->Where('provider.id= :id')
+            ->andWhere('f.posterUploaded = 0')
+            ->setParameter('id', $providerId)
+            ->getQuery()
+            ->getResult();
+    }
+
 }

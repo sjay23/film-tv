@@ -5,6 +5,7 @@ namespace App\Service;
 use App\DTO\FilmFieldTranslationInput;
 use App\DTO\FilmInput;
 use App\Entity\FilmByProvider;
+use App\Entity\FilmByProviderTranslation;
 use App\Repository\FilmByProviderRepository;
 use App\Repository\ProviderRepository;
 use App\Service\AudioService;
@@ -49,6 +50,12 @@ class FilmByProviderService
      */
     private CountryService $countryService;
 
+
+    /**
+     * @var ImageFileService
+     */
+    private ImageFileService $imageFileService;
+
     /**
      * @param EntityManagerInterface $entityManager
      * @param GenreService $genreService
@@ -63,7 +70,8 @@ class FilmByProviderService
         ImageService $imageService,
         AudioService $audioService,
         CountryService $countryService,
-        PeopleService $peopleService
+        PeopleService $peopleService,
+        ImageFileService $imageFileService,
     ) {
         $this->entityManager = $entityManager;
         $this->imageService = $imageService;
@@ -71,6 +79,7 @@ class FilmByProviderService
         $this->audioService = $audioService;
         $this->countryService = $countryService;
         $this->peopleService = $peopleService;
+        $this->imageFileService = $imageFileService;
     }
 
     /**
@@ -133,11 +142,46 @@ class FilmByProviderService
         $film->setLink($filmInput->getLink());
         $film->setMovieId($filmInput->getMovieId());
         $film->setRating($filmInput->getRating());
-
         $this->entityManager->persist($film);
         $film->mergeNewTranslations();
         $this->entityManager->flush();
 
         return $film;
     }
+
+    public function uploadPoster(FilmByProvider $film): void
+    {
+        $posters = $film->getPoster();
+        foreach ($posters as $poster) {
+            $posterFile = $this->imageFileService->getUploadFileByUrl($poster->getLink());
+            $this->imageFileService->updateFile($poster, $posterFile);
+        }
+        $this->updateFilmStatus($film);
+    }
+
+    public function uploadBanner(FilmByProvider $film): void
+    {
+        foreach (SweetTvService::LANGS as $lang) {
+            $filmByTranslation = $film->translate($lang);
+            $banners = $filmByTranslation->getBanner();
+            foreach ($banners as $banner) {
+                $bannerFile = $this->imageFileService->getUploadFileByUrl($banner->getLink());
+                $this->imageFileService->updateFile($banner, $bannerFile);
+                $this->updateFilmByTranslation($filmByTranslation);
+            }
+        }
+    }
+
+    public function updateFilmStatus(FilmByProvider $film): void
+    {
+        $film->setPosterUploaded(true);
+        $this->entityManager->flush();
+    }
+
+    public function updateFilmByTranslation(FilmByProviderTranslation $filmByTranslation): void
+    {
+        $filmByTranslation->setBannerUploaded(true);
+        $this->entityManager->flush();
+    }
+
 }
