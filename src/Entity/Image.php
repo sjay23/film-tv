@@ -94,7 +94,7 @@ class Image
      * @Assert\NotBlank
      * @Vich\UploadableField(mapping="image", fileNameProperty="filePath")
      */
-    public $imageFile;
+    public ?File $imageFile;
 
     /**
      * @ORM\Column(type="string", nullable=true)

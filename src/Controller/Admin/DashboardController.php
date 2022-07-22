@@ -7,6 +7,7 @@ use App\Entity\Country;
 use App\Entity\FilmByProvider;
 use App\Entity\FilmByProviderTranslation;
 use App\Entity\Genre;
+use App\Entity\Image;
 use App\Entity\People;
 use App\Entity\Provider;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
@@ -42,5 +43,6 @@ class DashboardController extends AbstractDashboardController
         yield MenuItem::linkToCrud('Genre', 'fas fa-film', Genre::class);
         yield MenuItem::linkToCrud('People', 'fas fa-film', People::class);
         yield MenuItem::linkToCrud('Provider', 'fas fa-film', Provider::class);
+        yield MenuItem::linkToCrud('Image', 'fas fa-film', Image::class);
     }
 }
