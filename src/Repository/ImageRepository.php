@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\Image;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Carbon\Carbon;
 
 /**
  * @extends ServiceEntityRepository<Image>
@@ -37,6 +38,14 @@ class ImageRepository extends ServiceEntityRepository
         if ($flush) {
             $this->getEntityManager()->flush();
         }
+    }
+
+    public function setImageLink(Image $image, string $link): Image
+    {
+        $image->setLink($link);
+        $image->setUploadedAt(Carbon::now());
+        $image->setUploaded($image::NO_UPLOAD);
+        return $image;
     }
 
     /**

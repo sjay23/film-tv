@@ -39,6 +39,7 @@ class Image
 {
     public const UPLOAD = 1;
     public const NO_UPLOAD = 0;
+    private ImageRepository $imageRepository;
 
     /**
      * @ORM\Id
@@ -49,7 +50,7 @@ class Image
     private int $id;
 
     /**
-     * @ORM\Column(type="string", length=500, unique="true")
+     * @ORM\Column(type="string", length=500, unique="true",nullable="true")
      * @Groups({"post", "get"})
      */
     private ?string $link;
@@ -101,14 +102,6 @@ class Image
      */
     private $imageName;
 
-
-    public function __construct(
-        ?string $link
-    ) {
-        $this->link = $link;
-        $this->uploaded = self::NO_UPLOAD;
-        $this->uploadedAt = Carbon::now();
-    }
 
     /**
      * @return int
