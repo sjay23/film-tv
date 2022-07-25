@@ -7,9 +7,11 @@ use Doctrine\DBAL\Types\FloatType;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\CollectionField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\EmailField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ImageField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
@@ -17,6 +19,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
+use Vich\UploaderBundle\Form\Type\VichImageType;
 
 class FilmByProviderCrudController extends AbstractCrudController
 {
@@ -37,13 +40,13 @@ class FilmByProviderCrudController extends AbstractCrudController
             TextField::new('rating'),
             TextField::new('age'),
             TextField::new('link'),
-            CollectionField::new('poster')->renderExpanded(),
-            #CollectionField::new('poster')->setBasePath('/public/images')->setUploadDir('/public/images'),
-            AssociationField::new('audio')->setFormTypeOption('choice_label', 'name')->setFormTypeOption('by_reference', false),
-            CollectionField::new('actor')->renderExpanded(),
-            CollectionField::new('country')->renderExpanded(),
-            AssociationField::new('genre')->setFormTypeOption('choice_label', 'name')->setFormTypeOption('by_reference', false),
-            CollectionField::new('director')->renderExpanded(),
+            AssociationField::new('poster')->setFormTypeOption('choice_label', 'link')->setFormTypeOption('by_reference', true),
+            AssociationField::new('audio')->setFormTypeOption('choice_label', 'name')->setFormTypeOption('by_reference', true),
+            AssociationField::new('country')->setFormTypeOption('choice_label', 'name')->setFormTypeOption('by_reference', true),
+            AssociationField::new('genre')->setFormTypeOption('choice_label', 'name')->setFormTypeOption('by_reference', true),
+            AssociationField::new('director')->setFormTypeOption('choice_label', 'name')->setFormTypeOption('by_reference', true),
+            AssociationField::new('actor')->setFormTypeOption('choice_label', 'name')->setFormTypeOption('by_reference', true),
+
 
 
         ];

@@ -81,7 +81,7 @@ class Image
      * @var string|null
      * @ORM\Column(nullable=true)
      */
-    public ?string $filePath;
+    public ?string $filePath = null;
 
     /**
      * @ORM\Column(type="smallint", options={"default":0})
