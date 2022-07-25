@@ -106,10 +106,11 @@ class SweetTvService
         $html = $this->getContentLink($linkByFilms);
         $crawler = $this->getCrawler($html);
         $pageMax = (int) $crawler->filter('.pagination li')->last()->text();
-        $page = 1;
+        $page = 2;
         $taskStatus = $this->task->getStatus();
         if ($taskStatus != 0) {
             throw new \Exception('Task is running or stop with error.');
+
         }
         while ($page <= $pageMax) {
             try {
@@ -117,6 +118,7 @@ class SweetTvService
                 $this->taskService->setWorkStatus($this->task);
             } catch (\Exception $e) {
                 $this->taskService->setErrorStatus($this->task);
+                $this->taskService->setErrorDescription($this->task, $e->getMessage());
             }
         }
         $this->taskService->setNotWorkStatus($this->task);
@@ -397,9 +399,12 @@ class SweetTvService
     private function getFilmFieldTranslation($crawlerChild, $lang): FilmFieldTranslationInput
     {
         $title = $crawlerChild->filter('.container-fluid_padding li')->last()->text();
-        $description = $crawlerChild->filter('p.film-descr__text')->text();
-        $bannerLink = $crawlerChild->filter('div.film-right  div.film-right__img picture img')->image()->getUri();
-        $imageInput = $this->getImageInput($bannerLink);
+        $description = $crawlerChild->filter('div.film-descr p')->text();
+        $bannerNode = $crawlerChild->filter('div.film-right  div.film-right__img source');
+        if ($bannerNode->count() > 0) {
+            $bannerLink = $bannerNode->attr('srcset');
+            $imageInput = $this->getImageInput($bannerLink);
+        }
         $filmFieldTranslation = new FilmFieldTranslationInput($title, $description, $lang);
         $filmFieldTranslation->setBannersInput($imageInput);
         $this->validator->validate($filmFieldTranslation);
