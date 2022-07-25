@@ -106,7 +106,7 @@ class SweetTvService
         $html = $this->getContentLink($linkByFilms);
         $crawler = $this->getCrawler($html);
         $pageMax = (int) $crawler->filter('.pagination li')->last()->text();
-        $page = 1;
+        $page = 2;
         $taskStatus = $this->task->getStatus();
         $this->taskService->updateCountTask($this->task);
 
