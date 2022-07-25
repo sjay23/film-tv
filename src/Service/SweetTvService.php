@@ -121,6 +121,7 @@ class SweetTvService
             } catch (\Exception $e) {
                 $this->taskService->setErrorStatus($this->task, $e->getMessage());
             }
+            $page++;
         }
         $this->taskService->setNotWorkStatus($this->task);
     }
@@ -154,8 +155,6 @@ class SweetTvService
                 $filmInput->setProvider($provider);
                 $this->validator->validate($filmInput);
                 $film = $this->filmByProviderService->addFilmByProvider($filmInput);
-                $this->filmByProviderService->uploadPoster($film);
-                $this->filmByProviderService->uploadBanner($film);
                 $this->taskService->updateTask($film, $this->task);
                 $this->taskService->setNotWorkStatus($this->task);
             }
