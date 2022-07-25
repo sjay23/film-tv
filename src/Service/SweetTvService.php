@@ -110,14 +110,16 @@ class SweetTvService
         $taskStatus = $this->task->getStatus();
         if ($taskStatus != 0) {
             throw new \Exception('Task is running or stop with error.');
+
         }
         while ($page <= $pageMax) {
             try {
                 $this->parseFilmsByPage($linkByFilms . '/page/$page', $page);
                 $this->taskService->setWorkStatus($this->task);
             } catch (\Exception $e) {
-                $this->taskService->setErrorStatus($this->task);
+                $this->taskService->setErrorStatus($this->task, $e->getMessage());
             }
+            $page++;
         }
         $this->taskService->setNotWorkStatus($this->task);
     }
@@ -151,8 +153,6 @@ class SweetTvService
                 $filmInput->setProvider($provider);
                 $this->validator->validate($filmInput);
                 $film = $this->filmByProviderService->addFilmByProvider($filmInput);
-                $this->filmByProviderService->uploadPoster($film);
-                $this->filmByProviderService->uploadBanner($film);
                 $this->taskService->updateTask($film, $this->task);
                 $this->taskService->setNotWorkStatus($this->task);
             }
@@ -397,9 +397,12 @@ class SweetTvService
     private function getFilmFieldTranslation($crawlerChild, $lang): FilmFieldTranslationInput
     {
         $title = $crawlerChild->filter('.container-fluid_padding li')->last()->text();
-        $description = $crawlerChild->filter('p.film-descr__text')->text();
-        $bannerLink = $crawlerChild->filter('div.film-right  div.film-right__img picture img')->image()->getUri();
-        $imageInput = $this->getImageInput($bannerLink);
+        $description = $crawlerChild->filter('div.film-descr p')->text();
+        $bannerNode = $crawlerChild->filter('div.film-right  div.film-right__img source');
+        if ($bannerNode->count() > 0) {
+            $bannerLink = $bannerNode->attr('srcset');
+            $imageInput = $this->getImageInput($bannerLink);
+        }
         $filmFieldTranslation = new FilmFieldTranslationInput($title, $description, $lang);
         $filmFieldTranslation->setBannersInput($imageInput);
         $this->validator->validate($filmFieldTranslation);

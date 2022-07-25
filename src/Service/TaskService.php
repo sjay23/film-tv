@@ -43,17 +43,20 @@ class TaskService
 
     /**
      * @param object $task
+     * @param string $description
      */
-    public function setErrorStatus(object $task)
+    public function setErrorStatus(object $task, string $description): void
     {
-        $task->setStatus(2);
+        $task->setStatus(CommandTask::STATUS_ERROR);
+        $task->setDescriptionStatus($description);
         $this->entityManager->flush();
     }
+
 
     /**
      * @param object $task
      */
-    public function setWorkStatus(object $task)
+    public function setWorkStatus(object $task): void
     {
         $task->setStatus(1);
         $this->entityManager->flush();
@@ -62,7 +65,7 @@ class TaskService
     /**
      * @param object $task
      */
-    public function setNotWorkStatus(object $task)
+    public function setNotWorkStatus(object $task): void
     {
         $task->setStatus(0);
         $this->entityManager->flush();
