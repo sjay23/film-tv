@@ -51,6 +51,16 @@ class TaskService
     }
 
     /**
+     * @param CommandTask $task
+     * @param string $description
+     */
+    public function setErrorDescription(CommandTask $task, string $description): void
+    {
+        $task->setDescriptionStatus($description);
+        $this->entityManager->flush();
+    }
+
+    /**
      * @param object $task
      */
     public function setWorkStatus(object $task): void
