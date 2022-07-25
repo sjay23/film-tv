@@ -119,8 +119,7 @@ class SweetTvService
                 $this->parseFilmsByPage($linkByFilms . '/page/$page', $page);
                 $this->taskService->setWorkStatus($this->task);
             } catch (\Exception $e) {
-                $this->taskService->setErrorStatus($this->task);
-                $this->taskService->setErrorDescription($this->task, $e->getMessage());
+                $this->taskService->setErrorStatus($this->task, $e->getMessage());
             }
         }
         $this->taskService->setNotWorkStatus($this->task);

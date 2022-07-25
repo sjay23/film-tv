@@ -43,22 +43,15 @@ class TaskService
 
     /**
      * @param object $task
-     */
-    public function setErrorStatus(object $task): void
-    {
-        $task->setStatus(2);
-        $this->entityManager->flush();
-    }
-
-    /**
-     * @param CommandTask $task
      * @param string $description
      */
-    public function setErrorDescription(CommandTask $task, string $description): void
+    public function setErrorStatus(object $task, string $description): void
     {
+        $task->setStatus(CommandTask::STATUS_ERROR);
         $task->setDescriptionStatus($description);
         $this->entityManager->flush();
     }
+
 
     /**
      * @param object $task
