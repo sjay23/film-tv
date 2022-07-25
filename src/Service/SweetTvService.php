@@ -106,7 +106,7 @@ class SweetTvService
         $html = $this->getContentLink($linkByFilms);
         $crawler = $this->getCrawler($html);
         $pageMax = (int) $crawler->filter('.pagination li')->last()->text();
-        $page = 2;
+        $page = 1;
         $taskStatus = $this->task->getStatus();
         if ($taskStatus != 0) {
             throw new \Exception('Task is running or stop with error.');
