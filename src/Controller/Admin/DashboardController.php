@@ -10,6 +10,7 @@ use App\Entity\Genre;
 use App\Entity\Image;
 use App\Entity\People;
 use App\Entity\Provider;
+use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
@@ -31,7 +32,7 @@ class DashboardController extends AbstractDashboardController
     public function configureDashboard(): Dashboard
     {
         return Dashboard::new()
-            ->setTitle('Html');
+            ->setTitle("<a href=''>Start Parser</a>");
     }
 
     public function configureMenuItems(): iterable

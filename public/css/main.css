@@ -1,0 +1,41 @@
+
+
+body {
+    background: linear-gradient(-45deg, #5e59a1, #3ec3cc, #2265ec, #23d5ab);
+    background-size: 400% 400%;
+    animation: gradient 15s ease infinite;
+}
+
+@keyframes gradient {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+.logo{
+    margin-left: 45%;
+    margin-right: 45%;
+    margin-top: 10%;
+}
+.logo p {
+    font-size: 25px;
+    color: #f5f5f5;
+}
+.main{
+    background: #3297ce;
+    border-radius: 10px;
+    width: 70%;margin-left: 15%;
+    margin-right: 15%;
+    margin-top: 10%;
+    box-shadow: 10px 5px 5px rgb(46, 42, 70);
+    border: solid #203962;
+}
+
+
+
+

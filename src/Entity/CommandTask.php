@@ -56,6 +56,12 @@ class CommandTask
     private int $status = self::STATUS_NOT_WORK;
 
     /**
+     * @ORM\Column(type="string", length=500, nullable=true)
+     */
+    private string $descriptionStatus;
+
+
+    /**
      * @param string $name
      */
     public function __construct(
@@ -132,5 +138,18 @@ class CommandTask
 
         return $this;
     }
+
+    public function getDescriptionStatus(): ?string
+    {
+        return $this->descriptionStatus;
+    }
+
+    public function setDescriptionStatus(?string $descriptionStatus): self
+    {
+        $this->descriptionStatus = $descriptionStatus;
+
+        return $this;
+    }
+
 
 }
