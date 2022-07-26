@@ -37,24 +37,13 @@ class MainParserController extends AbstractController
      */
     public function sweetTvParse(KernelInterface $kernel): Response
     {
-
-
         $application = new Application($kernel);
         $application->setAutoExit(false);
-
         $input = new ArrayInput([
             'command' => 'php bin/console app:sweet-tv-parser',
-
-            'fooArgument' => 'barValue',
-
-            '--bar' => 'fooValue',
         ]);
-
         $output = new BufferedOutput();
         $application->run($input, $output);
-
-        // вернуть вывод, не используйте, если вы использовали NullOutput()
-        $content = $output->fetch();
 
         return $this->redirectToRoute('admin');
     }

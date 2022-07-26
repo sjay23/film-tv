@@ -32,7 +32,7 @@ class DashboardController extends AbstractDashboardController
     public function configureDashboard(): Dashboard
     {
         return Dashboard::new()
-            ->setTitle("<a href=''>Start Parser</a>");
+            ->setTitle("My Parser");
     }
 
     public function configureMenuItems(): iterable
