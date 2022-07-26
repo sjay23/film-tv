@@ -94,7 +94,7 @@ class Image
      * @Assert\NotBlank
      * @Vich\UploadableField(mapping="image", fileNameProperty="filePath")
      */
-    public ?File $imageFile;
+    public $imageFile;
 
     /**
      * @ORM\Column(type="string", nullable=true)
@@ -167,12 +167,12 @@ class Image
         $this->uploaded = $uploaded;
     }
 
-    public function setImageFile(?File $imageFile): void
+    public function setImageFile($imageFile): void
     {
         $this->imageFile = $imageFile;
     }
 
-    public function getImageFile(): ?File
+    public function getImageFile()
     {
         return $this->imageFile;
     }
