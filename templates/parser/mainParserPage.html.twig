@@ -32,7 +32,12 @@
             {% if sweetTvTask.status == 2 %}
             <td>{{ sweetTvTask.descriptionStatus }}</td>
             {% elseif sweetTvTask.status == 1 %}
-                <td>STATUS WORK</td>
+                <td>
+                    <a style="text-decoration: none" href="{{ path('sweetTv_film_parse_stop') }}">
+                        <button type="button" class="btn btn-danger">Stop Parser</button>
+                    </a>
+                </td>
+
                 {% elseif sweetTvTask.status == 0 %}
                     <td>STATUS NOT WORK</td>
             {% endif %}

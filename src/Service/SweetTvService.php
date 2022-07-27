@@ -10,18 +10,14 @@ use App\DTO\AudioInput;
 use App\DTO\CountryInput;
 use App\DTO\PeopleInput;
 use App\DTO\GenreInput;
-use App\Command\Cron\CommandTaskUpload;
 use App\DTO\ImageInput;
 use App\Entity\CommandTask;
-use App\Service\TaskService;
 use App\Entity\Provider;
 use App\Repository\ProviderRepository;
 use App\Repository\CommandTaskRepository;
 use App\Repository\FilmByProviderRepository;
 use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\ORM\EntityManagerInterface;
 use GuzzleHttp\Client;
-use App\Service\ImageFileService;
 use GuzzleHttp\Exception\GuzzleException;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -91,7 +87,6 @@ class SweetTvService
         $this->filmByProviderRepository = $filmByProviderRepository;
         $this->commandTaskRepository = $commandTaskRepository;
         $this->providerRepository = $providerRepository;
-        $this->task = $this->taskService->getTask($this->getProvider());
         $this->client = new Client();
     }
 
@@ -100,30 +95,27 @@ class SweetTvService
      * @throws GuzzleException
      * @throws \Exception
      */
-    public function exec()
+    public function exec(): void
     {
         $linkByFilms = 'https://sweet.tv/en/movies/all-movies/sort=5';
         $html = $this->getContentLink($linkByFilms);
         $crawler = $this->getCrawler($html);
         $pageMax = (int) $crawler->filter('.pagination li')->last()->text();
         $page = 1;
-        $taskStatus = $this->task->getStatus();
-        $this->taskService->updateCountTask($this->task);
-
-        if ($taskStatus != 0) {
+        $this->taskService->updateCountTask($this->getTask());
+        if ($this->getTask()->getStatus() == 2) {
             throw new \Exception('Task is running or stop with error.');
-
         }
+        $this->taskService->setWorkStatus($this->getTask());
         while ($page <= $pageMax) {
             try {
                 $this->parseFilmsByPage($linkByFilms . '/page/$page', $page);
-                $this->taskService->setWorkStatus($this->task);
             } catch (\Exception $e) {
-                $this->taskService->setErrorStatus($this->task, $e->getMessage());
+                $this->taskService->setErrorStatus($this->getTask(), $e->getMessage());
             }
             $page++;
         }
-        $this->taskService->setNotWorkStatus($this->task);
+        $this->taskService->setNotWorkStatus($this->getTask());
     }
 
     /**
@@ -137,29 +129,30 @@ class SweetTvService
         $link = str_replace('$page', (string)$page, $link);
         $html = $this->getContentLink($link);
         $crawler = $this->getCrawler($html);
-        $crawler->filter('.movie__item-link')->each(function ($node) {
-            $filmInput = new FilmInput();
-            $linkFilm = $node->link()->getUri();
-            $filmInput->setLink($linkFilm);
-            $movieId = $this->getFilmId($linkFilm);
-            $filmInput->setMovieId((int)$movieId);
-            if (!$film = $this->filmByProviderRepository->findOneBy(['movieId' => $movieId])) {
-                foreach (self::LANGS as $lang) {
-                    $htmlChild = $this->getContentLink($linkFilm, $lang);
-                    $crawlerChild = $this->getCrawler($htmlChild);
-                    $filmInput = $this->parseFilmBySweet($filmInput, $crawlerChild, $lang);
+            $crawler->filter('.movie__item-link')->each(function ($node) {
+                if ($this->getTask()->getStatus() == 1) {
+                    $filmInput = new FilmInput();
+                    $linkFilm = $node->link()->getUri();
+                    $filmInput->setLink($linkFilm);
+                    $movieId = $this->getFilmId($linkFilm);
+                    $filmInput->setMovieId((int)$movieId);
+                    if (!$film = $this->filmByProviderRepository->findOneBy(['movieId' => $movieId])) {
+                        foreach (self::LANGS as $lang) {
+                            $htmlChild = $this->getContentLink($linkFilm, $lang);
+                            $crawlerChild = $this->getCrawler($htmlChild);
+                            $filmInput = $this->parseFilmBySweet($filmInput, $crawlerChild, $lang);
+                        }
+                        $posterInput = $this->parseImage($node);
+                        $filmInput->addImageInput($posterInput);
+                        $provider = $this->getProvider();
+                        $filmInput->setProvider($provider);
+                        $this->validator->validate($filmInput);
+                        $film = $this->filmByProviderService->addFilmByProvider($filmInput);
+                        $this->taskService->updateTask($film, $this->getTask());
+                    }
                 }
-                $posterInput = $this->parseImage($node);
-                $filmInput->addImageInput($posterInput);
-                $provider = $this->getProvider();
-                $filmInput->setProvider($provider);
-                $this->validator->validate($filmInput);
-                $film = $this->filmByProviderService->addFilmByProvider($filmInput);
-                $this->taskService->updateTask($film, $this->task);
-                $this->taskService->setNotWorkStatus($this->task);
-            }
-            return $film;
-        });
+                return $film;
+            });
     }
 
     /**
@@ -181,7 +174,7 @@ class SweetTvService
             $filmInput->setAge($age);
             $filmInput->setRating((float)$rating);
             $filmInput->setYears((int)$years);
-            $filmInput->setDuration((int)$duration);
+            $filmInput->setDuration($duration);
             $countriesCollect = $this->parseCountry($crawlerChild);
             $filmInput->setCountriesInput($countriesCollect);
             $genreCollect = $this->parseGenre($crawlerChild);
@@ -206,7 +199,7 @@ class SweetTvService
     private function convertTime(string $str): int
     {
         $a = preg_replace("/[^0-9]/", '', $str);
-        $time = ((substr($a, 0, 2)) * 60) + ((substr($a, -2, 2)));
+        $time = ((substr($a, 0, 2)) * 60) + (substr($a, -2, 2));
         return $time;
     }
 
@@ -389,6 +382,14 @@ class SweetTvService
         }
 
         return $age;
+    }
+
+    /**
+     * @return CommandTask
+     */
+    private function getTask(): CommandTask
+    {
+        return  $this->taskService->getTask($this->getProvider());
     }
 
     /**

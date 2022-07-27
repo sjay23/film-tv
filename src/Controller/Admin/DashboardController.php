@@ -23,16 +23,13 @@ class DashboardController extends AbstractDashboardController
     #[Route('/admin', name: 'admin')]
     public function index(): Response
     {
-        $routeBuilder = $this->container->get(AdminUrlGenerator::class);
-        $url = $routeBuilder->setController(FilmByProviderCrudController::class)->generateUrl();
-
-        return $this->redirect($url);
+        return $this->redirectToRoute('main');
     }
 
     public function configureDashboard(): Dashboard
     {
         return Dashboard::new()
-            ->setTitle("<a href=''>Start Parser</a>");
+            ->setTitle("Start Parser");
     }
 
     public function configureMenuItems(): iterable

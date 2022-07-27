@@ -76,7 +76,7 @@ class TaskService
      */
     public function updateCountTask(object $task): void
     {
-        $task->setStatus(0);
+        $task->setCountTask(0);
         $this->entityManager->flush();
     }
 }

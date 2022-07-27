@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Service\TaskService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -21,6 +22,17 @@ use Symfony\Bundle\FrameworkBundle\Console\Application;
  */
 class MainParserController extends AbstractController
 {
+
+    public function __construct(
+        TaskService $taskService,
+        CommandTaskRepository $commandTaskRepository
+    )
+    {
+        $this->taskService = $taskService;
+        $this->commandTaskRepository = $commandTaskRepository;
+        $this->task = $this->commandTaskRepository->findOneBy(['provider' => 1]);
+    }
+
     /**
      * @Route("/", name="main", methods={"GET", "POST"})
      */
@@ -28,24 +40,27 @@ class MainParserController extends AbstractController
     {
 
         return $this->renderForm('parser/mainParserPage.html.twig', [
-            'sweetTvTask' => $taskRepository->findOneBy(['provider' => 1]),
+            'sweetTvTask' =>  $this->task,
         ]);
     }
 
     /**
      * @Route("/sweetTv/film/parse", name="sweetTv_film_parse", methods={"GET", "POST"})
      */
-    public function sweetTvParse(KernelInterface $kernel): Response
+    public function sweetTvParse(Request $request): Response
     {
-        $application = new Application($kernel);
-        $application->setAutoExit(false);
-        $input = new ArrayInput([
-            'command' => 'php bin/console app:sweet-tv-parser',
-        ]);
-        $output = new BufferedOutput();
-        $application->run($input, $output);
+        exec('php /var/www/html/bin/console app:sweet-tv-parser > /dev/null &');
 
         return $this->redirectToRoute('admin');
+    }
+
+    /**
+     * @Route("/sweetTv/film/parse/stop", name="sweetTv_film_parse_stop", methods={"GET", "POST"})
+     */
+    public function sweetTvParseStop(): Response
+    {
+        $this->taskService->setNotWorkStatus($this->task);
+        return $this->redirectToRoute('main');
     }
 
 }

@@ -58,8 +58,7 @@ class CommandTask
     /**
      * @ORM\Column(type="string", length=500, nullable=true)
      */
-    private string $descriptionStatus;
-
+    private ?string $descriptionStatus = null;
 
     /**
      * @param string $name
@@ -150,6 +149,4 @@ class CommandTask
 
         return $this;
     }
-
-
 }
