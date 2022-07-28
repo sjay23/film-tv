@@ -109,11 +109,11 @@ class SweetTvService
         $this->taskService->setWorkStatus($this->getTask());
         while ($page <= $pageMax) {
             try {
-                $this->parseFilmsByPage($linkByFilms . '/page/$page', $page);
+                    $this->parseFilmsByPage($linkByFilms . '/page/$page', $page);
             } catch (\Exception $e) {
                 $this->taskService->setErrorStatus($this->getTask(), $e->getMessage());
             }
-            $page++;
+            #$page++;
         }
         $this->taskService->setNotWorkStatus($this->getTask());
     }
@@ -136,12 +136,14 @@ class SweetTvService
                     $filmInput->setLink($linkFilm);
                     $movieId = $this->getFilmId($linkFilm);
                     $filmInput->setMovieId((int)$movieId);
-                    if (!$film = $this->filmByProviderRepository->findOneBy(['movieId' => $movieId])) {
+                    $film = $this->filmByProviderRepository->findOneBy(['movieId' => $movieId]);
+                    if (!$film) {
                         foreach (self::LANGS as $lang) {
                             $htmlChild = $this->getContentLink($linkFilm, $lang);
                             $crawlerChild = $this->getCrawler($htmlChild);
                             $filmInput = $this->parseFilmBySweet($filmInput, $crawlerChild, $lang);
                         }
+                    }
                         $posterInput = $this->parseImage($node);
                         $filmInput->addImageInput($posterInput);
                         $provider = $this->getProvider();
@@ -149,9 +151,7 @@ class SweetTvService
                         $this->validator->validate($filmInput);
                         $film = $this->filmByProviderService->addFilmByProvider($filmInput);
                         $this->taskService->updateTask($film, $this->getTask());
-                    }
                 }
-                return $film;
             });
     }
 
@@ -385,9 +385,9 @@ class SweetTvService
     }
 
     /**
-     * @return CommandTask
+     * @return CommandTask|null
      */
-    private function getTask(): CommandTask
+    private function getTask(): ?CommandTask
     {
         return  $this->taskService->getTask($this->getProvider());
     }
