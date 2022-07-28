@@ -5,7 +5,11 @@
 {% block javascripts %}
 {% endblock %}
 {% block body %}
-    <div class="logo"><p>My Parser</p></div>
+
+
+    <div class="logo"><p>My Parser</p>
+
+    </div>
 
     <div class="main" style="">
     <table class="table" style="border: none">
@@ -16,7 +20,7 @@
             <th scope="col">Image Parse</th>
             <th scope="col">All Parsing</th>
             <th scope="col">Status</th>
-            <th scope="col"></th>
+            <th scope="col"> <a style="text-decoration: none; color: #0c4a6e" href="{{ path('admin') }}">Admin Panel  <i class="fas fa-angle-double-right"></i></a></th>
         </tr>
         </thead>
             <th>
@@ -42,9 +46,7 @@
                     <td>STATUS NOT WORK</td>
             {% endif %}
             <td>
-                <a style="text-decoration: none" href="{{ path('admin') }}">
-                    <button type="button"  class="btn btn-primary">Show</button>
-                 </a>
+
             </td>
         </tr>
 

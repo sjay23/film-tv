@@ -18,11 +18,10 @@ use App\Repository\CommandTaskRepository;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 
 /**
- * @Route("/")
+ * @Route("/admin/parser")
  */
 class MainParserController extends AbstractController
 {
-
     public function __construct(
         TaskService $taskService,
         CommandTaskRepository $commandTaskRepository
@@ -45,17 +44,17 @@ class MainParserController extends AbstractController
     }
 
     /**
-     * @Route("/sweetTv/film/parse", name="sweetTv_film_parse", methods={"GET", "POST"})
+     * @Route("/sweetTv/film/", name="sweetTv_film_parse", methods={"GET", "POST"})
      */
-    public function sweetTvParse(Request $request): Response
+    public function sweetTvParse(): Response
     {
         exec('php /var/www/html/bin/console app:sweet-tv-parser > /dev/null &');
 
-        return $this->redirectToRoute('admin');
+        return $this->redirectToRoute('main');
     }
 
     /**
-     * @Route("/sweetTv/film/parse/stop", name="sweetTv_film_parse_stop", methods={"GET", "POST"})
+     * @Route("/stop/sweetTv/film/", name="sweetTv_film_parse_stop", methods={"GET", "POST"})
      */
     public function sweetTvParseStop(): Response
     {

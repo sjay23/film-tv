@@ -26,6 +26,10 @@ body {
     font-size: 25px;
     color: #f5f5f5;
 }
+.page p{
+    font-size: 25px;
+    color: #0e0000;
+}
 .main{
     background: #3297ce;
     border-radius: 10px;
