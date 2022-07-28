@@ -25,7 +25,9 @@ class TaskService
      */
     public function getTask(object $provider): ?CommandTask
     {
-        return $this->commandTaskRepository->findOneBy(['provider' => $provider]);
+        $task = $this->commandTaskRepository->findOneBy(['provider' => $provider]);
+        $this->entityManager->refresh($task);
+        return $task;
     }
 
     /**

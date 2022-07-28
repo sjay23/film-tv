@@ -17,6 +17,7 @@ use App\Repository\ProviderRepository;
 use App\Repository\CommandTaskRepository;
 use App\Repository\FilmByProviderRepository;
 use Doctrine\Common\Collections\ArrayCollection;
+use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use Symfony\Component\DomCrawler\Crawler;
@@ -93,7 +94,7 @@ class SweetTvService
     /**
      * @return void
      * @throws GuzzleException
-     * @throws \Exception
+     * @throws Exception
      */
     public function exec(): void
     {
@@ -103,17 +104,18 @@ class SweetTvService
         $pageMax = (int) $crawler->filter('.pagination li')->last()->text();
         $page = 1;
         $this->taskService->updateCountTask($this->getTask());
-        if ($this->getTask()->getStatus() == 2) {
-            throw new \Exception('Task is running or stop with error.');
+        if ($this->getTask()->getStatus() == 1) {
+            throw new Exception('Task is running.');
         }
         $this->taskService->setWorkStatus($this->getTask());
         while ($page <= $pageMax) {
             try {
-                    $this->parseFilmsByPage($linkByFilms . '/page/$page', $page);
-            } catch (\Exception $e) {
+                $this->parseFilmsByPage($linkByFilms . '/page/$page', $page);
+            } catch (Exception $e) {
                 $this->taskService->setErrorStatus($this->getTask(), $e->getMessage());
+                throw new Exception($e->getMessage());
             }
-            #$page++;
+            $page++;
         }
         $this->taskService->setNotWorkStatus($this->getTask());
     }
@@ -123,6 +125,7 @@ class SweetTvService
      * @param int $page
      * @return void
      * @throws GuzzleException
+     * @throws Exception
      */
     private function parseFilmsByPage(string $link, int $page): void
     {
@@ -130,28 +133,33 @@ class SweetTvService
         $html = $this->getContentLink($link);
         $crawler = $this->getCrawler($html);
             $crawler->filter('.movie__item-link')->each(function ($node) {
-                if ($this->getTask()->getStatus() == 1) {
-                    $filmInput = new FilmInput();
-                    $linkFilm = $node->link()->getUri();
-                    $filmInput->setLink($linkFilm);
-                    $movieId = $this->getFilmId($linkFilm);
-                    $filmInput->setMovieId((int)$movieId);
-                    $film = $this->filmByProviderRepository->findOneBy(['movieId' => $movieId]);
-                    if (!$film) {
-                        foreach (self::LANGS as $lang) {
-                            $htmlChild = $this->getContentLink($linkFilm, $lang);
-                            $crawlerChild = $this->getCrawler($htmlChild);
-                            $filmInput = $this->parseFilmBySweet($filmInput, $crawlerChild, $lang);
-                        }
-                    }
-                        $posterInput = $this->parseImage($node);
-                        $filmInput->addImageInput($posterInput);
-                        $provider = $this->getProvider();
-                        $filmInput->setProvider($provider);
-                        $this->validator->validate($filmInput);
-                        $film = $this->filmByProviderService->addFilmByProvider($filmInput);
-                        $this->taskService->updateTask($film, $this->getTask());
+                if ($this->getTask()->getStatus() == 0) {
+                    throw new Exception('Task is stop manual.');
                 }
+                $filmInput = new FilmInput();
+                $linkFilm = $node->link()->getUri();
+                $filmInput->setLink($linkFilm);
+                $movieId = $this->getFilmId($linkFilm);
+                $filmInput->setMovieId((int)$movieId);
+                $posterInput = $this->parseImage($node);
+                $filmInput->addImageInput($posterInput);
+                $provider = $this->getProvider();
+                $filmInput->setProvider($provider);
+                $film = $this->filmByProviderRepository->findOneBy(['movieId' => $movieId]);
+                if (!$film) {
+                    foreach (self::LANGS as $lang) {
+                        $htmlChild = $this->getContentLink($linkFilm, $lang);
+                        $crawlerChild = $this->getCrawler($htmlChild);
+                        if ($crawlerChild->filter('h1')->text() == 'Movies') {
+                            // Пропускаем фильмы с редиректом на главную
+                            return;
+                        }
+                        $filmInput = $this->parseFilmBySweet($filmInput, $crawlerChild, $lang);
+                    }
+                    $this->validator->validate($filmInput);
+                    $film = $this->filmByProviderService->addFilmByProvider($filmInput);
+                }
+                $this->taskService->updateTask($film, $this->getTask());
             });
     }
 
@@ -389,7 +397,7 @@ class SweetTvService
      */
     private function getTask(): ?CommandTask
     {
-        return  $this->taskService->getTask($this->getProvider());
+        return $this->taskService->getTask($this->getProvider());
     }
 
     /**
