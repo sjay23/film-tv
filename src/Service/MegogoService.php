@@ -24,7 +24,7 @@ use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
- * Class SweetTvService
+ * Class MegogoService
  */
 class MegogoService
 {
