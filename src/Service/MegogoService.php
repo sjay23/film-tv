@@ -81,7 +81,8 @@ class MegogoService
         FilmByProviderRepository $filmByProviderRepository,
         FilmByProviderService $filmByProviderService,
         CommandTaskRepository $commandTaskRepository
-    ) {
+    )
+    {
         $this->taskService = $taskService;
         $this->validator = $validator;
         $this->filmByProviderService = $filmByProviderService;
@@ -89,6 +90,7 @@ class MegogoService
         $this->commandTaskRepository = $commandTaskRepository;
         $this->providerRepository = $providerRepository;
         $this->client = new Client();
+        $this->defaultLink = 'https://megogo.net/en/search-extended?category_id=16&main_tab=filters&sort=add&ajax=true&origin=/en/search-extended?category_id=16&main_tab=filters&sort=add&widget=widget_58';
     }
 
     /**
@@ -98,11 +100,6 @@ class MegogoService
      */
     public function exec(): void
     {
-        $linkByFilms = 'https://megogo.net/en/search-extended?category_id=16&main_tab=filters&sort=add&ajax=true&origin=/en/search-extended?category_id=16&main_tab=filters&sort=add&widget=widget_58';
-        $html = $this->getContentLink($linkByFilms);
-        $a = Str_replace('\"', '', $html);
-        $crawler = $this->getCrawler($a);
-        $nextPageToken = $this->getNextPageToken($crawler);
         $this->taskService->updateCountTask($this->getTask());
         if ($this->getTask()->getStatus() == 1) {
             throw new Exception('Task is running.');
@@ -110,57 +107,58 @@ class MegogoService
         $this->taskService->setWorkStatus($this->getTask());
 
         try {
-            $this->parseFilmsByPage($nextPageToken);
+            $this->parseFilmsByPage($this->defaultLink);
         } catch (Exception $e) {
             $this->taskService->setErrorStatus($this->getTask(), $e->getMessage());
             throw new Exception($e->getMessage());
         }
 
-
         $this->taskService->setNotWorkStatus($this->getTask());
     }
 
     /**
-     * @param string $nextPageToken
+     * @param string $linkByFilms
      * @return void
      * @throws GuzzleException
      * @throws Exception
      */
-    private function parseFilmsByPage( string $nextPageToken): void
+    private function parseFilmsByPage(string $linkByFilms): void
     {
-        $defaultLink='https://megogo.net/en/search-extended?category_id=16&main_tab=filters&pageToken=TOKEN&sort=add&ajax=true&origin=/en/search-extended?category_id=16&main_tab=filters&sort=add&widget=widget_58';
-        $link = str_replace('TOKEN', $nextPageToken, $defaultLink);
-        $html = $this->getContentLink($link);
+        $html = $this->getContentLink($linkByFilms);
+        if ($linkByFilms === $this->defaultLink) {
+            $html = Str_replace('\"', '', $html);
+        }
         $crawler = $this->getCrawler($html);
-            $crawler->filter('div.thumbnail div.thumb a')->each(function ($node) {
-                if ($this->getTask()->getStatus() == 0) {
-                    throw new Exception('Task is stop manual.');
-                }
-                $filmInput = new FilmInput();
-                $linkFilm = $node->link()->getUri();
-                $filmInput->setLink($linkFilm);
-                $movieId = $this->getFilmId($linkFilm);
-                $filmInput->setMovieId((int)$movieId);
-                $posterInput = $this->parseImage($node);
-                $filmInput->addImageInput($posterInput);
-                $provider = $this->getProvider();
-                $filmInput->setProvider($provider);
-                $film = $this->filmByProviderRepository->findOneBy(['movieId' => $movieId]);
-                if (!$film) {
-                    foreach (self::LANGS as $lang) {
-                        $htmlChild = $this->getContentLink($linkFilm, $lang);
-                        $crawlerChild = $this->getCrawler($htmlChild);
-                        if ($crawlerChild->filter('h1')->text() == 'Movies') {
-                            return;
-                        }
-                        $filmInput = $this->parseFilmByMegogo($filmInput, $crawlerChild, $lang);
+        $crawler->filter('div.thumbnail div.thumb a')->each(function ($node) {
+            if ($this->getTask()->getStatus() == 0) {
+                throw new Exception('Task is stop manual.');
+            }
+            $filmInput = new FilmInput();
+            $linkFilm = $node->link()->getUri();
+            $filmInput->setLink($linkFilm);
+            $posterInput = $this->parseImage($linkFilm);
+            $filmInput->setImagesInput($posterInput);
+            $movieId = $this->getFilmId($linkFilm);
+            $filmInput->setMovieId((int)$movieId);
+            $provider = $this->getProvider();
+            $filmInput->setProvider($provider);
+            $film = $this->filmByProviderRepository->findOneBy(['movieId' => $movieId]);
+            if (!$film) {
+                foreach (self::LANGS as $lang) {
+                    $htmlChild = $this->getContentLink($linkFilm, $lang);
+                    $crawlerChild = $this->getCrawler($htmlChild);
+                    if ($crawlerChild->filter('h1')->text() == 'Movies') {
+                        return;
                     }
-                    $this->validator->validate($filmInput);
-                    $film = $this->filmByProviderService->addFilmByProvider($filmInput);
+                    $filmInput = $this->parseFilmByMegogo($filmInput, $crawlerChild, $lang);
                 }
-                $this->taskService->updateTask($film, $this->getTask());
-            });
-            $this->parseFilmsByPage( $this->getNextPageToken($crawler));
+                $this->validator->validate($filmInput);
+                $film = $this->filmByProviderService->addFilmByProvider($filmInput);
+            }
+            $this->taskService->updateTask($film, $this->getTask());
+        });
+
+        $this->parseFilmsByPage($this->getNextPageLink($this->getNextPageToken($crawler)));
     }
 
     /**
@@ -169,15 +167,18 @@ class MegogoService
      * @param string $lang
      * @return FilmInput
      */
-    private function parseFilmByMegogo(FilmInput $filmInput, $crawlerChild, string $lang = self::LANG_DEFAULT): FilmInput
+    private function parseFilmByMegogo(
+        FilmInput $filmInput,
+        $crawlerChild,
+        string $lang = self::LANG_DEFAULT
+    ): FilmInput
     {
         $filmFieldTranslation = $this->getFilmFieldTranslation($crawlerChild, $lang);
         $filmInput->addFilmFieldTranslationInput($filmFieldTranslation);
-
         if ($lang === self::LANG_DEFAULT) {
             $age = $this->parseAge($crawlerChild);
             $years = $crawlerChild->filter('span.video-year')->text();
-            $duration =  preg_replace("/[^,.0-9]/", '', $crawlerChild->filter(' div.video-duration span')->text());
+            $duration = (int)(preg_replace("/[^,.0-9]/", '', $crawlerChild->filter(' div.video-duration span')->text()));
             $rating = $this->parseRating($crawlerChild);
             $filmInput->setAge($age);
             $filmInput->setRating((float)$rating);
@@ -203,12 +204,18 @@ class MegogoService
     /**
      * @return string
      */
-    private function getNextPageToken($crawler): int
+    private function getNextPageToken($crawler): string
     {
         return $crawler->filter('div.pagination-more a.link-gray ')->attr('data-page-more');
     }
 
-
+    /**
+     * @return string
+     */
+    private function getNextPageLink($nextPageToken): string
+    {
+        return str_replace('TOKEN', $nextPageToken, $this->defaultLink);
+    }
 
     /**
      * @param string $linkFilm
@@ -254,7 +261,7 @@ class MegogoService
         echo 'Parse link: ' . $link . "\n";
         $response = $this->client->get($link);
 
-        return (string) $response->getBody();
+        return (string)$response->getBody();
     }
 
     /**
@@ -274,6 +281,13 @@ class MegogoService
         return new ArrayCollection($filmGenre);
     }
 
+    private function getImageInput(string $link): ImageInput
+    {
+        $imageInput = new ImageInput($link);
+        $this->validator->validate($imageInput);
+        return $imageInput;
+    }
+
     /**
      * @param $crawler
      * @return ArrayCollection
@@ -290,7 +304,6 @@ class MegogoService
         }
         return new ArrayCollection($filmAudio);
     }
-
 
     /**
      * @param $crawler
@@ -319,7 +332,7 @@ class MegogoService
         $html = $this->getContentLink('https://megogo.net' . $link);
         $crawler = $this->getCrawler($html);
         $castGenre = $crawler->filter('div.video-persons a.link-default')->each(function (Crawler $node) {
-            $link= 'https://megogo.net' . $node->attr('href');
+            $link = 'https://megogo.net' . $node->attr('href');
             $name = $node->filter('div.video-person-name')->text();
             $castInput = new PeopleInput($name, $link);
             $this->validator->validate($castInput);
@@ -349,21 +362,21 @@ class MegogoService
     }
 
     /**
-     * @param $crawler
-     * @return ImageInput
+     * @param $linkByFilms
+     * @return ArrayCollection
      */
-    private function parseImage($crawler): ImageInput
+    private function parseImage($linkByFilms): ArrayCollection
     {
-        $imageLink = $crawler->filter('div.thumbnail div.thumb a img')->image()->getUri();
-
-        return $this->getImageInput($imageLink);
-    }
-
-    private function getImageInput(string $link): ImageInput
-    {
-        $imageInput = new ImageInput($link);
-        $this->validator->validate($imageInput);
-        return $imageInput;
+        $html = $this->getContentLink($linkByFilms);
+        $crawler = $this->getCrawler($html);
+        $link = $crawler->filter('ul.video-view-tabs')->children('.nav-item')->eq(2)->children('a')->attr('href');
+        $html = $this->getContentLink('https://megogo.net' . $link);
+        $crawler = $this->getCrawler($html);
+        $images = $crawler->filter('a.type-screenshot img.lazy_image')->each(function (Crawler $node) {
+            $link =  $node->attr('data-original');
+            return($this->getImageInput($link));
+        });
+        return new ArrayCollection($images);
     }
 
     /**
@@ -387,7 +400,7 @@ class MegogoService
      */
     private function parseAge($crawler): ?string
     {
-        return $crawler->filter('.videoInfoPanel-age-limit');
+        return $crawler->filter('.videoInfoPanel-age-limit')->text();
     }
 
     /**
