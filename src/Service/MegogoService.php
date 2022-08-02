@@ -188,10 +188,7 @@ class MegogoService
             $filmInput->setCountriesInput($countriesCollect);
             $genreCollect = $this->parseGenre($crawlerChild);
             $filmInput->setGenresInput($genreCollect);
-            $directorCollect = $this->parseDirector($crawlerChild);
-            $filmInput->setDirectorsInput($directorCollect);
-            $castCollect = $this->parseCast($crawlerChild);
-            $filmInput->setCastsInput($castCollect);
+            $this->parseCast($crawlerChild, $filmInput);
             $audioCollect = $this->parseAudio($crawlerChild);
             $filmInput->setAudiosInput($audioCollect);
         }
@@ -326,31 +323,8 @@ class MegogoService
      * @param $crawler
      * @return ArrayCollection
      */
-    private function parseCast($crawler): ArrayCollection
+    private function getCastDirector($crawler): ArrayCollection
     {
-        $link = $crawler->filter('ul.video-view-tabs')->children('.nav-item')->eq(1)->children('a')->attr('href');
-        $html = $this->getContentLink('https://megogo.net' . $link);
-        $crawler = $this->getCrawler($html);
-        $castGenre = $crawler->filter('div.video-persons a.link-default')->each(function (Crawler $node) {
-            $link = 'https://megogo.net' . $node->attr('href');
-            $name = $node->filter('div.video-person-name')->text();
-            $castInput = new PeopleInput($name, $link);
-            $this->validator->validate($castInput);
-            return $castInput;
-        });
-
-        return new ArrayCollection($castGenre);
-    }
-
-    /**
-     * @param $crawler
-     * @return ArrayCollection
-     */
-    private function parseDirector($crawler): ArrayCollection
-    {
-        $link = $crawler->filter('ul.video-view-tabs')->children('.nav-item')->eq(1)->children('a')->attr('href');
-        $html = $this->getContentLink('https://megogo.net' . $link);
-        $crawler = $this->getCrawler($html);
         $directors = [];
         $directorName = $crawler->filter('a[itemprop="director"] div')->text();
         $data = $crawler->filter('a[itemprop="director"]')->attr('href');
@@ -359,6 +333,45 @@ class MegogoService
         $this->validator->validate($directorInput);
         $directors[] = $directorInput;
         return new ArrayCollection($directors);
+    }
+
+    /**
+     * @param $crawler
+     * @return ArrayCollection
+     */
+    private function getCastActor($crawler): ArrayCollection
+    {
+        $castGenre = $crawler->filter('div.video-persons a.link-default')->each(function (Crawler $node) {
+            $link = 'https://megogo.net' . $node->attr('href');
+            $name = $node->filter('div.video-person-name')->text();
+            $castInput = new PeopleInput($name, $link);
+            $this->validator->validate($castInput);
+            return $castInput;
+        });
+        return new ArrayCollection($castGenre);
+    }
+
+    /**
+     * @param $crawler
+     * @return Crawler
+     */
+    private function getCastCrawler($crawler): Crawler
+    {
+        $link = $crawler->filter('ul.video-view-tabs')->children('.nav-item')->eq(1)->children('a')->attr('href');
+        $html = $this->getContentLink('https://megogo.net' . $link);
+        return $this->getCrawler($html);
+    }
+
+    /**
+     * @param $crawler
+     * @param $filmInput
+     * @return void
+     */
+    private function parseCast($crawler, $filmInput): void
+    {
+        $crawler = $this->getCastCrawler($crawler);
+        $filmInput->setDirectorsInput($this->getCastDirector($crawler));
+        $filmInput->setCastsInput($this->getCastActor($crawler));
     }
 
     /**
