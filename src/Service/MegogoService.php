@@ -128,37 +128,41 @@ class MegogoService
         if ($linkByFilms === $this->defaultLink) {
             $html = Str_replace('\"', '', $html);
         }
-        $crawler = $this->getCrawler($html);
+            $crawler = $this->getCrawler($html);
         $crawler->filter('div.thumbnail div.thumb a')->each(function ($node) {
-            if ($this->getTask()->getStatus() == 0) {
-                throw new Exception('Task is stop manual.');
-            }
-            $filmInput = new FilmInput();
-            $linkFilm = $node->link()->getUri();
-            $filmInput->setLink($linkFilm);
-            $posterInput = $this->parseImage($linkFilm);
-            $filmInput->setImagesInput($posterInput);
-            $movieId = $this->getFilmId($linkFilm);
-            $filmInput->setMovieId((int)$movieId);
-            $provider = $this->getProvider();
-            $filmInput->setProvider($provider);
-            $film = $this->filmByProviderRepository->findOneBy(['movieId' => $movieId]);
-            if (!$film) {
-                foreach (self::LANGS as $lang) {
-                    $htmlChild = $this->getContentLink($linkFilm, $lang);
-                    $crawlerChild = $this->getCrawler($htmlChild);
-                    if ($crawlerChild->filter('h1')->text() == 'Movies') {
-                        return;
-                    }
-                    $filmInput = $this->parseFilmByMegogo($filmInput, $crawlerChild, $lang);
-                }
-                $this->validator->validate($filmInput);
-                $film = $this->filmByProviderService->addFilmByProvider($filmInput);
-            }
-            $this->taskService->updateTask($film, $this->getTask());
-        });
 
-        $this->parseFilmsByPage($this->getNextPageLink($this->getNextPageToken($crawler)));
+            if (strpos($node->link()->getUri(), 'treyler') === false
+                and strpos($node->link()->getUri(), 'trailer') === false) {
+                if ($this->getTask()->getStatus() == 0) {
+                    throw new Exception('Task is stop manual.');
+                }
+                $filmInput = new FilmInput();
+                $linkFilm = $node->link()->getUri();
+                $filmInput->setLink($linkFilm);
+                $posterInput = $this->parseImage($linkFilm);
+                $filmInput->setImagesInput($posterInput);
+                $movieId = $this->getFilmId($linkFilm);
+                $filmInput->setMovieId((int)$movieId);
+                $provider = $this->getProvider();
+                $filmInput->setProvider($provider);
+                $film = $this->filmByProviderRepository->findOneBy(['movieId' => $movieId]);
+                if (!$film) {
+                    foreach (self::LANGS as $lang) {
+                        $htmlChild = $this->getContentLink($linkFilm, $lang);
+                        $crawlerChild = $this->getCrawler($htmlChild);
+                        if ($crawlerChild->filter('h1')->text() == 'Movies') {
+                            return;
+                        }
+                        $filmInput = $this->parseFilmByMegogo($filmInput, $crawlerChild, $lang);
+                    }
+                    $this->validator->validate($filmInput);
+                    $film = $this->filmByProviderService->addFilmByProvider($filmInput);
+                }
+                $this->taskService->updateTask($film, $this->getTask());
+            }
+            });
+
+            $this->parseFilmsByPage($this->getNextPageLink($this->getNextPageToken($crawler)));
     }
 
     /**
