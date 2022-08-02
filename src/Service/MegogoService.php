@@ -81,8 +81,7 @@ class MegogoService
         FilmByProviderRepository $filmByProviderRepository,
         FilmByProviderService $filmByProviderService,
         CommandTaskRepository $commandTaskRepository
-    )
-    {
+    ) {
         $this->taskService = $taskService;
         $this->validator = $validator;
         $this->filmByProviderService = $filmByProviderService;
@@ -100,20 +99,20 @@ class MegogoService
      */
     public function exec(): void
     {
-        $this->taskService->updateCountTask($this->getTask());
-        if ($this->getTask()->getStatus() == 1) {
-            throw new Exception('Task is running.');
-        }
-        $this->taskService->setWorkStatus($this->getTask());
+       // $this->taskService->updateCountTask($this->getTask());
+//        if ($this->getTask()->getStatus() == 1) {
+//            throw new Exception('Task is running.');
+//        }
+       // $this->taskService->setWorkStatus($this->getTask());
 
         try {
             $this->parseFilmsByPage($this->defaultLink);
         } catch (Exception $e) {
-            $this->taskService->setErrorStatus($this->getTask(), $e->getMessage());
+          //  $this->taskService->setErrorStatus($this->getTask(), $e->getMessage());
             throw new Exception($e->getMessage());
         }
 
-        $this->taskService->setNotWorkStatus($this->getTask());
+       // $this->taskService->setNotWorkStatus($this->getTask());
     }
 
     /**
@@ -126,7 +125,7 @@ class MegogoService
     {
         $html = $this->getContentLink($linkByFilms);
         if ($linkByFilms === $this->defaultLink) {
-            $html = Str_replace('\"', '', $html);
+            $html = str_replace('\"', '', $html);
         }
             $crawler = $this->getCrawler($html);
         $crawler->filter('div.thumbnail div.thumb a')->each(function ($node) {
@@ -175,8 +174,7 @@ class MegogoService
         FilmInput $filmInput,
         $crawlerChild,
         string $lang = self::LANG_DEFAULT
-    ): FilmInput
-    {
+    ): FilmInput {
         $filmFieldTranslation = $this->getFilmFieldTranslation($crawlerChild, $lang);
         $filmInput->addFilmFieldTranslationInput($filmFieldTranslation);
         if ($lang === self::LANG_DEFAULT) {
@@ -345,19 +343,21 @@ class MegogoService
      */
     private function getCastActor($crawler): ArrayCollection
     {
-        $castGenre = $crawler->filter('div.video-persons a.link-default')->each(function (Crawler $node) {
+        $castGenre = $crawler->filter('div.video-persons .type-main a.link-default')->each(function (Crawler $node) {
             $link = 'https://megogo.net' . $node->attr('href');
             $name = $node->filter('div.video-person-name')->text();
             $castInput = new PeopleInput($name, $link);
             $this->validator->validate($castInput);
             return $castInput;
         });
+
         return new ArrayCollection($castGenre);
     }
 
     /**
      * @param $crawler
      * @return Crawler
+     * @throws GuzzleException
      */
     private function getCastCrawler($crawler): Crawler
     {
