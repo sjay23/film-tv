@@ -72,21 +72,18 @@ class MegogoService
      * @param ProviderRepository $providerRepository
      * @param FilmByProviderRepository $filmByProviderRepository
      * @param FilmByProviderService $filmByProviderService
-     * @param CommandTaskRepository $commandTaskRepository
      */
     public function __construct(
         TaskService $taskService,
         ValidatorInterface $validator,
         ProviderRepository $providerRepository,
         FilmByProviderRepository $filmByProviderRepository,
-        FilmByProviderService $filmByProviderService,
-        CommandTaskRepository $commandTaskRepository
+        FilmByProviderService $filmByProviderService
     ) {
         $this->taskService = $taskService;
         $this->validator = $validator;
         $this->filmByProviderService = $filmByProviderService;
         $this->filmByProviderRepository = $filmByProviderRepository;
-        $this->commandTaskRepository = $commandTaskRepository;
         $this->providerRepository = $providerRepository;
         $this->client = new Client();
         $this->defaultLink = 'https://megogo.net/en/search-extended?category_id=16&main_tab=filters&sort=add&ajax=true&origin=/en/search-extended?category_id=16&main_tab=filters&sort=add&widget=widget_58';
@@ -99,20 +96,20 @@ class MegogoService
      */
     public function exec(): void
     {
-       // $this->taskService->updateCountTask($this->getTask());
-//        if ($this->getTask()->getStatus() == 1) {
-//            throw new Exception('Task is running.');
-//        }
-       // $this->taskService->setWorkStatus($this->getTask());
+        $this->taskService->updateCountTask($this->getTask());
+        if ($this->getTask()->getStatus() == 1) {
+            throw new Exception('Task is running.');
+        }
+        $this->taskService->setWorkStatus($this->getTask());
 
         try {
             $this->parseFilmsByPage($this->defaultLink);
         } catch (Exception $e) {
-          //  $this->taskService->setErrorStatus($this->getTask(), $e->getMessage());
+            $this->taskService->setErrorStatus($this->getTask(), $e->getMessage());
             throw new Exception($e->getMessage());
         }
 
-       // $this->taskService->setNotWorkStatus($this->getTask());
+        $this->taskService->setNotWorkStatus($this->getTask());
     }
 
     /**
@@ -130,8 +127,10 @@ class MegogoService
             $crawler = $this->getCrawler($html);
         $crawler->filter('div.thumbnail div.thumb a')->each(function ($node) {
 
-            if (strpos($node->link()->getUri(), 'treyler') === false
-                and strpos($node->link()->getUri(), 'trailer') === false) {
+            if (
+                !str_contains($node->link()->getUri(), 'treyler')
+                and !str_contains($node->link()->getUri(), 'trailer')
+            ) {
                 if ($this->getTask()->getStatus() == 0) {
                     throw new Exception('Task is stop manual.');
                 }
@@ -159,9 +158,8 @@ class MegogoService
                 }
                 $this->taskService->updateTask($film, $this->getTask());
             }
-            });
-
-            $this->parseFilmsByPage($this->getNextPageLink($this->getNextPageToken($crawler)));
+        });
+        $this->parseFilmsByPage($this->getNextPageLink($this->getNextPageToken($crawler)));
     }
 
     /**
@@ -169,6 +167,7 @@ class MegogoService
      * @param $crawlerChild
      * @param string $lang
      * @return FilmInput
+     * @throws GuzzleException
      */
     private function parseFilmByMegogo(
         FilmInput $filmInput,
@@ -201,6 +200,7 @@ class MegogoService
     }
 
     /**
+     * @param $crawler
      * @return string
      */
     private function getNextPageToken($crawler): string
@@ -209,6 +209,7 @@ class MegogoService
     }
 
     /**
+     * @param $nextPageToken
      * @return string
      */
     private function getNextPageLink($nextPageToken): string
@@ -370,6 +371,7 @@ class MegogoService
      * @param $crawler
      * @param $filmInput
      * @return void
+     * @throws GuzzleException
      */
     private function parseCast($crawler, $filmInput): void
     {
@@ -381,6 +383,7 @@ class MegogoService
     /**
      * @param $linkFilm
      * @return ArrayCollection
+     * @throws GuzzleException
      */
     private function parseImage($linkFilm): ArrayCollection
     {
