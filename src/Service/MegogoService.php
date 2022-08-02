@@ -375,14 +375,17 @@ class MegogoService
     }
 
     /**
-     * @param $linkByFilms
+     * @param $linkFilm
      * @return ArrayCollection
      */
-    private function parseImage($linkByFilms): ArrayCollection
+    private function parseImage($linkFilm): ArrayCollection
     {
-        $html = $this->getContentLink($linkByFilms);
-        $crawler = $this->getCrawler($html);
-        $link = $crawler->filter('ul.video-view-tabs')->children('.nav-item')->eq(2)->children('a')->attr('href');
+        $link = $this->getCrawler($this->getContentLink($linkFilm))
+            ->filter('ul.video-view-tabs')
+            ->children('.nav-item')
+            ->eq(2)
+            ->children('a')
+            ->attr('href');
         $html = $this->getContentLink('https://megogo.net' . $link);
         $crawler = $this->getCrawler($html);
         $images = $crawler->filter('a.type-screenshot img.lazy_image')->each(function (Crawler $node) {
