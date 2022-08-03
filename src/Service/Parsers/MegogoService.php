@@ -47,6 +47,8 @@ class MegogoService extends MainParserService
      */
     private ValidatorInterface $validator;
 
+    public string $defaultLink = 'https://megogo.net/en/search-extended?category_id=16&main_tab=filters&sort=add&ajax=true&origin=/en/search-extended?category_id=16&main_tab=filters&sort=add&widget=widget_58';
+
     /**
      * @param TaskService $taskService
      * @param ValidatorInterface $validator
@@ -60,13 +62,12 @@ class MegogoService extends MainParserService
         ProviderRepository $providerRepository,
         FilmByProviderService $filmByProviderService
     ) {
-        parent::__construct($taskService, $providerRepository);
+        parent::__construct($taskService, $validator,$providerRepository);
         $this->taskService = $taskService;
         $this->task = $this->getTask(Provider::MEGOGO);
         $this->validator = $validator;
         $this->filmByProviderService = $filmByProviderService;
         $this->filmByProviderRepository = $filmByProviderRepository;
-        $this->defaultLink = 'https://megogo.net/en/search-extended?category_id=16&main_tab=filters&sort=add&ajax=true&origin=/en/search-extended?category_id=16&main_tab=filters&sort=add&widget=widget_58';
     }
 
     /**
@@ -375,24 +376,33 @@ class MegogoService extends MainParserService
         return $crawler->filter('.videoInfoPanel-age-limit')->text();
     }
 
-
-
     /**
      * @param $crawlerChild
-     * @param $lang
-     * @return FilmFieldTranslationInput
+     * @return string|null
      */
-    private function getFilmFieldTranslation($crawlerChild, $lang): FilmFieldTranslationInput
+    protected function parseTitleTranslate($crawlerChild): ?string
     {
         $data = $crawlerChild->filterXpath("//meta[@property='og:title']")->extract(['content']);
         $title = $data[0];
-        $description = $crawlerChild->filter('div.video-description')->text();
-        $bannerLink = $crawlerChild->filter('div.thumbnail div.thumb img')->image()->getUri();
-        $imageInput = $this->getImageInput($bannerLink);
-        $filmFieldTranslation = new FilmFieldTranslationInput($title, $description, $lang);
-        $filmFieldTranslation->setBannersInput($imageInput);
-        $this->validator->validate($filmFieldTranslation);
+        return $title;
+    }
 
-        return $filmFieldTranslation;
+    /**
+     * @param $crawlerChild
+     * @return string|null
+     */
+    protected function parseDescriptionTranslate($crawlerChild): ?string
+    {
+        return $crawlerChild->filter('div.video-description')->text();
+    }
+
+    /**
+     * @param $crawlerChild
+     * @return ImageInput
+     */
+    protected function parseBannerTranslate($crawlerChild): ImageInput
+    {
+        $bannerLink = $crawlerChild->filter('div.thumbnail div.thumb img')->image()->getUri();
+        return $this->getImageInput($bannerLink);
     }
 }

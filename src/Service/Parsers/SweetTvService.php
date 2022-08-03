@@ -59,6 +59,8 @@ class SweetTvService extends MainParserService
      */
     private ValidatorInterface $validator;
 
+    public string $defaultLink = 'https://sweet.tv/en/movies/all-movies/sort=5';
+
     /**
      * @param TaskService $taskService
      * @param ValidatorInterface $validator
@@ -74,7 +76,7 @@ class SweetTvService extends MainParserService
         ProviderRepository $providerRepository,
         CommandTaskRepository $commandTaskRepository
     ) {
-        parent::__construct($taskService, $providerRepository);
+        parent::__construct($taskService, $validator,$providerRepository);
         $this->taskService = $taskService;
         $this->validator = $validator;
         $this->filmByProviderService = $filmByProviderService;
@@ -82,7 +84,6 @@ class SweetTvService extends MainParserService
         $this->commandTaskRepository = $commandTaskRepository;
         $this->task = $this->getTask(Provider::SWEET_TV);
         $this->client = new Client();
-        $this->defaultLink = 'https://sweet.tv/en/movies/all-movies/sort=5';
 
     }
 
@@ -347,26 +348,36 @@ class SweetTvService extends MainParserService
         return $age;
     }
 
-
+    /**
+     * @param $crawlerChild
+     * @return string|null
+     */
+    protected function parseTitleTranslate($crawlerChild): ?string
+    {
+        return $crawlerChild->filter('.container-fluid_padding li')->last()->text();
+    }
 
     /**
      * @param $crawlerChild
-     * @param $lang
-     * @return FilmFieldTranslationInput
+     * @return string|null
      */
-    private function getFilmFieldTranslation($crawlerChild, $lang): FilmFieldTranslationInput
+    protected function parseDescriptionTranslate($crawlerChild): ?string
     {
-        $title = $crawlerChild->filter('.container-fluid_padding li')->last()->text();
-        $description = $crawlerChild->filter('div.film-descr p')->text();
+        return $crawlerChild->filter('div.film-descr p')->text();
+    }
+
+    /**
+     * @param $crawlerChild
+     * @return ImageInput
+     */
+    protected function parseBannerTranslate($crawlerChild): ImageInput
+    {
         $bannerNode = $crawlerChild->filter('div.film-right  div.film-right__img source');
         if ($bannerNode->count() > 0) {
             $bannerLink = $bannerNode->attr('srcset');
             $imageInput = $this->getImageInput($bannerLink);
         }
-        $filmFieldTranslation = new FilmFieldTranslationInput($title, $description, $lang);
-        $filmFieldTranslation->setBannersInput($imageInput);
-        $this->validator->validate($filmFieldTranslation);
-
-        return $filmFieldTranslation;
+        return $imageInput;
     }
+
 }

@@ -2,6 +2,7 @@
 
 namespace App\Service\Parsers;
 
+use App\DTO\FilmFieldTranslationInput;
 use App\Entity\CommandTask;
 use App\Entity\Provider;
 use App\Repository\ProviderRepository;
@@ -10,6 +11,7 @@ use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use Symfony\Component\DomCrawler\Crawler;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 abstract class MainParserService
 {
@@ -38,14 +40,21 @@ abstract class MainParserService
     private TaskService $taskService;
 
     /**
+     * @var ValidatorInterface
+     */
+    private ValidatorInterface $validator;
+
+    /**
      * @param ProviderRepository $providerRepository
      */
     protected function __construct(
         TaskService $taskService,
+        ValidatorInterface $validator,
         ProviderRepository $providerRepository,
     )
     {
         $this->taskService = $taskService;
+        $this->validator = $validator;
         $this->providerRepository = $providerRepository;
         $this->client = new Client();
     }
@@ -127,6 +136,23 @@ abstract class MainParserService
         $this->taskService->setWorkStatus($this->getTask($name));
         $this->parserPages($linkPage);
         $this->taskService->setNotWorkStatus($this->getTask($name));
+    }
+
+    /**
+     * @param $crawlerChild
+     * @param $lang
+     * @return FilmFieldTranslationInput
+     */
+    protected function getFilmFieldTranslation($crawlerChild, $lang): FilmFieldTranslationInput
+    {
+        $imageInput = $this->parseBannerTranslate($crawlerChild);
+        $description = $this->parseDescriptionTranslate($crawlerChild);
+        $title = $this->parseTitleTranslate($crawlerChild);
+        $filmFieldTranslation = new FilmFieldTranslationInput($title, $description, $lang);
+        $filmFieldTranslation->setBannersInput($imageInput);
+        $this->validator->validate($filmFieldTranslation);
+
+        return $filmFieldTranslation;
     }
 
 }
