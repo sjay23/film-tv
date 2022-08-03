@@ -17,7 +17,6 @@ use App\Service\FilmByProviderService;
 use App\Service\TaskService;
 use Doctrine\Common\Collections\ArrayCollection;
 use Exception;
-use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\Validator\Validator\ValidatorInterface;

@@ -57,6 +57,7 @@ class FilmByProviderService
      * @param AudioService $audioService
      * @param CountryService $countryService
      * @param PeopleService $peopleService
+     * @param ImageFileService $imageFileService
      */
     public function __construct(
         EntityManagerInterface $entityManager,
