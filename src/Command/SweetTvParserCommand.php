@@ -2,7 +2,7 @@
 
 namespace App\Command;
 
-use App\Service\SweetTvService;
+use App\Service\Parsers\SweetTvService;
 use GuzzleHttp\Exception\GuzzleException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -38,7 +38,7 @@ class SweetTvParserCommand extends Command
             '============',
             '',
         ]);
-        $this->sweetTvService->exec();
+        $this->sweetTvService->runExec();
 
         return Command::SUCCESS;
     }

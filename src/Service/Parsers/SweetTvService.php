@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Service;
+namespace App\Service\Parsers;
 
 use App\DTO\FilmFieldTranslationInput;
 use App\DTO\FilmInput;
@@ -16,6 +16,8 @@ use App\Entity\Provider;
 use App\Repository\ProviderRepository;
 use App\Repository\CommandTaskRepository;
 use App\Repository\FilmByProviderRepository;
+use App\Service\FilmByProviderService;
+use App\Service\TaskService;
 use Doctrine\Common\Collections\ArrayCollection;
 use Exception;
 use GuzzleHttp\Client;
@@ -26,7 +28,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  * Class SweetTvService
  */
-class SweetTvService
+class SweetTvService extends MainParserService
 {
     public const LANG_DEFAULT = 'en';
 
@@ -37,19 +39,10 @@ class SweetTvService
     ];
 
     /**
-     * @var Client
-     */
-    private Client $client;
-
-    /**
      * @var TaskService
      */
     private TaskService $taskService;
 
-    /**
-     * @var ProviderRepository
-     */
-    private ProviderRepository $providerRepository;
 
     /**
      * @var FilmByProviderRepository
@@ -69,7 +62,6 @@ class SweetTvService
     /**
      * @param TaskService $taskService
      * @param ValidatorInterface $validator
-     * @param ProviderRepository $providerRepository
      * @param FilmByProviderRepository $filmByProviderRepository
      * @param FilmByProviderService $filmByProviderService
      * @param CommandTaskRepository $commandTaskRepository
@@ -77,18 +69,21 @@ class SweetTvService
     public function __construct(
         TaskService $taskService,
         ValidatorInterface $validator,
-        ProviderRepository $providerRepository,
         FilmByProviderRepository $filmByProviderRepository,
         FilmByProviderService $filmByProviderService,
+        ProviderRepository $providerRepository,
         CommandTaskRepository $commandTaskRepository
     ) {
+        parent::__construct($taskService, $providerRepository);
         $this->taskService = $taskService;
         $this->validator = $validator;
         $this->filmByProviderService = $filmByProviderService;
         $this->filmByProviderRepository = $filmByProviderRepository;
         $this->commandTaskRepository = $commandTaskRepository;
-        $this->providerRepository = $providerRepository;
+        $this->task = $this->getTask(Provider::SWEET_TV);
         $this->client = new Client();
+        $this->defaultLink = 'https://sweet.tv/en/movies/all-movies/sort=5';
+
     }
 
     /**
@@ -96,28 +91,32 @@ class SweetTvService
      * @throws GuzzleException
      * @throws Exception
      */
-    public function exec(): void
+    public function runExec(): void
     {
-        $linkByFilms = 'https://sweet.tv/en/movies/all-movies/sort=5';
+        $this->exec($this->defaultLink, Provider::SWEET_TV);
+    }
+
+    /**
+     * @return void
+     * @throws GuzzleException
+     * @throws Exception
+     */
+    public function parserPages($linkByFilms): void
+    {
         $html = $this->getContentLink($linkByFilms);
         $crawler = $this->getCrawler($html);
-        $pageMax = (int) $crawler->filter('.pagination li')->last()->text();
+        $pageMax = (int)$crawler->filter('.pagination li')->last()->text();
         $page = 1;
-        $this->taskService->updateCountTask($this->getTask());
-        if ($this->getTask()->getStatus() == 1) {
-            throw new Exception('Task is running.');
-        }
-        $this->taskService->setWorkStatus($this->getTask());
+        $this->taskService->setWorkStatus($this->task);
         while ($page <= $pageMax) {
             try {
                 $this->parseFilmsByPage($linkByFilms . '/page/$page', $page);
             } catch (Exception $e) {
-                $this->taskService->setErrorStatus($this->getTask(), $e->getMessage());
+                $this->taskService->setErrorStatus($this->task, $e->getMessage());
                 throw new Exception($e->getMessage());
             }
             $page++;
         }
-        $this->taskService->setNotWorkStatus($this->getTask());
     }
 
     /**
@@ -127,23 +126,23 @@ class SweetTvService
      * @throws GuzzleException
      * @throws Exception
      */
-    private function parseFilmsByPage(string $link, int $page): void
+    protected function parseFilmsByPage(string $link, int $page): void
     {
         $link = str_replace('$page', (string)$page, $link);
         $html = $this->getContentLink($link);
         $crawler = $this->getCrawler($html);
             $crawler->filter('.movie__item-link')->each(function ($node) {
-                if ($this->getTask()->getStatus() == 0) {
+                if ( $this->task->getStatus() == 0) {
                     throw new Exception('Task is stop manual.');
                 }
                 $filmInput = new FilmInput();
                 $linkFilm = $node->link()->getUri();
                 $filmInput->setLink($linkFilm);
-                $movieId = $this->getFilmId($linkFilm);
+                $movieId = $this->parseFilmId($linkFilm);
                 $filmInput->setMovieId((int)$movieId);
                 $posterInput = $this->parseImage($node);
                 $filmInput->addImageInput($posterInput);
-                $provider = $this->getProvider();
+                $provider = $this->getProvider(Provider::SWEET_TV);
                 $filmInput->setProvider($provider);
                 $film = $this->filmByProviderRepository->findOneBy(['movieId' => $movieId]);
                 if (!$film) {
@@ -159,7 +158,7 @@ class SweetTvService
                     $this->validator->validate($filmInput);
                     $film = $this->filmByProviderService->addFilmByProvider($filmInput);
                 }
-                $this->taskService->updateTask($film, $this->getTask());
+                $this->taskService->updateTask($film, $this->task);
             });
     }
 
@@ -201,67 +200,23 @@ class SweetTvService
     }
 
     /**
-     * @param string $str
-     * @return int
-     */
-    private function convertTime(string $str): int
-    {
-        $a = preg_replace("/[^0-9]/", '', $str);
-        $time = ((substr($a, 0, 2)) * 60) + (substr($a, -2, 2));
-        return $time;
-    }
-
-    /**
      * @param string $linkFilm
      * @return string
      */
-    private function getFilmId(string $linkFilm): string
+    protected function parseFilmId($linkFilm): string
     {
         $re = '/https:\/\/sweet.tv\/en\/movie\/([0-9]*)-(.*)/';
         preg_match($re, $linkFilm, $matches, PREG_OFFSET_CAPTURE, 0);
         return $matches[1][0];
     }
 
-    /**
-     * @param string $html
-     * @return Crawler
-     */
-    private function getCrawler(string $html): Crawler
-    {
-        return new Crawler($html);
-    }
 
-    /**
-     * @return Provider|null
-     */
-    private function getProvider(): ?Provider
-    {
-        return $this->providerRepository->findOneBy(['name' => Provider::SWEET_TV]);
-    }
-
-    /**
-     * @param string $link
-     * @param string $lang
-     * @return string|null
-     * @throws GuzzleException
-     */
-    private function getContentLink(string $link, string $lang = self::LANG_DEFAULT): ?string
-    {
-        sleep(rand(0, 3));
-        if ($lang !== self::LANG_DEFAULT) {
-            $link = str_replace(self::LANG_DEFAULT, $lang, $link);
-        }
-        echo 'Parse link: ' . $link . "\n";
-        $response = $this->client->get($link);
-
-        return (string) $response->getBody();
-    }
 
     /**
      * @param $crawler
      * @return ArrayCollection
      */
-    private function parseGenre($crawler): ArrayCollection
+    protected function parseGenre($crawler): ArrayCollection
     {
         $node = $crawler->filter('div.film__genres a');
         $filmGenre = [];
@@ -279,7 +234,7 @@ class SweetTvService
      * @param $crawler
      * @return ArrayCollection
      */
-    private function parseAudio($crawler): ArrayCollection
+    protected function parseAudio($crawler): ArrayCollection
     {
         $node = $crawler->filter('a.film-audio__link');
         $filmAudio = [];
@@ -298,7 +253,7 @@ class SweetTvService
      * @param $crawler
      * @return ArrayCollection
      */
-    private function parseCast($crawler): ArrayCollection
+    protected function parseCast($crawler): ArrayCollection
     {
         $node = $crawler->filter('div.film__actor a');
         $castGenre = [];
@@ -316,7 +271,7 @@ class SweetTvService
      * @param $crawler
      * @return ArrayCollection
      */
-    private function parseCountry($crawler): ArrayCollection
+    protected function parseCountry($crawler): ArrayCollection
     {
         $filmCountry = $crawler->filter('div.film__countries a.film-left__link')->each(function (Crawler $node) {
             $countriesInput = new CountryInput($node->text());
@@ -348,7 +303,7 @@ class SweetTvService
      * @param $crawler
      * @return ImageInput
      */
-    private function parseImage($crawler): ImageInput
+    protected function parseImage($crawler): ImageInput
     {
         $imageLink = $crawler->filter('.movie__item-img > img.img_wauto_hauto')->image()->getUri();
 
@@ -366,7 +321,7 @@ class SweetTvService
      * @param $crawler
      * @return string|null
      */
-    private function parseRating($crawler): ?string
+    protected function parseRating($crawler): ?string
     {
         $rating = null;
         $node = $crawler->filter('.film__rating');
@@ -381,7 +336,7 @@ class SweetTvService
      * @param $crawler
      * @return string|null
      */
-    private function parseAge($crawler): ?string
+    protected function parseAge($crawler): ?string
     {
         $age = null;
         $node = $crawler->filter('.film__age');
@@ -392,13 +347,7 @@ class SweetTvService
         return $age;
     }
 
-    /**
-     * @return CommandTask|null
-     */
-    private function getTask(): ?CommandTask
-    {
-        return $this->taskService->getTask($this->getProvider());
-    }
+
 
     /**
      * @param $crawlerChild

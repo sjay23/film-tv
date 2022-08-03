@@ -2,7 +2,8 @@
 
 namespace App\Command;
 
-use App\Service\MegogoService;
+
+use App\Service\Parsers\MegogoService;
 use GuzzleHttp\Exception\GuzzleException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -38,7 +39,7 @@ class MegogoParserCommand extends Command
             '============',
             '',
         ]);
-        $this->megogoService->exec();
+        $this->megogoService->runExec();
 
         return Command::SUCCESS;
     }

@@ -2,23 +2,22 @@
 
 declare(strict_types=1);
 
-namespace App\Service;
+namespace App\Service\Parsers;
 
 use App\DTO\FilmFieldTranslationInput;
 use App\DTO\FilmInput;
 use App\DTO\AudioInput;
 use App\DTO\CountryInput;
 use App\DTO\PeopleInput;
-use App\DTO\GenreInput;
 use App\DTO\ImageInput;
 use App\Entity\CommandTask;
 use App\Entity\Provider;
 use App\Repository\ProviderRepository;
-use App\Repository\CommandTaskRepository;
 use App\Repository\FilmByProviderRepository;
+use App\Service\FilmByProviderService;
+use App\Service\TaskService;
 use Doctrine\Common\Collections\ArrayCollection;
 use Exception;
-use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -26,30 +25,12 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  * Class MegogoService
  */
-class MegogoService
+class MegogoService extends MainParserService
 {
-    public const LANG_DEFAULT = 'en';
-
-    public const LANGS = [
-        'en',
-        'ru',
-        'uk'
-    ];
-
-    /**
-     * @var Client
-     */
-    private Client $client;
-
     /**
      * @var TaskService
      */
     private TaskService $taskService;
-
-    /**
-     * @var ProviderRepository
-     */
-    private ProviderRepository $providerRepository;
 
     /**
      * @var FilmByProviderRepository
@@ -69,23 +50,22 @@ class MegogoService
     /**
      * @param TaskService $taskService
      * @param ValidatorInterface $validator
-     * @param ProviderRepository $providerRepository
      * @param FilmByProviderRepository $filmByProviderRepository
      * @param FilmByProviderService $filmByProviderService
      */
     public function __construct(
         TaskService $taskService,
         ValidatorInterface $validator,
-        ProviderRepository $providerRepository,
         FilmByProviderRepository $filmByProviderRepository,
+        ProviderRepository $providerRepository,
         FilmByProviderService $filmByProviderService
     ) {
+        parent::__construct($taskService, $providerRepository);
         $this->taskService = $taskService;
+        $this->task = $this->getTask(Provider::MEGOGO);
         $this->validator = $validator;
         $this->filmByProviderService = $filmByProviderService;
         $this->filmByProviderRepository = $filmByProviderRepository;
-        $this->providerRepository = $providerRepository;
-        $this->client = new Client();
         $this->defaultLink = 'https://megogo.net/en/search-extended?category_id=16&main_tab=filters&sort=add&ajax=true&origin=/en/search-extended?category_id=16&main_tab=filters&sort=add&widget=widget_58';
     }
 
@@ -94,22 +74,24 @@ class MegogoService
      * @throws GuzzleException
      * @throws Exception
      */
-    public function exec(): void
+    public function runExec(): void
     {
-        $this->taskService->updateCountTask($this->getTask());
-        if ($this->getTask()->getStatus() == 1) {
-            throw new Exception('Task is running.');
-        }
-        $this->taskService->setWorkStatus($this->getTask());
+        $this->exec($this->defaultLink, Provider::MEGOGO);
+    }
 
+    /**
+     * @return void
+     * @throws GuzzleException
+     * @throws Exception
+     */
+    public function parserPages(): void
+    {
         try {
             $this->parseFilmsByPage($this->defaultLink);
         } catch (Exception $e) {
-            $this->taskService->setErrorStatus($this->getTask(), $e->getMessage());
+            $this->taskService->setErrorStatus($this->task, $e->getMessage());
             throw new Exception($e->getMessage());
         }
-
-        $this->taskService->setNotWorkStatus($this->getTask());
     }
 
     /**
@@ -118,7 +100,7 @@ class MegogoService
      * @throws GuzzleException
      * @throws Exception
      */
-    private function parseFilmsByPage(string $linkByFilms): void
+    protected function parseFilmsByPage(string $linkByFilms): void
     {
         $html = $this->getContentLink($linkByFilms);
         if ($linkByFilms === $this->defaultLink) {
@@ -131,7 +113,7 @@ class MegogoService
                 !str_contains($node->link()->getUri(), 'treyler')
                 and !str_contains($node->link()->getUri(), 'trailer')
             ) {
-                if ($this->getTask()->getStatus() == 0) {
+                if ($this->task->getStatus() == 0) {
                     throw new Exception('Task is stop manual.');
                 }
                 $filmInput = new FilmInput();
@@ -139,9 +121,9 @@ class MegogoService
                 $filmInput->setLink($linkFilm);
                 $posterInput = $this->parseImage($linkFilm);
                 $filmInput->setImagesInput($posterInput);
-                $movieId = $this->getFilmId($linkFilm);
+                $movieId = $this->parseFilmId($linkFilm);
                 $filmInput->setMovieId((int)$movieId);
-                $provider = $this->getProvider();
+                $provider = $this->getProvider(Provider::MEGOGO);
                 $filmInput->setProvider($provider);
                 $film = $this->filmByProviderRepository->findOneBy(['movieId' => $movieId]);
                 if (!$film) {
@@ -156,7 +138,7 @@ class MegogoService
                     $this->validator->validate($filmInput);
                     $film = $this->filmByProviderService->addFilmByProvider($filmInput);
                 }
-                $this->taskService->updateTask($film, $this->getTask());
+                $this->taskService->updateTask($film, $this->task);
             }
         });
         $this->parseFilmsByPage($this->getNextPageLink($this->getNextPageToken($crawler)));
@@ -221,7 +203,7 @@ class MegogoService
      * @param string $linkFilm
      * @return string
      */
-    private function getFilmId(string $linkFilm): string
+    protected function parseFilmId($linkFilm): string
     {
 
         $re = '/https:\/\/megogo.net\/en\/view\/([0-9]*)-(.*)/';
@@ -229,46 +211,13 @@ class MegogoService
         return $matches[1][0];
     }
 
-    /**
-     * @param string $html
-     * @return Crawler
-     */
-    private function getCrawler(string $html): Crawler
-    {
-        return new Crawler($html);
-    }
 
-    /**
-     * @return Provider|null
-     */
-    private function getProvider(): ?Provider
-    {
-        return $this->providerRepository->findOneBy(['name' => Provider::MEGOGO]);
-    }
-
-    /**
-     * @param string $link
-     * @param string $lang
-     * @return string|null
-     * @throws GuzzleException
-     */
-    private function getContentLink(string $link, string $lang = self::LANG_DEFAULT): ?string
-    {
-        sleep(rand(0, 3));
-        if ($lang !== self::LANG_DEFAULT) {
-            $link = str_replace(self::LANG_DEFAULT, $lang, $link);
-        }
-        echo 'Parse link: ' . $link . "\n";
-        $response = $this->client->get($link);
-
-        return (string)$response->getBody();
-    }
 
     /**
      * @param $crawler
      * @return ArrayCollection
      */
-    private function parseGenre($crawler): ArrayCollection
+    protected function parseGenre($crawler): ArrayCollection
     {
         $data = $crawler->filterXpath("//meta[@property='ya:ovs:genre']")->extract(['content']);
         $genres = explode(',', $data[0]);
@@ -292,7 +241,7 @@ class MegogoService
      * @param $crawler
      * @return ArrayCollection
      */
-    private function parseAudio($crawler): ArrayCollection
+    protected function parseAudio($crawler): ArrayCollection
     {
         $data = $crawler->filterXpath("//meta[@property='ya:ovs:languages']")->extract(['content']);
         $audios = explode(',', $data[0]);
@@ -309,7 +258,7 @@ class MegogoService
      * @param $crawler
      * @return ArrayCollection
      */
-    private function parseCountry($crawler): ArrayCollection
+    protected function parseCountry($crawler): ArrayCollection
     {
         $data = $crawler->filterXpath("//meta[@property='ya:ovs:country']")->extract(['content']);
         $countries = explode(',', $data[0]);
@@ -373,7 +322,7 @@ class MegogoService
      * @return void
      * @throws GuzzleException
      */
-    private function parseCast($crawler, $filmInput): void
+    protected function parseCast($crawler, $filmInput): void
     {
         $crawler = $this->getCastCrawler($crawler);
         $filmInput->setDirectorsInput($this->getCastDirector($crawler));
@@ -385,7 +334,7 @@ class MegogoService
      * @return ArrayCollection
      * @throws GuzzleException
      */
-    private function parseImage($linkFilm): ArrayCollection
+    protected function parseImage($linkFilm): ArrayCollection
     {
         $link = $this->getCrawler($this->getContentLink($linkFilm))
             ->filter('ul.video-view-tabs')
@@ -406,7 +355,7 @@ class MegogoService
      * @param $crawler
      * @return string|null
      */
-    private function parseRating($crawler): ?string
+    protected function parseRating($crawler): ?string
     {
         $rating = null;
         $node = $crawler->filter('.videoInfoPanel-rating');
@@ -421,18 +370,12 @@ class MegogoService
      * @param $crawler
      * @return string|null
      */
-    private function parseAge($crawler): ?string
+    protected function parseAge($crawler): ?string
     {
         return $crawler->filter('.videoInfoPanel-age-limit')->text();
     }
 
-    /**
-     * @return CommandTask|null
-     */
-    private function getTask(): ?CommandTask
-    {
-        return $this->taskService->getTask($this->getProvider());
-    }
+
 
     /**
      * @param $crawlerChild
