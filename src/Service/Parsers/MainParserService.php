@@ -3,6 +3,7 @@
 namespace App\Service\Parsers;
 
 use App\DTO\FilmFieldTranslationInput;
+use App\DTO\FilmInput;
 use App\Entity\CommandTask;
 use App\Entity\Provider;
 use App\Repository\ProviderRepository;
@@ -65,6 +66,8 @@ abstract class MainParserService
     abstract protected function parseAge($crawler);
     abstract protected function parseRating($crawler);
     abstract protected function parseImage($linkFilm);
+    abstract protected function parseYear($crawlerChild);
+    abstract protected function parseDuration($crawlerChild);
     abstract protected function parseCountry($crawler);
     abstract protected function parseAudio($crawler);
     abstract protected function parseGenre($crawler);
@@ -129,7 +132,6 @@ abstract class MainParserService
         return $this->taskService->getTask($this->getProvider($name));
     }
 
-
     /**
      * @param $linkPage
      * @param $name
@@ -162,5 +164,42 @@ abstract class MainParserService
         $this->validator->validate($filmFieldTranslation);
 
         return $filmFieldTranslation;
+    }
+
+    /**
+     * @param FilmInput $filmInput
+     * @param $crawlerChild
+     * @param string $lang
+     * @return FilmInput
+     */
+    protected function parseFilmByProvider(FilmInput $filmInput, $crawlerChild, string $lang = self::LANG_DEFAULT): FilmInput
+    {
+        $filmFieldTranslation = $this->getFilmFieldTranslation($crawlerChild, $lang);
+        $filmInput->addFilmFieldTranslationInput($filmFieldTranslation);
+
+        if ($lang === self::LANG_DEFAULT) {
+            $age = $this->parseAge($crawlerChild);
+            $duration = $this->parseDuration($crawlerChild);
+            $years = $this->parseYear($crawlerChild);
+            $rating = $this->parseRating($crawlerChild);
+            $filmInput->setAge($age);
+            $filmInput->setRating((float)$rating);
+            $filmInput->setYears((int)$years);
+            $filmInput->setDuration($duration);
+            $countriesCollect = $this->parseCountry($crawlerChild);
+            $filmInput->setCountriesInput($countriesCollect);
+            $genreCollect = $this->parseGenre($crawlerChild);
+            $filmInput->setGenresInput($genreCollect);
+            $directorCollect = $this->parseDirector($crawlerChild);
+            $filmInput->setDirectorsInput($directorCollect);
+            $castCollect = $this->parseCast($crawlerChild);
+            $filmInput->setCastsInput($castCollect);
+            $audioCollect = $this->parseAudio($crawlerChild);
+            $filmInput->setAudiosInput($audioCollect);
+        }
+
+        sleep(rand(0, 3));
+
+        return $filmInput;
     }
 }

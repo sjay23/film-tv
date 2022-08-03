@@ -4,13 +4,11 @@ declare(strict_types=1);
 
 namespace App\Service\Parsers;
 
-use App\DTO\FilmFieldTranslationInput;
 use App\DTO\FilmInput;
 use App\DTO\AudioInput;
 use App\DTO\CountryInput;
 use App\DTO\PeopleInput;
 use App\DTO\ImageInput;
-use App\Entity\CommandTask;
 use App\Entity\Provider;
 use App\Repository\ProviderRepository;
 use App\Repository\FilmByProviderRepository;
@@ -42,8 +40,6 @@ class MegogoService extends MainParserService
     public string $defaultLink = 'https://megogo.net/en/search-extended?category_id=16&main_tab=filters&sort=add&ajax=true&origin=/en/search-extended?category_id=16&main_tab=filters&sort=add&widget=widget_58';
 
     /**
-     * @param TaskService $taskService
-     * @param ValidatorInterface $validator
      * @param FilmByProviderRepository $filmByProviderRepository
      * @param ProviderRepository $providerRepository
      * @param FilmByProviderService $filmByProviderService
@@ -123,7 +119,7 @@ class MegogoService extends MainParserService
                         if ($crawlerChild->filter('h1')->text() == 'Movies') {
                             return;
                         }
-                        $filmInput = $this->parseFilmByMegogo($filmInput, $crawlerChild, $lang);
+                        $filmInput = $this->parseFilmByProvider($filmInput, $crawlerChild, $lang);
                     }
                     $this->validator->validate($filmInput);
                     $film = $this->filmByProviderService->addFilmByProvider($filmInput);
@@ -132,47 +128,6 @@ class MegogoService extends MainParserService
             }
         });
         $this->parseFilmsByPage($this->getNextPageLink($this->getNextPageToken($crawler)));
-    }
-
-    /**
-     * @param FilmInput $filmInput
-     * @param $crawlerChild
-     * @param string $lang
-     * @return FilmInput
-     * @throws GuzzleException
-     */
-    private function parseFilmByMegogo(
-        FilmInput $filmInput,
-        $crawlerChild,
-        string $lang = self::LANG_DEFAULT
-    ): FilmInput {
-        $filmFieldTranslation = $this->getFilmFieldTranslation($crawlerChild, $lang);
-        $filmInput->addFilmFieldTranslationInput($filmFieldTranslation);
-        if ($lang === self::LANG_DEFAULT) {
-            $age = $this->parseAge($crawlerChild);
-            $years = $crawlerChild->filter('span.video-year')->text();
-            $duration = (int)(preg_replace(
-                "/[^,.0-9]/",
-                '',
-                $crawlerChild->filter(' div.video-duration span')->text()
-            ));
-            $rating = $this->parseRating($crawlerChild);
-            $filmInput->setAge($age);
-            $filmInput->setRating((float)$rating);
-            $filmInput->setYears((int)$years);
-            $filmInput->setDuration($duration);
-            $countriesCollect = $this->parseCountry($crawlerChild);
-            $filmInput->setCountriesInput($countriesCollect);
-            $genreCollect = $this->parseGenre($crawlerChild);
-            $filmInput->setGenresInput($genreCollect);
-            $this->parseCast($crawlerChild, $filmInput);
-            $audioCollect = $this->parseAudio($crawlerChild);
-            $filmInput->setAudiosInput($audioCollect);
-        }
-
-        sleep(rand(0, 3));
-
-        return $filmInput;
     }
 
     /**
@@ -395,5 +350,28 @@ class MegogoService extends MainParserService
     {
         $bannerLink = $crawlerChild->filter('div.thumbnail div.thumb img')->image()->getUri();
         return $this->getImageInput($bannerLink);
+    }
+
+    /**
+     * @param $crawlerChild
+     * @return string|null
+     */
+    protected function parseYear($crawlerChild): ?string
+    {
+        return $crawlerChild->filter('span.video-year')->text();
+    }
+
+    /**
+     * @param $crawler
+     * @return int
+     */
+    protected function parseDuration($crawlerChild): ?int
+    {
+        $duration = (int)(preg_replace(
+            "/[^,.0-9]/",
+            '',
+            $crawlerChild->filter(' div.video-duration span')->text()
+        ));
+        return  $duration;
     }
 }

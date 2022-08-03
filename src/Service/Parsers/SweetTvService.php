@@ -4,17 +4,14 @@ declare(strict_types=1);
 
 namespace App\Service\Parsers;
 
-use App\DTO\FilmFieldTranslationInput;
 use App\DTO\FilmInput;
 use App\DTO\AudioInput;
 use App\DTO\CountryInput;
 use App\DTO\PeopleInput;
 use App\DTO\GenreInput;
 use App\DTO\ImageInput;
-use App\Entity\CommandTask;
 use App\Entity\Provider;
 use App\Repository\ProviderRepository;
-use App\Repository\CommandTaskRepository;
 use App\Repository\FilmByProviderRepository;
 use App\Service\FilmByProviderService;
 use App\Service\TaskService;
@@ -46,8 +43,6 @@ class SweetTvService extends MainParserService
     public string $defaultLink = 'https://sweet.tv/en/movies/all-movies/sort=5';
 
     /**
-     * @param TaskService $taskService
-     * @param ValidatorInterface $validator
      * @param FilmByProviderRepository $filmByProviderRepository
      * @param FilmByProviderService $filmByProviderService
      * @param ProviderRepository $providerRepository
@@ -71,7 +66,7 @@ class SweetTvService extends MainParserService
      */
     public function runExec(): void
     {
-        $this->exec($this->defaultLink, $parserName);
+        $this->exec($this->defaultLink, $this->parserName);
     }
 
     /**
@@ -131,50 +126,13 @@ class SweetTvService extends MainParserService
                             // Пропускаем фильмы с редиректом на главную
                             return;
                         }
-                        $filmInput = $this->parseFilmBySweet($filmInput, $crawlerChild, $lang);
+                        $filmInput = $this->parseFilmByProvider($filmInput, $crawlerChild, $lang);
                     }
                     $this->validator->validate($filmInput);
                     $film = $this->filmByProviderService->addFilmByProvider($filmInput);
                 }
                 $this->taskService->updateTask($film, $this->task);
             });
-    }
-
-    /**
-     * @param FilmInput $filmInput
-     * @param $crawlerChild
-     * @param string $lang
-     * @return FilmInput
-     */
-    private function parseFilmBySweet(FilmInput $filmInput, $crawlerChild, string $lang = self::LANG_DEFAULT): FilmInput
-    {
-        $filmFieldTranslation = $this->getFilmFieldTranslation($crawlerChild, $lang);
-        $filmInput->addFilmFieldTranslationInput($filmFieldTranslation);
-
-        if ($lang === self::LANG_DEFAULT) {
-            $age = $this->parseAge($crawlerChild);
-            $years = $crawlerChild->filter('.film__years > .film-left__details')->text();
-            $duration = $this->convertTime($crawlerChild->filter(' span.film-left__time')->text());
-            $rating = $this->parseRating($crawlerChild);
-            $filmInput->setAge($age);
-            $filmInput->setRating((float)$rating);
-            $filmInput->setYears((int)$years);
-            $filmInput->setDuration($duration);
-            $countriesCollect = $this->parseCountry($crawlerChild);
-            $filmInput->setCountriesInput($countriesCollect);
-            $genreCollect = $this->parseGenre($crawlerChild);
-            $filmInput->setGenresInput($genreCollect);
-            $directorCollect = $this->parseDirector($crawlerChild);
-            $filmInput->setDirectorsInput($directorCollect);
-            $castCollect = $this->parseCast($crawlerChild);
-            $filmInput->setCastsInput($castCollect);
-            $audioCollect = $this->parseAudio($crawlerChild);
-            $filmInput->setAudiosInput($audioCollect);
-        }
-
-        sleep(rand(0, 3));
-
-        return $filmInput;
     }
 
     /**
@@ -261,7 +219,7 @@ class SweetTvService extends MainParserService
      * @param $crawler
      * @return ArrayCollection
      */
-    private function parseDirector($crawler): ArrayCollection
+    protected function parseDirector($crawler): ArrayCollection
     {
         $node = $crawler->filter('div.film__directors');
         $directors = [];
@@ -321,6 +279,24 @@ class SweetTvService extends MainParserService
         }
 
         return $age;
+    }
+
+    /**
+     * @param $crawlerChild
+     * @return string|null
+     */
+    protected function parseYear($crawlerChild): ?string
+    {
+        return $crawlerChild->filter('.film__years > .film-left__details')->text();
+    }
+
+    /**
+     * @param $crawler
+     * @return int
+     */
+    protected function parseDuration($crawlerChild): ?int
+    {
+        return  $this->convertTime($crawlerChild->filter(' span.film-left__time')->text());
     }
 
     /**
