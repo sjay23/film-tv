@@ -66,8 +66,6 @@ class MegogoService extends MainParserService
         FilmByProviderService $filmByProviderService
     ) {
         parent::__construct($taskService, $validator, $providerRepository);
-        $this->taskService = $taskService;
-        $this->validator = $validator;
         $this->filmByProviderService = $filmByProviderService;
         $this->filmByProviderRepository = $filmByProviderRepository;
     }

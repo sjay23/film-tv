@@ -77,8 +77,6 @@ class SweetTvService extends MainParserService
         ProviderRepository $providerRepository
     ) {
         parent::__construct($taskService, $validator, $providerRepository);
-        $this->taskService = $taskService;
-        $this->validator = $validator;
         $this->filmByProviderService = $filmByProviderService;
         $this->filmByProviderRepository = $filmByProviderRepository;
         $this->client = new Client();
