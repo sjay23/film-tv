@@ -47,12 +47,15 @@ class MegogoService extends MainParserService
      */
     private ValidatorInterface $validator;
 
+    public string $parserName = Provider::MEGOGO;
+
     public string $defaultLink = 'https://megogo.net/en/search-extended?category_id=16&main_tab=filters&sort=add&ajax=true&origin=/en/search-extended?category_id=16&main_tab=filters&sort=add&widget=widget_58';
 
     /**
      * @param TaskService $taskService
      * @param ValidatorInterface $validator
      * @param FilmByProviderRepository $filmByProviderRepository
+     * @param ProviderRepository $providerRepository
      * @param FilmByProviderService $filmByProviderService
      */
     public function __construct(
@@ -62,9 +65,8 @@ class MegogoService extends MainParserService
         ProviderRepository $providerRepository,
         FilmByProviderService $filmByProviderService
     ) {
-        parent::__construct($taskService, $validator,$providerRepository);
+        parent::__construct($taskService, $validator, $providerRepository);
         $this->taskService = $taskService;
-        $this->task = $this->getTask(Provider::MEGOGO);
         $this->validator = $validator;
         $this->filmByProviderService = $filmByProviderService;
         $this->filmByProviderRepository = $filmByProviderRepository;
@@ -72,7 +74,6 @@ class MegogoService extends MainParserService
 
     /**
      * @return void
-     * @throws GuzzleException
      * @throws Exception
      */
     public function runExec(): void
@@ -162,7 +163,11 @@ class MegogoService extends MainParserService
         if ($lang === self::LANG_DEFAULT) {
             $age = $this->parseAge($crawlerChild);
             $years = $crawlerChild->filter('span.video-year')->text();
-            $duration = (int)(preg_replace("/[^,.0-9]/", '', $crawlerChild->filter(' div.video-duration span')->text()));
+            $duration = (int)(preg_replace(
+                "/[^,.0-9]/",
+                '',
+                $crawlerChild->filter(' div.video-duration span')->text()
+            ));
             $rating = $this->parseRating($crawlerChild);
             $filmInput->setAge($age);
             $filmInput->setRating((float)$rating);
@@ -211,8 +216,6 @@ class MegogoService extends MainParserService
         preg_match($re, $linkFilm, $matches, PREG_OFFSET_CAPTURE, 0);
         return $matches[1][0];
     }
-
-
 
     /**
      * @param $crawler

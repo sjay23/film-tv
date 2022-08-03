@@ -15,7 +15,6 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 abstract class MainParserService
 {
-
     protected const LANG_DEFAULT = 'en';
 
     protected const LANGS = [
@@ -43,19 +42,23 @@ abstract class MainParserService
      * @var ValidatorInterface
      */
     private ValidatorInterface $validator;
+    protected ?CommandTask $task;
+    protected string $parserName;
 
     /**
+     * @param TaskService $taskService
+     * @param ValidatorInterface $validator
      * @param ProviderRepository $providerRepository
      */
     protected function __construct(
         TaskService $taskService,
         ValidatorInterface $validator,
         ProviderRepository $providerRepository,
-    )
-    {
+    ) {
         $this->taskService = $taskService;
         $this->validator = $validator;
         $this->providerRepository = $providerRepository;
+        $this->task = $this->getTask($this->parserName);
         $this->client = new Client();
     }
 
@@ -109,6 +112,7 @@ abstract class MainParserService
     }
 
     /**
+     * @param $name
      * @return Provider|null
      */
     protected function getProvider($name): ?Provider
@@ -117,6 +121,7 @@ abstract class MainParserService
     }
 
     /**
+     * @param $name
      * @return CommandTask|null
      */
     protected function getTask($name): ?CommandTask
@@ -126,8 +131,9 @@ abstract class MainParserService
 
 
     /**
+     * @param $linkPage
+     * @param $name
      * @return void
-     * @throws GuzzleException
      * @throws Exception
      */
     protected function exec($linkPage, $name): void
@@ -157,5 +163,4 @@ abstract class MainParserService
 
         return $filmFieldTranslation;
     }
-
 }

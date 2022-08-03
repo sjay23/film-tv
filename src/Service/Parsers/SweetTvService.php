@@ -59,6 +59,7 @@ class SweetTvService extends MainParserService
      */
     private ValidatorInterface $validator;
 
+    public string $parserName = Provider::SWEET_TV;
     public string $defaultLink = 'https://sweet.tv/en/movies/all-movies/sort=5';
 
     /**
@@ -66,41 +67,36 @@ class SweetTvService extends MainParserService
      * @param ValidatorInterface $validator
      * @param FilmByProviderRepository $filmByProviderRepository
      * @param FilmByProviderService $filmByProviderService
-     * @param CommandTaskRepository $commandTaskRepository
+     * @param ProviderRepository $providerRepository
      */
     public function __construct(
         TaskService $taskService,
         ValidatorInterface $validator,
         FilmByProviderRepository $filmByProviderRepository,
         FilmByProviderService $filmByProviderService,
-        ProviderRepository $providerRepository,
-        CommandTaskRepository $commandTaskRepository
+        ProviderRepository $providerRepository
     ) {
-        parent::__construct($taskService, $validator,$providerRepository);
+        parent::__construct($taskService, $validator, $providerRepository);
         $this->taskService = $taskService;
         $this->validator = $validator;
         $this->filmByProviderService = $filmByProviderService;
         $this->filmByProviderRepository = $filmByProviderRepository;
-        $this->commandTaskRepository = $commandTaskRepository;
-        $this->task = $this->getTask(Provider::SWEET_TV);
         $this->client = new Client();
-
     }
 
     /**
      * @return void
-     * @throws GuzzleException
      * @throws Exception
      */
     public function runExec(): void
     {
-        $this->exec($this->defaultLink, Provider::SWEET_TV);
+        $this->exec($this->defaultLink, $parserName);
     }
 
     /**
+     * @param $linkByFilms
      * @return void
      * @throws GuzzleException
-     * @throws Exception
      */
     public function parserPages($linkByFilms): void
     {
@@ -133,7 +129,7 @@ class SweetTvService extends MainParserService
         $html = $this->getContentLink($link);
         $crawler = $this->getCrawler($html);
             $crawler->filter('.movie__item-link')->each(function ($node) {
-                if ( $this->task->getStatus() == 0) {
+                if ($this->task->getStatus() == 0) {
                     throw new Exception('Task is stop manual.');
                 }
                 $filmInput = new FilmInput();
@@ -210,8 +206,6 @@ class SweetTvService extends MainParserService
         preg_match($re, $linkFilm, $matches, PREG_OFFSET_CAPTURE, 0);
         return $matches[1][0];
     }
-
-
 
     /**
      * @param $crawler
@@ -372,7 +366,7 @@ class SweetTvService extends MainParserService
 
     /**
      * @param $crawlerChild
-     * @return ImageInput
+     * @return ImageInput|null
      */
     protected function parseBannerTranslate($crawlerChild): ?ImageInput
     {
@@ -383,5 +377,4 @@ class SweetTvService extends MainParserService
         }
         return null;
     }
-
 }
