@@ -40,6 +40,8 @@ class MegogoService extends MainParserService
     public string $defaultLink = 'https://megogo.net/en/search-extended?category_id=16&main_tab=filters&sort=add&ajax=true&origin=/en/search-extended?category_id=16&main_tab=filters&sort=add&widget=widget_58';
 
     /**
+     * @param TaskService $taskService
+     * @param ValidatorInterface $validator
      * @param FilmByProviderRepository $filmByProviderRepository
      * @param ProviderRepository $providerRepository
      * @param FilmByProviderService $filmByProviderService
@@ -62,7 +64,7 @@ class MegogoService extends MainParserService
      */
     public function runExec(): void
     {
-        $this->exec($this->defaultLink, Provider::MEGOGO);
+        $this->exec();
     }
 
     /**
@@ -92,9 +94,8 @@ class MegogoService extends MainParserService
         if ($linkByFilms === $this->defaultLink) {
             $html = str_replace('\"', '', $html);
         }
-            $crawler = $this->getCrawler($html);
+        $crawler = $this->getCrawler($html);
         $crawler->filter('div.thumbnail div.thumb a')->each(function ($node) {
-
             if (
                 !str_contains($node->link()->getUri(), 'treyler')
                 and !str_contains($node->link()->getUri(), 'trailer')
@@ -102,23 +103,21 @@ class MegogoService extends MainParserService
                 if ($this->task->getStatus() == 0) {
                     throw new Exception('Task is stop manual.');
                 }
-                $filmInput = new FilmInput();
+
                 $linkFilm = $node->link()->getUri();
-                $filmInput->setLink($linkFilm);
                 $posterInput = $this->parseImage($linkFilm);
-                $filmInput->setImagesInput($posterInput);
                 $movieId = $this->parseFilmId($linkFilm);
-                $filmInput->setMovieId((int)$movieId);
-                $provider = $this->getProvider(Provider::MEGOGO);
-                $filmInput->setProvider($provider);
+                $provider = $this->getProvider($this->parserName);
                 $film = $this->filmByProviderRepository->findOneBy(['movieId' => $movieId]);
                 if (!$film) {
+                    $filmInput = new FilmInput();
+                    $filmInput->setLink($linkFilm);
+                    $filmInput->setImagesInput($posterInput);
+                    $filmInput->setMovieId((int)$movieId);
+                    $filmInput->setProvider($provider);
                     foreach (self::LANGS as $lang) {
                         $htmlChild = $this->getContentLink($linkFilm, $lang);
                         $crawlerChild = $this->getCrawler($htmlChild);
-                        if ($crawlerChild->filter('h1')->text() == 'Movies') {
-                            return;
-                        }
                         $filmInput = $this->parseFilmByProvider($filmInput, $crawlerChild, $lang);
                     }
                     $this->validator->validate($filmInput);
@@ -220,39 +219,6 @@ class MegogoService extends MainParserService
 
     /**
      * @param $crawler
-     * @return ArrayCollection
-     */
-    private function getCastDirector($crawler): ArrayCollection
-    {
-        $directors = [];
-        $directorName = $crawler->filter('a[itemprop="director"] div')->text();
-        $data = $crawler->filter('a[itemprop="director"]')->attr('href');
-        $directorLink = 'https://megogo.net' . $data;
-        $directorInput = new PeopleInput($directorName, $directorLink);
-        $this->validator->validate($directorInput);
-        $directors[] = $directorInput;
-        return new ArrayCollection($directors);
-    }
-
-    /**
-     * @param $crawler
-     * @return ArrayCollection
-     */
-    private function getCastActor($crawler): ArrayCollection
-    {
-        $castGenre = $crawler->filter('div.video-persons .type-main a.link-default')->each(function (Crawler $node) {
-            $link = 'https://megogo.net' . $node->attr('href');
-            $name = $node->filter('div.video-person-name')->text();
-            $castInput = new PeopleInput($name, $link);
-            $this->validator->validate($castInput);
-            return $castInput;
-        });
-
-        return new ArrayCollection($castGenre);
-    }
-
-    /**
-     * @param $crawler
      * @return Crawler
      * @throws GuzzleException
      */
@@ -265,15 +231,37 @@ class MegogoService extends MainParserService
 
     /**
      * @param $crawler
-     * @param $filmInput
-     * @return void
+     * @return ArrayCollection
      * @throws GuzzleException
      */
-    protected function parseCast($crawler, $filmInput): void
+    protected function parseCast($crawler): ArrayCollection
     {
         $crawler = $this->getCastCrawler($crawler);
-        $filmInput->setDirectorsInput($this->getCastDirector($crawler));
-        $filmInput->setCastsInput($this->getCastActor($crawler));
+        $cast = $crawler->filter('div.video-persons .type-main a.link-default')->each(function (Crawler $node) {
+            $link = 'https://megogo.net' . $node->attr('href');
+            $name = $node->filter('div.video-person-name')->text();
+            $castInput = new PeopleInput($name, $link);
+            $this->validator->validate($castInput);
+            return $castInput;
+        });
+
+        return new ArrayCollection($cast);
+    }
+
+    /**
+     * @throws GuzzleException
+     */
+    protected function parseDirector($crawler): ArrayCollection
+    {
+        $crawlerDirector = $this->getCastCrawler($crawler);
+        $directors = [];
+        $directorName = $crawlerDirector->filter('a[itemprop="director"] div')->text();
+        $data = $crawlerDirector->filter('a[itemprop="director"]')->attr('href');
+        $directorLink = 'https://megogo.net' . $data;
+        $directorInput = new PeopleInput($directorName, $directorLink);
+        $this->validator->validate($directorInput);
+        $directors[] = $directorInput;
+        return new ArrayCollection($directors);
     }
 
     /**

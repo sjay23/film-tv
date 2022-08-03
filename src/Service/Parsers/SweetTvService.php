@@ -43,6 +43,8 @@ class SweetTvService extends MainParserService
     public string $defaultLink = 'https://sweet.tv/en/movies/all-movies/sort=5';
 
     /**
+     * @param TaskService $taskService
+     * @param ValidatorInterface $validator
      * @param FilmByProviderRepository $filmByProviderRepository
      * @param FilmByProviderService $filmByProviderService
      * @param ProviderRepository $providerRepository
@@ -57,22 +59,13 @@ class SweetTvService extends MainParserService
         parent::__construct($taskService, $validator, $providerRepository);
         $this->filmByProviderService = $filmByProviderService;
         $this->filmByProviderRepository = $filmByProviderRepository;
-        $this->client = new Client();
-    }
-
-    /**
-     * @return void
-     * @throws Exception
-     */
-    public function runExec(): void
-    {
-        $this->exec($this->defaultLink, $this->parserName);
     }
 
     /**
      * @param $linkByFilms
      * @return void
      * @throws GuzzleException
+     * @throws Exception
      */
     public function parserPages($linkByFilms): void
     {
@@ -108,17 +101,18 @@ class SweetTvService extends MainParserService
                 if ($this->task->getStatus() == 0) {
                     throw new Exception('Task is stop manual.');
                 }
-                $filmInput = new FilmInput();
+
                 $linkFilm = $node->link()->getUri();
-                $filmInput->setLink($linkFilm);
+                $posterInput = $this->parseImage($linkFilm);
                 $movieId = $this->parseFilmId($linkFilm);
-                $filmInput->setMovieId((int)$movieId);
-                $posterInput = $this->parseImage($node);
-                $filmInput->addImageInput($posterInput);
-                $provider = $this->getProvider(Provider::SWEET_TV);
-                $filmInput->setProvider($provider);
+                $provider = $this->getProvider($this->parserName);
                 $film = $this->filmByProviderRepository->findOneBy(['movieId' => $movieId]);
                 if (!$film) {
+                    $filmInput = new FilmInput();
+                    $filmInput->setLink($linkFilm);
+                    $filmInput->setMovieId((int)$movieId);
+                    $filmInput->addImageInput($posterInput);
+                    $filmInput->setProvider($provider);
                     foreach (self::LANGS as $lang) {
                         $htmlChild = $this->getContentLink($linkFilm, $lang);
                         $crawlerChild = $this->getCrawler($htmlChild);
@@ -292,7 +286,7 @@ class SweetTvService extends MainParserService
 
     /**
      * @param $crawlerChild
-     * @return int
+     * @return int|null
      */
     protected function parseDuration($crawlerChild): ?int
     {

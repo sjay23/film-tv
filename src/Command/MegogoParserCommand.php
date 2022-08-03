@@ -30,7 +30,7 @@ class MegogoParserCommand extends Command
     }
 
     /**
-     * @throws GuzzleException
+     * @throws \Exception
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
@@ -39,7 +39,7 @@ class MegogoParserCommand extends Command
             '============',
             '',
         ]);
-        $this->megogoService->runExec();
+        $this->megogoService->exec();
 
         return Command::SUCCESS;
     }

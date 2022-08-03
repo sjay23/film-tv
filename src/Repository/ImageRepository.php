@@ -71,7 +71,7 @@ class ImageRepository extends ServiceEntityRepository
     {
         return $this->createQueryBuilder('i')
             ->select('i')
-            ->Where('i.uploaded == 0')
+            ->where('i.uploaded == 0')
             ->getQuery()
             ->getResult();
     }
