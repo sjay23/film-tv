@@ -291,7 +291,7 @@ class SweetTvService extends MainParserService
     }
 
     /**
-     * @param $crawler
+     * @param $crawlerChild
      * @return int
      */
     protected function parseDuration($crawlerChild): ?int

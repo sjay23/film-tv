@@ -362,7 +362,7 @@ class MegogoService extends MainParserService
     }
 
     /**
-     * @param $crawler
+     * @param $crawlerChild
      * @return int
      */
     protected function parseDuration($crawlerChild): ?int
