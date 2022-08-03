@@ -32,18 +32,6 @@ class SweetTvService extends MainParserService
 {
     public const LANG_DEFAULT = 'en';
 
-    public const LANGS = [
-        'en',
-        'ru',
-        'uk'
-    ];
-
-    /**
-     * @var TaskService
-     */
-    private TaskService $taskService;
-
-
     /**
      * @var FilmByProviderRepository
      */
@@ -53,11 +41,6 @@ class SweetTvService extends MainParserService
      * @var FilmByProviderService
      */
     private FilmByProviderService $filmByProviderService;
-
-    /**
-     * @var ValidatorInterface
-     */
-    private ValidatorInterface $validator;
 
     public string $parserName = Provider::SWEET_TV;
     public string $defaultLink = 'https://sweet.tv/en/movies/all-movies/sort=5';

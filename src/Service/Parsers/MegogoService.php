@@ -28,11 +28,6 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 class MegogoService extends MainParserService
 {
     /**
-     * @var TaskService
-     */
-    private TaskService $taskService;
-
-    /**
      * @var FilmByProviderRepository
      */
     private FilmByProviderRepository $filmByProviderRepository;
@@ -41,11 +36,6 @@ class MegogoService extends MainParserService
      * @var FilmByProviderService
      */
     private FilmByProviderService $filmByProviderService;
-
-    /**
-     * @var ValidatorInterface
-     */
-    private ValidatorInterface $validator;
 
     public string $parserName = Provider::MEGOGO;
 

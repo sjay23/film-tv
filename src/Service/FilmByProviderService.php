@@ -10,6 +10,7 @@ use App\Repository\FilmByProviderRepository;
 use App\Repository\ProviderRepository;
 use App\Service\AudioService;
 use App\Service\GenreService;
+use App\Service\Parsers\MainParserService;
 use App\Service\PeopleService;
 use App\Service\CountryService;
 use App\Service\ImageService;
@@ -161,7 +162,7 @@ class FilmByProviderService
 
     public function uploadBanner(FilmByProvider $film): void
     {
-        foreach (SweetTvService::LANGS as $lang) {
+        foreach (MainParserService::LANGS as $lang) {
             $filmByTranslation = $film->translate($lang);
             $banners = $filmByTranslation->getBanner();
             foreach ($banners as $banner) {

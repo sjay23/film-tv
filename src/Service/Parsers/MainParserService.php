@@ -17,7 +17,7 @@ abstract class MainParserService
 {
     protected const LANG_DEFAULT = 'en';
 
-    protected const LANGS = [
+    public const LANGS = [
         'en',
         'ru',
         'uk'
@@ -36,12 +36,12 @@ abstract class MainParserService
     /**
      * @var TaskService
      */
-    private TaskService $taskService;
+    protected TaskService $taskService;
 
     /**
      * @var ValidatorInterface
      */
-    private ValidatorInterface $validator;
+    protected ValidatorInterface $validator;
     protected ?CommandTask $task;
     protected string $parserName;
 
