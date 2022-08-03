@@ -363,21 +363,25 @@ class SweetTvService extends MainParserService
      */
     protected function parseDescriptionTranslate($crawlerChild): ?string
     {
-        return $crawlerChild->filter('div.film-descr p')->text();
+        $node = $crawlerChild->filter('div.film-descr p');
+        if ($node->count() !== 0) {
+            return $node->text();
+        }
+        return null;
     }
 
     /**
      * @param $crawlerChild
      * @return ImageInput
      */
-    protected function parseBannerTranslate($crawlerChild): ImageInput
+    protected function parseBannerTranslate($crawlerChild): ?ImageInput
     {
         $bannerNode = $crawlerChild->filter('div.film-right  div.film-right__img source');
         if ($bannerNode->count() > 0) {
             $bannerLink = $bannerNode->attr('srcset');
-            $imageInput = $this->getImageInput($bannerLink);
+            return $this->getImageInput($bannerLink);
         }
-        return $imageInput;
+        return null;
     }
 
 }

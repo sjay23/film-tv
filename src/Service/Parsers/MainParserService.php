@@ -66,6 +66,9 @@ abstract class MainParserService
     abstract protected function parseAudio($crawler);
     abstract protected function parseGenre($crawler);
     abstract protected function parseFilmId($linkFilm);
+    abstract protected function parseTitleTranslate($crawlerChild);
+    abstract protected function parseDescriptionTranslate($crawlerChild);
+    abstract protected function parseBannerTranslate($crawlerChild);
 
     /**
      * @param string $link
