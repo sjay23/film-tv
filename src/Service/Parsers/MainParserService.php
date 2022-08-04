@@ -6,8 +6,11 @@ use App\DTO\FilmFieldTranslationInput;
 use App\DTO\FilmInput;
 use App\Entity\CommandTask;
 use App\Entity\Provider;
+use App\Repository\FilmByProviderRepository;
 use App\Repository\ProviderRepository;
+use App\Service\FilmByProviderService;
 use App\Service\TaskService;
+use Doctrine\Common\Collections\ArrayCollection;
 use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
@@ -23,6 +26,16 @@ abstract class MainParserService
         'ru',
         'uk'
     ];
+
+    /**
+     * @var FilmByProviderRepository
+     */
+    private FilmByProviderRepository $filmByProviderRepository;
+
+    /**
+     * @var FilmByProviderService
+     */
+    private FilmByProviderService $filmByProviderService;
 
     /**
      * @var Client
@@ -55,12 +68,16 @@ abstract class MainParserService
         TaskService $taskService,
         ValidatorInterface $validator,
         ProviderRepository $providerRepository,
+        FilmByProviderRepository $filmByProviderRepository,
+        FilmByProviderService $filmByProviderService
     ) {
         $this->taskService = $taskService;
         $this->validator = $validator;
         $this->providerRepository = $providerRepository;
         $this->task = $this->getTask($this->parserName);
         $this->client = new Client();
+        $this->filmByProviderService = $filmByProviderService;
+        $this->filmByProviderRepository = $filmByProviderRepository;
     }
 
     abstract protected function parseAge($crawler);
@@ -75,6 +92,10 @@ abstract class MainParserService
     abstract protected function parseTitleTranslate($crawlerChild);
     abstract protected function parseDescriptionTranslate($crawlerChild);
     abstract protected function parseBannerTranslate($crawlerChild);
+    abstract protected function getPageCrawler($linkByFilms, $page);
+    abstract protected function parserPages($linkByFilms);
+    abstract public function getParserName();
+    abstract public function getDefaultLink();
 
     /**
      * @param string $link
@@ -201,5 +222,43 @@ abstract class MainParserService
         sleep(rand(0, 3));
 
         return $filmInput;
+    }
+
+    /**
+     * @param $node
+     * @return void
+     */
+    protected function addFilmInput($node): void
+    {
+        if ($this->task->getStatus() == 0) {
+            throw new Exception('Task is stop manual.');
+        }
+        $filmInput = new FilmInput();
+        $linkFilm = $node->link()->getUri();
+        $filmInput->setLink($linkFilm);
+        $movieId = $this->parseFilmId($linkFilm);
+        $posterInput = $this->parseImage($node);
+        if ($posterInput instanceof ArrayCollection) {
+            $filmInput->setImagesInput($posterInput);
+        } else {
+            $filmInput->addImageInput($posterInput);
+        }
+        $filmInput->setMovieId((int)$movieId);
+        $provider = $this->getProvider($this->getParserName());
+        $filmInput->setProvider($provider);
+        $film = $this->filmByProviderRepository->findOneBy(['movieId' => $movieId]);
+        if (!$film) {
+            foreach (self::LANGS as $lang) {
+                $htmlChild = $this->getContentLink($linkFilm, $lang);
+                $crawlerChild = $this->getCrawler($htmlChild);
+                if ($crawlerChild->filter('h1')->text() == 'Movies') {
+                    return;
+                }
+                $filmInput = $this->parseFilmByProvider($filmInput, $crawlerChild, $lang);
+            }
+            $this->validator->validate($filmInput);
+            $film = $this->filmByProviderService->addFilmByProvider($filmInput);
+        }
+        $this->taskService->updateTask($film, $this->task);
     }
 }

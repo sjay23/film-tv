@@ -25,24 +25,11 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  */
 class MegogoService extends MainParserService
 {
-    /**
-     * @var FilmByProviderRepository
-     */
-    private FilmByProviderRepository $filmByProviderRepository;
-
-    /**
-     * @var FilmByProviderService
-     */
-    private FilmByProviderService $filmByProviderService;
-
     public string $parserName = Provider::MEGOGO;
-
     public string $defaultLink = 'https://megogo.net/en/search-extended?category_id=16&main_tab=filters&sort=add&ajax=true&origin=/en/search-extended?category_id=16&main_tab=filters&sort=add&widget=widget_58';
 
     /**
-     * @param FilmByProviderRepository $filmByProviderRepository
      * @param ProviderRepository $providerRepository
-     * @param FilmByProviderService $filmByProviderService
      */
     public function __construct(
         TaskService $taskService,
@@ -51,9 +38,23 @@ class MegogoService extends MainParserService
         ProviderRepository $providerRepository,
         FilmByProviderService $filmByProviderService
     ) {
-        parent::__construct($taskService, $validator, $providerRepository);
-        $this->filmByProviderService = $filmByProviderService;
-        $this->filmByProviderRepository = $filmByProviderRepository;
+        parent::__construct($taskService, $validator, $providerRepository,$filmByProviderRepository,$filmByProviderService);
+    }
+
+    /**
+     * @return string
+     */
+    public function getParserName(): string
+    {
+        return $this->parserName;
+    }
+
+    /**
+     * @return string
+     */
+    public function getDefaultLink(): string
+    {
+        return $this->defaultLink;
     }
 
     /**
@@ -62,7 +63,7 @@ class MegogoService extends MainParserService
      */
     public function runExec(): void
     {
-        $this->exec($this->defaultLink, Provider::MEGOGO);
+        $this->exec($this->getDefaultLink(), $this->getParserName());
     }
 
     /**
@@ -70,7 +71,7 @@ class MegogoService extends MainParserService
      * @throws GuzzleException
      * @throws Exception
      */
-    public function parserPages(): void
+    protected function parserPages($linkByFilms = null): void
     {
         try {
             $this->parseFilmsByPage($this->defaultLink);
@@ -88,43 +89,13 @@ class MegogoService extends MainParserService
      */
     protected function parseFilmsByPage(string $linkByFilms): void
     {
-        $html = $this->getContentLink($linkByFilms);
-        if ($linkByFilms === $this->defaultLink) {
-            $html = str_replace('\"', '', $html);
-        }
-            $crawler = $this->getCrawler($html);
+        $crawler = $this->getPageCrawler($linkByFilms);
         $crawler->filter('div.thumbnail div.thumb a')->each(function ($node) {
-
             if (
                 !str_contains($node->link()->getUri(), 'treyler')
                 and !str_contains($node->link()->getUri(), 'trailer')
             ) {
-                if ($this->task->getStatus() == 0) {
-                    throw new Exception('Task is stop manual.');
-                }
-                $filmInput = new FilmInput();
-                $linkFilm = $node->link()->getUri();
-                $filmInput->setLink($linkFilm);
-                $posterInput = $this->parseImage($linkFilm);
-                $filmInput->setImagesInput($posterInput);
-                $movieId = $this->parseFilmId($linkFilm);
-                $filmInput->setMovieId((int)$movieId);
-                $provider = $this->getProvider(Provider::MEGOGO);
-                $filmInput->setProvider($provider);
-                $film = $this->filmByProviderRepository->findOneBy(['movieId' => $movieId]);
-                if (!$film) {
-                    foreach (self::LANGS as $lang) {
-                        $htmlChild = $this->getContentLink($linkFilm, $lang);
-                        $crawlerChild = $this->getCrawler($htmlChild);
-                        if ($crawlerChild->filter('h1')->text() == 'Movies') {
-                            return;
-                        }
-                        $filmInput = $this->parseFilmByProvider($filmInput, $crawlerChild, $lang);
-                    }
-                    $this->validator->validate($filmInput);
-                    $film = $this->filmByProviderService->addFilmByProvider($filmInput);
-                }
-                $this->taskService->updateTask($film, $this->task);
+                $this->addFilmInput($node);
             }
         });
         $this->parseFilmsByPage($this->getNextPageLink($this->getNextPageToken($crawler)));
@@ -137,6 +108,19 @@ class MegogoService extends MainParserService
     private function getNextPageToken($crawler): string
     {
         return $crawler->filter('div.pagination-more a.link-gray ')->attr('data-page-more');
+    }
+
+    /**
+     * @param $linkByFilms
+     * @return Crawler
+     */
+    protected function getPageCrawler($linkByFilms, $page = null): Crawler
+    {
+        $html = $this->getContentLink($linkByFilms);
+        if ($linkByFilms === $this->defaultLink) {
+            $html = str_replace('\"', '', $html);
+        }
+        return $this->getCrawler($html);
     }
 
     /**
@@ -222,7 +206,7 @@ class MegogoService extends MainParserService
      * @param $crawler
      * @return ArrayCollection
      */
-    private function getCastDirector($crawler): ArrayCollection
+    protected function parseDirector($crawler): ArrayCollection
     {
         $directors = [];
         $directorName = $crawler->filter('a[itemprop="director"] div')->text();
@@ -259,8 +243,8 @@ class MegogoService extends MainParserService
     private function getCastCrawler($crawler): Crawler
     {
         $link = $crawler->filter('ul.video-view-tabs')->children('.nav-item')->eq(1)->children('a')->attr('href');
-        $html = $this->getContentLink('https://megogo.net' . $link);
-        return $this->getCrawler($html);
+        $htmls = $this->getContentLink('https://megogo.net' . $link);
+        return $this->getCrawler($htmls);
     }
 
     /**
@@ -271,9 +255,9 @@ class MegogoService extends MainParserService
      */
     protected function parseCast($crawler, $filmInput): void
     {
-        $crawler = $this->getCastCrawler($crawler);
-        $filmInput->setDirectorsInput($this->getCastDirector($crawler));
-        $filmInput->setCastsInput($this->getCastActor($crawler));
+        $crawlers = $this->getCastCrawler($crawler);
+        $filmInput->setDirectorsInput($this->parseDirector($crawlers));
+
     }
 
     /**
@@ -283,7 +267,7 @@ class MegogoService extends MainParserService
      */
     protected function parseImage($linkFilm): ArrayCollection
     {
-        $link = $this->getCrawler($this->getContentLink($linkFilm))
+        $link = $this->getCrawler($this->getContentLink($linkFilm->link()->getUri()))
             ->filter('ul.video-view-tabs')
             ->children('.nav-item')
             ->eq(2)

@@ -28,36 +28,36 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 class SweetTvService extends MainParserService
 {
     public const LANG_DEFAULT = 'en';
-
-    /**
-     * @var FilmByProviderRepository
-     */
-    private FilmByProviderRepository $filmByProviderRepository;
-
-    /**
-     * @var FilmByProviderService
-     */
-    private FilmByProviderService $filmByProviderService;
-
     public string $parserName = Provider::SWEET_TV;
     public string $defaultLink = 'https://sweet.tv/en/movies/all-movies/sort=5';
 
     /**
-     * @param FilmByProviderRepository $filmByProviderRepository
-     * @param FilmByProviderService $filmByProviderService
      * @param ProviderRepository $providerRepository
      */
     public function __construct(
         TaskService $taskService,
         ValidatorInterface $validator,
         FilmByProviderRepository $filmByProviderRepository,
-        FilmByProviderService $filmByProviderService,
-        ProviderRepository $providerRepository
+        ProviderRepository $providerRepository,
+        FilmByProviderService $filmByProviderService
     ) {
-        parent::__construct($taskService, $validator, $providerRepository);
-        $this->filmByProviderService = $filmByProviderService;
-        $this->filmByProviderRepository = $filmByProviderRepository;
-        $this->client = new Client();
+        parent::__construct($taskService, $validator, $providerRepository,$filmByProviderRepository,$filmByProviderService);
+    }
+
+    /**
+     * @return string
+     */
+    public function getParserName(): string
+    {
+        return $this->parserName;
+    }
+
+    /**
+     * @return string
+     */
+    public function getDefaultLink(): string
+    {
+        return $this->defaultLink;
     }
 
     /**
@@ -66,7 +66,7 @@ class SweetTvService extends MainParserService
      */
     public function runExec(): void
     {
-        $this->exec($this->defaultLink, $this->parserName);
+        $this->exec($this->getDefaultLink(), $this->getParserName());
     }
 
     /**
@@ -74,7 +74,7 @@ class SweetTvService extends MainParserService
      * @return void
      * @throws GuzzleException
      */
-    public function parserPages($linkByFilms): void
+    protected function parserPages($linkByFilms): void
     {
         $html = $this->getContentLink($linkByFilms);
         $crawler = $this->getCrawler($html);
@@ -93,46 +93,29 @@ class SweetTvService extends MainParserService
     }
 
     /**
-     * @param string $link
+     * @param string $linkByFilms
      * @param int $page
      * @return void
      * @throws GuzzleException
      * @throws Exception
      */
-    protected function parseFilmsByPage(string $link, int $page): void
+    protected function parseFilmsByPage(string $linkByFilms, int $page): void
     {
-        $link = str_replace('$page', (string)$page, $link);
+        $crawler = $this->getPageCrawler($linkByFilms, $page);
+        $crawler->filter('.movie__item-link')->each(function ($node) {
+            $this->addFilmInput($node);
+        });
+    }
+
+    /**
+     * @param $linkByFilms
+     * @return Crawler
+     */
+    protected function getPageCrawler($linkByFilms, $page): Crawler
+    {
+        $link = str_replace('$page', (string)$page, $linkByFilms);
         $html = $this->getContentLink($link);
-        $crawler = $this->getCrawler($html);
-            $crawler->filter('.movie__item-link')->each(function ($node) {
-                if ($this->task->getStatus() == 0) {
-                    throw new Exception('Task is stop manual.');
-                }
-                $filmInput = new FilmInput();
-                $linkFilm = $node->link()->getUri();
-                $filmInput->setLink($linkFilm);
-                $movieId = $this->parseFilmId($linkFilm);
-                $filmInput->setMovieId((int)$movieId);
-                $posterInput = $this->parseImage($node);
-                $filmInput->addImageInput($posterInput);
-                $provider = $this->getProvider(Provider::SWEET_TV);
-                $filmInput->setProvider($provider);
-                $film = $this->filmByProviderRepository->findOneBy(['movieId' => $movieId]);
-                if (!$film) {
-                    foreach (self::LANGS as $lang) {
-                        $htmlChild = $this->getContentLink($linkFilm, $lang);
-                        $crawlerChild = $this->getCrawler($htmlChild);
-                        if ($crawlerChild->filter('h1')->text() == 'Movies') {
-                            // Пропускаем фильмы с редиректом на главную
-                            return;
-                        }
-                        $filmInput = $this->parseFilmByProvider($filmInput, $crawlerChild, $lang);
-                    }
-                    $this->validator->validate($filmInput);
-                    $film = $this->filmByProviderService->addFilmByProvider($filmInput);
-                }
-                $this->taskService->updateTask($film, $this->task);
-            });
+        return $this->getCrawler($html);
     }
 
     /**
