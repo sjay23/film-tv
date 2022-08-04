@@ -86,10 +86,10 @@ abstract class MainParserService
     abstract protected function parseImage($linkFilm): ArrayCollection;
     abstract protected function parseYear($crawlerChild);
     abstract protected function parseDuration($crawlerChild);
-    abstract protected function parseCountry($crawler);
-    abstract protected function parseAudio($crawler);
-    abstract protected function parseDirector($crawler);
-    abstract protected function parseGenre($crawler);
+    abstract protected function parseCountry($crawler): ArrayCollection;
+    abstract protected function parseAudio($crawler): ArrayCollection;
+    abstract protected function parseDirector($crawler): ArrayCollection;
+    abstract protected function parseGenre($crawler): ArrayCollection;
     abstract protected function parseFilmId($linkFilm);
     abstract protected function parseTitleTranslate($crawlerChild);
     abstract protected function parseDescriptionTranslate($crawlerChild);
