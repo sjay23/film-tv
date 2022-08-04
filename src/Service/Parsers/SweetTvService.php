@@ -17,7 +17,6 @@ use App\Service\FilmByProviderService;
 use App\Service\TaskService;
 use Doctrine\Common\Collections\ArrayCollection;
 use Exception;
-use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -73,6 +72,7 @@ class SweetTvService extends MainParserService
      * @param $linkByFilms
      * @return void
      * @throws GuzzleException
+     * @throws Exception
      */
     protected function parserPages($linkByFilms): void
     {
@@ -275,7 +275,7 @@ class SweetTvService extends MainParserService
 
     /**
      * @param $crawlerChild
-     * @return int
+     * @return int|null
      */
     protected function parseDuration($crawlerChild): ?int
     {

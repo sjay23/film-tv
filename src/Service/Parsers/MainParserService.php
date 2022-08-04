@@ -58,6 +58,7 @@ abstract class MainParserService
     protected ValidatorInterface $validator;
     protected ?CommandTask $task;
     protected string $parserName;
+    public string $defaultLink;
 
     /**
      * @param TaskService $taskService
@@ -87,6 +88,7 @@ abstract class MainParserService
     abstract protected function parseDuration($crawlerChild);
     abstract protected function parseCountry($crawler);
     abstract protected function parseAudio($crawler);
+    abstract protected function parseDirector($crawler);
     abstract protected function parseGenre($crawler);
     abstract protected function parseFilmId($linkFilm);
     abstract protected function parseTitleTranslate($crawlerChild);
@@ -96,6 +98,21 @@ abstract class MainParserService
     abstract protected function parserPages($linkByFilms);
     abstract public function getParserName();
     abstract public function getDefaultLink();
+
+    /**
+     * @return void
+     * @throws Exception
+     */
+    public function exec(): void
+    {
+        $this->taskService->updateCountTask($this->getTask($this->parserName));
+        if ($this->task->getStatus() == 1) {
+            throw new Exception('Task is running.');
+        }
+        $this->taskService->setWorkStatus($this->getTask($this->parserName));
+        $this->parserPages($this->defaultLink);
+        $this->taskService->setNotWorkStatus($this->getTask($this->parserName));
+    }
 
     /**
      * @param string $link
@@ -154,23 +171,6 @@ abstract class MainParserService
     }
 
     /**
-     * @param $linkPage
-     * @param $name
-     * @return void
-     * @throws Exception
-     */
-    protected function exec($linkPage, $name): void
-    {
-        $this->taskService->updateCountTask($this->getTask($name));
-        if ($this->task->getStatus() == 1) {
-            throw new Exception('Task is running.');
-        }
-        $this->taskService->setWorkStatus($this->getTask($name));
-        $this->parserPages($linkPage);
-        $this->taskService->setNotWorkStatus($this->getTask($name));
-    }
-
-    /**
      * @param $crawlerChild
      * @param $lang
      * @return FilmFieldTranslationInput
@@ -193,30 +193,24 @@ abstract class MainParserService
      * @param string $lang
      * @return FilmInput
      */
-    protected function parseFilmByProvider(FilmInput $filmInput, $crawlerChild, string $lang = self::LANG_DEFAULT): FilmInput
-    {
+    protected function parseFilmByProvider(
+        FilmInput $filmInput,
+        $crawlerChild,
+        string $lang = self::LANG_DEFAULT
+    ): FilmInput {
         $filmFieldTranslation = $this->getFilmFieldTranslation($crawlerChild, $lang);
         $filmInput->addFilmFieldTranslationInput($filmFieldTranslation);
 
         if ($lang === self::LANG_DEFAULT) {
-            $age = $this->parseAge($crawlerChild);
-            $duration = $this->parseDuration($crawlerChild);
-            $years = $this->parseYear($crawlerChild);
-            $rating = $this->parseRating($crawlerChild);
-            $filmInput->setAge($age);
-            $filmInput->setRating((float)$rating);
-            $filmInput->setYears((int)$years);
-            $filmInput->setDuration($duration);
-            $countriesCollect = $this->parseCountry($crawlerChild);
-            $filmInput->setCountriesInput($countriesCollect);
-            $genreCollect = $this->parseGenre($crawlerChild);
-            $filmInput->setGenresInput($genreCollect);
-            $directorCollect = $this->parseDirector($crawlerChild);
-            $filmInput->setDirectorsInput($directorCollect);
-            $castCollect = $this->parseCast($crawlerChild);
-            $filmInput->setCastsInput($castCollect);
-            $audioCollect = $this->parseAudio($crawlerChild);
-            $filmInput->setAudiosInput($audioCollect);
+            $filmInput->setAge($this->parseAge($crawlerChild));
+            $filmInput->setRating((float)$this->parseRating($crawlerChild));
+            $filmInput->setYears((int)$this->parseYear($crawlerChild));
+            $filmInput->setDuration($this->parseDuration($crawlerChild));
+            $filmInput->setCountriesInput($this->parseCountry($crawlerChild));
+            $filmInput->setGenresInput($this->parseGenre($crawlerChild));
+            $filmInput->setDirectorsInput($this->parseDirector($crawlerChild));
+            $filmInput->setCastsInput($this->parseCast($crawlerChild,$filmInput));
+            $filmInput->setAudiosInput($this->parseAudio($crawlerChild));
         }
 
         sleep(rand(0, 3));

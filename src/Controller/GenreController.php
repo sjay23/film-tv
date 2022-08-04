@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\DTO\GenreInput;
 use App\Entity\Genre;
+use Exception;
 use Symfony\Component\HttpFoundation\Request;
 use App\Repository\GenreRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -41,6 +42,11 @@ class GenreController
         $this->entityManager = $entityManager;
     }
 
+    /**
+     * @param Request $request
+     * @return Genre
+     * @throws Exception
+     */
     public function addGenre(Request $request): Genre
     {
         $genreInput = new GenreInput(
@@ -49,7 +55,7 @@ class GenreController
         $this->validator->validate($genreInput);
 
         if ($genre = $this->genreRepository->findOneBy(['name' => $genreInput->getName()])) {
-            throw new \Exception('The genre already exists');
+            throw new Exception('The genre already exists');
         } else {
             $genre = new Genre();
             $genre->setName($genreInput->getName());

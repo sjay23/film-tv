@@ -91,6 +91,7 @@ class MegogoService extends MainParserService
     {
         $crawler = $this->getPageCrawler($linkByFilms);
         $crawler->filter('div.thumbnail div.thumb a')->each(function ($node) {
+
             if (
                 !str_contains($node->link()->getUri(), 'treyler')
                 and !str_contains($node->link()->getUri(), 'trailer')
@@ -255,9 +256,9 @@ class MegogoService extends MainParserService
      */
     protected function parseCast($crawler, $filmInput): void
     {
-        $crawlers = $this->getCastCrawler($crawler);
-        $filmInput->setDirectorsInput($this->parseDirector($crawlers));
-
+        $crawler = $this->getCastCrawler($crawler);
+        $filmInput->setDirectorsInput($this->parseDirector($crawler));
+        $filmInput->setCastsInput($this->getCastActor($crawler));
     }
 
     /**

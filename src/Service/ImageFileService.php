@@ -16,22 +16,16 @@ class ImageFileService
 {
     private Imagine $imagine;
     private ImageRepository $imageRepository;
-    private FilmByProviderRepository $filmByProviderRepository;
-    /**
-     * @var EntityManagerInterface
-     */
-    private EntityManagerInterface $entityManager;
+
+
+    private string $importFolder;
 
     public function __construct(
-        EntityManagerInterface $entityManager,
         ParameterBagInterface $params,
-        FilmByProviderRepository $filmByProviderRepository,
         ImageRepository $imageRepository
     ) {
         $this->imagine = new Imagine();
-        $this->entityManager = $entityManager;
         $this->imageRepository = $imageRepository;
-        $this->filmByProviderRepository = $filmByProviderRepository;
         $this->importFolder = $params->get('import_images_file');
     }
 

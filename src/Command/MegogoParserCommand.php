@@ -4,7 +4,6 @@ namespace App\Command;
 
 
 use App\Service\Parsers\MegogoService;
-use GuzzleHttp\Exception\GuzzleException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -30,7 +29,7 @@ class MegogoParserCommand extends Command
     }
 
     /**
-     * @throws GuzzleException
+     * @throws \Exception
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
@@ -39,7 +38,7 @@ class MegogoParserCommand extends Command
             '============',
             '',
         ]);
-        $this->megogoService->runExec();
+        $this->megogoService->exec();
 
         return Command::SUCCESS;
     }

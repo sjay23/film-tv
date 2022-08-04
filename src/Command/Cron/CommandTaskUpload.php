@@ -34,8 +34,7 @@ class CommandTaskUpload extends Command
         FilmByProviderService $filmByProviderService,
         ProviderRepository $providerRepository,
         FilmByProviderRepository $filmByProviderRepository
-    )
-    {
+    ) {
         parent::__construct();
         $this->filmByProviderService = $filmByProviderService;
         $this->filmByProviderRepository = $filmByProviderRepository;

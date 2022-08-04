@@ -64,7 +64,7 @@ class FilmByProviderRepository extends ServiceEntityRepository
         return $this->createQueryBuilder('f')
             ->select('f')
             ->join('f.provider', 'provider')
-            ->Where('provider.id= :id')
+            ->where('provider.id= :id')
             ->andWhere('f.posterUploaded = 0')
             ->setParameter('id', $providerId)
             ->getQuery()
