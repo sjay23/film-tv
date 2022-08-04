@@ -83,7 +83,7 @@ abstract class MainParserService
 
     abstract protected function parseAge($crawler);
     abstract protected function parseRating($crawler);
-    abstract protected function parseImage($linkFilm);
+    abstract protected function parseImage($linkFilm): ArrayCollection;
     abstract protected function parseYear($crawlerChild);
     abstract protected function parseDuration($crawlerChild);
     abstract protected function parseCountry($crawler);
@@ -232,11 +232,7 @@ abstract class MainParserService
         $filmInput->setLink($linkFilm);
         $movieId = $this->parseFilmId($linkFilm);
         $posterInput = $this->parseImage($node);
-        if ($posterInput instanceof ArrayCollection) {
-            $filmInput->setImagesInput($posterInput);
-        } else {
-            $filmInput->addImageInput($posterInput);
-        }
+        $filmInput->setImagesInput($posterInput);
         $filmInput->setMovieId((int)$movieId);
         $provider = $this->getProvider($this->getParserName());
         $filmInput->setProvider($provider);

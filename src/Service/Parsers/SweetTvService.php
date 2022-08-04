@@ -60,15 +60,6 @@ class SweetTvService extends MainParserService
     }
 
     /**
-     * @return void
-     * @throws Exception
-     */
-    public function runExec(): void
-    {
-        $this->exec($this->getDefaultLink(), $this->getParserName());
-    }
-
-    /**
      * @param $linkByFilms
      * @return void
      * @throws GuzzleException
@@ -218,13 +209,13 @@ class SweetTvService extends MainParserService
 
     /**
      * @param $crawler
-     * @return ImageInput
+     * @return ArrayCollection
      */
-    protected function parseImage($crawler): ImageInput
+    protected function parseImage($crawler): ArrayCollection
     {
         $imageLink = $crawler->filter('.movie__item-img > img.img_wauto_hauto')->image()->getUri();
-
-        return $this->getImageInput($imageLink);
+        $image = $this->getImageInput($imageLink);
+        return new ArrayCollection([$image]);
     }
 
     private function getImageInput(string $link): ImageInput

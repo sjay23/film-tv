@@ -59,15 +59,6 @@ class MegogoService extends MainParserService
 
     /**
      * @return void
-     * @throws Exception
-     */
-    public function runExec(): void
-    {
-        $this->exec($this->getDefaultLink(), $this->getParserName());
-    }
-
-    /**
-     * @return void
      * @throws GuzzleException
      * @throws Exception
      */
