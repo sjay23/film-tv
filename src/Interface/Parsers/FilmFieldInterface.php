@@ -1,14 +1,14 @@
 <?php
 
 
-namespace App\Service\Parsers\Megogo;
+namespace App\Interface\Parsers;
 
 use Doctrine\Common\Collections\ArrayCollection;
 
 /**
  * Class SweetTvService
  */
-interface FilmField
+interface FilmFieldInterface
 {
     public function parseAge($crawler): ?string;
     public function parseRating($crawler): ?string;

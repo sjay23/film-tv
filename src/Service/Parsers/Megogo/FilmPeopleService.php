@@ -1,9 +1,9 @@
 <?php
 
-
 namespace App\Service\Parsers\Megogo;
 
 use App\DTO\PeopleInput;
+use App\Interface\Parsers\FilmPeopleInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -11,12 +11,11 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  * Class SweetTvService
  */
-class FilmPeopleService implements FilmPeople
+class FilmPeopleService implements FilmPeopleInterface
 {
     public function __construct(
         ValidatorInterface $validator,
-    )
-    {
+    ) {
         $this->validator = $validator;
     }
 
@@ -45,4 +44,3 @@ class FilmPeopleService implements FilmPeople
         return new ArrayCollection($castGenre);
     }
 }
-

@@ -1,23 +1,21 @@
 <?php
 
-
 namespace App\Service\Parsers\Megogo;
 
 use App\DTO\AudioInput;
 use App\DTO\CountryInput;
+use App\Interface\Parsers\FilmFieldInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * Class SweetTvService
  */
-class FilmFieldService implements FilmField
+class FilmFieldService implements FilmFieldInterface
 {
-
     public function __construct(
         ValidatorInterface $validator,
-    )
-    {
+    ) {
         $this->validator = $validator;
     }
 
@@ -90,5 +88,4 @@ class FilmFieldService implements FilmField
         }
         return new ArrayCollection($filmAudio);
     }
-
 }

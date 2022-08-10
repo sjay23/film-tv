@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Service\Parsers\Megogo;
+namespace App\Interface\Parsers;
 
 use App\DTO\ImageInput;
 
 /**
  * Class SweetTvService
  */
-interface FilmFieldTranslate
+interface FilmFieldTranslateInterface
 {
     public function parseBannerTranslate($crawlerChild): ?ImageInput;
     public function parseDescriptionTranslate($crawlerChild): ?string;

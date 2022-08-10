@@ -4,11 +4,12 @@
 namespace App\Service\Parsers\Megogo;
 
 use App\DTO\ImageInput;
+use App\Interface\Parsers\FilmFieldTranslateInterface;
 
 /**
  * Class SweetTvService
  */
-class FilmFieldTranslateService implements FilmFieldTranslate
+class FilmFieldTranslateService implements FilmFieldTranslateInterface
 {
 
     public function parseBannerTranslate($crawlerChild): ImageInput

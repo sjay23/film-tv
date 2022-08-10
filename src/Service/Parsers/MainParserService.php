@@ -6,8 +6,10 @@ use App\DTO\FilmFieldTranslationInput;
 use App\DTO\FilmInput;
 use App\Entity\CommandTask;
 use App\Entity\Provider;
+use App\Interface\Parsers\FilmFieldTranslateInterface;
 use App\Repository\FilmByProviderRepository;
 use App\Repository\ProviderRepository;
+use App\Service\FilmByProviderService;
 use App\Service\TaskService;
 use Doctrine\Common\Collections\ArrayCollection;
 use Exception;
@@ -56,6 +58,7 @@ abstract class MainParserService
      */
     protected ValidatorInterface $validator;
     protected ?CommandTask $task;
+    protected ?FilmFieldTranslateInterface $filmFieldService;
     protected string $parserName;
     public string $defaultLink;
 
@@ -75,6 +78,11 @@ abstract class MainParserService
         $this->validator = $validator;
         $this->providerRepository = $providerRepository;
         $this->task = $this->getTask($this->parserName);
+
+        //TODO сделать функцию под это дело
+        $className = 'App\Service\Parsers\\' . $this->parserName . '\\FilmFieldService';
+        $this->filmFieldService = new $className($validator);
+        
         $this->client = new Client();
         $this->filmByProviderService = $filmByProviderService;
         $this->filmByProviderRepository = $filmByProviderRepository;
