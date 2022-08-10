@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Service\Parsers;
 
-use App\DTO\FilmInput;
+use App\Service\Parsers\Megogo\FilmPeopleService;
+use App\Service\Parsers\Megogo\FilmFieldTranslateService;
+use App\Service\Parsers\Megogo\FilmFieldService;
 use App\DTO\AudioInput;
 use App\DTO\CountryInput;
 use App\DTO\PeopleInput;
@@ -36,9 +38,15 @@ class MegogoService extends MainParserService
         ValidatorInterface $validator,
         FilmByProviderRepository $filmByProviderRepository,
         ProviderRepository $providerRepository,
-        FilmByProviderService $filmByProviderService
+        FilmByProviderService $filmByProviderService,
+        FilmPeopleService $filmPeopleService,
+        FilmFieldTranslateService $filmFieldTranslateService,
+        FilmFieldService $filmFieldService,
     ) {
-        parent::__construct($taskService, $validator, $providerRepository,$filmByProviderRepository,$filmByProviderService);
+        parent::__construct($taskService, $validator, $providerRepository, $filmByProviderRepository, $filmByProviderService);
+        $this->filmPeopleService = $filmPeopleService;
+        $this->filmFieldTranslateService = $filmFieldTranslateService;
+        $this->filmFieldService = $filmFieldService;
     }
 
     /**
