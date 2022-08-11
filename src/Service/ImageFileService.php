@@ -2,12 +2,8 @@
 
 namespace App\Service;
 
-use App\Entity\FilmByProvider;
-use App\Entity\FilmByProviderTranslation;
 use App\Entity\Image;
 use App\Repository\ImageRepository;
-use App\Repository\FilmByProviderRepository;
-use Doctrine\ORM\EntityManagerInterface;
 use Imagine\Gd\Imagine;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
@@ -16,7 +12,6 @@ class ImageFileService
 {
     private Imagine $imagine;
     private ImageRepository $imageRepository;
-
 
     private string $importFolder;
 
@@ -55,6 +50,4 @@ class ImageFileService
         $image->setImageFile($uploadedFile);
         $this->imageRepository->save($image);
     }
-
-
 }

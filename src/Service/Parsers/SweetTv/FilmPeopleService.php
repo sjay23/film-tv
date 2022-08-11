@@ -8,12 +8,9 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-/**
- * Class SweetTvService
- */
 class FilmPeopleService implements FilmPeopleInterface
 {
-
+    private ValidatorInterface $validator;
 
     public function __construct(
         ValidatorInterface $validator,

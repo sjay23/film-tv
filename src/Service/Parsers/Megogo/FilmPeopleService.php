@@ -8,11 +8,10 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-/**
- * Class SweetTvService
- */
 class FilmPeopleService implements FilmPeopleInterface
 {
+    private ValidatorInterface $validator;
+
     public function __construct(
         ValidatorInterface $validator,
     ) {
@@ -30,8 +29,6 @@ class FilmPeopleService implements FilmPeopleInterface
         $directors[] = $directorInput;
         return new ArrayCollection($directors);
     }
-
-
 
     public function parseCast($crawler): ?ArrayCollection
     {

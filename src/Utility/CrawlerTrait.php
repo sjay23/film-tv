@@ -2,11 +2,19 @@
 
 namespace App\Utility;
 
+use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use Symfony\Component\DomCrawler\Crawler;
 
 trait CrawlerTrait
 {
+    public Client $client;
+
+    public function __construct()
+    {
+        $this->client = new Client();
+    }
+
     /**
      * @param string $link
      * @param string $lang
@@ -33,5 +41,4 @@ trait CrawlerTrait
     {
         return new Crawler($html);
     }
-
 }

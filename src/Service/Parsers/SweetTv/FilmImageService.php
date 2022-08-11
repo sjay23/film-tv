@@ -14,6 +14,9 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 class FilmImageService implements FilmImageInterface
 {
     use CrawlerTrait;
+
+    private ValidatorInterface $validator;
+
     public function __construct(
         ValidatorInterface $validator,
     ) {

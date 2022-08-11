@@ -7,11 +7,10 @@ use App\DTO\ImageInput;
 use App\Interface\Parsers\FilmFieldTranslateInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-/**
- * Class SweetTvService
- */
 class FilmFieldTranslateService implements FilmFieldTranslateInterface
 {
+
+    private ValidatorInterface $validator;
 
     public function __construct(
         ValidatorInterface $validator,

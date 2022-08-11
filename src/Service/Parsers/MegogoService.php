@@ -4,50 +4,21 @@ declare(strict_types=1);
 
 namespace App\Service\Parsers;
 
-use App\DTO\ImageInput;
 use App\Entity\Provider;
-use App\Repository\ProviderRepository;
-use App\Repository\FilmByProviderRepository;
-use App\Service\FilmByProviderService;
-use App\Service\TaskService;
-use Doctrine\Common\Collections\ArrayCollection;
 use Exception;
 use GuzzleHttp\Exception\GuzzleException;
 use Symfony\Component\DomCrawler\Crawler;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * Class MegogoService
  */
 class MegogoService extends MainParserService
 {
-    public string $parserName = Provider::MEGOGO;
-    public string $defaultLink = 'https://megogo.net/en/search-extended?category_id=16&main_tab=filters&sort=add&ajax=true&origin=/en/search-extended?category_id=16&main_tab=filters&sort=add&widget=widget_58';
+    protected string $parserName = Provider::MEGOGO;
+    protected string $defaultLink = 'https://megogo.net/en/search-extended?category_id=16&main_tab=filters&sort=add&ajax=true&origin=/en/search-extended?category_id=16&main_tab=filters&sort=add&widget=widget_58';
 
     /**
-     * @param ProviderRepository $providerRepository
-     */
-    public function __construct(
-        TaskService $taskService,
-        ValidatorInterface $validator,
-        FilmByProviderRepository $filmByProviderRepository,
-        ProviderRepository $providerRepository,
-        FilmByProviderService $filmByProviderService,
-    ) {
-        parent::__construct($taskService, $validator, $providerRepository, $filmByProviderRepository, $filmByProviderService);
-    }
-
-    /**
-     * @return string
-     */
-    public function getParserName(): string
-    {
-        return $this->parserName;
-    }
-
-
-
-    /**
+     * @param null $linkByFilms
      * @return void
      * @throws GuzzleException
      * @throws Exception
@@ -55,7 +26,7 @@ class MegogoService extends MainParserService
     protected function parserPages($linkByFilms = null): void
     {
         try {
-            $this->parseFilmsByPage($this->defaultLink);
+            $this->parseFilmsByPage($this->getDefaultLink());
         } catch (Exception $e) {
             $this->taskService->setErrorStatus($this->task, $e->getMessage());
             throw new Exception($e->getMessage());
@@ -94,12 +65,14 @@ class MegogoService extends MainParserService
 
     /**
      * @param $linkByFilms
+     * @param null $page
      * @return Crawler
+     * @throws GuzzleException
      */
     protected function getPageCrawler($linkByFilms, $page = null): Crawler
     {
         $html = $this->getContentLink($linkByFilms);
-        if ($linkByFilms === $this->defaultLink) {
+        if ($linkByFilms === $this->getDefaultLink()) {
             $html = str_replace('\"', '', $html);
         }
         return $this->getCrawler($html);
@@ -111,7 +84,6 @@ class MegogoService extends MainParserService
      */
     private function getNextPageLink($nextPageToken): string
     {
-        return str_replace('TOKEN', $nextPageToken, $this->defaultLink);
+        return str_replace('TOKEN', $nextPageToken, $this->getDefaultLink());
     }
-
 }

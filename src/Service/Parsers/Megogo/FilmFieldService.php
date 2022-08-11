@@ -8,11 +8,10 @@ use App\Interface\Parsers\FilmFieldInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-/**
- * Class SweetTvService
- */
 class FilmFieldService implements FilmFieldInterface
 {
+    private ValidatorInterface $validator;
+
     public function __construct(
         ValidatorInterface $validator,
     ) {

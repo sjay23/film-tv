@@ -4,44 +4,18 @@ declare(strict_types=1);
 
 namespace App\Service\Parsers;
 
-use App\DTO\FilmInput;
-use App\DTO\AudioInput;
-use App\DTO\CountryInput;
-use App\DTO\PeopleInput;
-use App\DTO\GenreInput;
-use App\DTO\ImageInput;
 use App\Entity\Provider;
-use App\Repository\ProviderRepository;
-use App\Repository\FilmByProviderRepository;
-use App\Service\FilmByProviderService;
-use App\Service\TaskService;
-use Doctrine\Common\Collections\ArrayCollection;
 use Exception;
 use GuzzleHttp\Exception\GuzzleException;
 use Symfony\Component\DomCrawler\Crawler;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * Class SweetTvService
  */
 class SweetTvService extends MainParserService
 {
-    public const LANG_DEFAULT = 'en';
-    public string $parserName = Provider::SWEET_TV;
-    public string $defaultLink = 'https://sweet.tv/en/movies/all-movies/sort=5';
-
-    /**
-     * @param ProviderRepository $providerRepository
-     */
-    public function __construct(
-        TaskService $taskService,
-        ValidatorInterface $validator,
-        FilmByProviderRepository $filmByProviderRepository,
-        ProviderRepository $providerRepository,
-        FilmByProviderService $filmByProviderService
-    ) {
-        parent::__construct($taskService, $validator, $providerRepository,$filmByProviderRepository,$filmByProviderService);
-    }
+    protected string $parserName = Provider::SWEET_TV;
+    protected string $defaultLink = 'https://sweet.tv/en/movies/all-movies/sort=5';
 
     /**
      * @return string
@@ -50,7 +24,6 @@ class SweetTvService extends MainParserService
     {
         return $this->parserName;
     }
-
 
     /**
      * @param $linkByFilms
@@ -93,7 +66,9 @@ class SweetTvService extends MainParserService
 
     /**
      * @param $linkByFilms
+     * @param $page
      * @return Crawler
+     * @throws GuzzleException
      */
     protected function getPageCrawler($linkByFilms, $page): Crawler
     {
@@ -101,5 +76,4 @@ class SweetTvService extends MainParserService
         $html = $this->getContentLink($link);
         return $this->getCrawler($html);
     }
-
 }

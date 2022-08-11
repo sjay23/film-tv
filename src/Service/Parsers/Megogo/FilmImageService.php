@@ -16,6 +16,9 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 class FilmImageService implements FilmImageInterface
 {
     use CrawlerTrait;
+
+    private ValidatorInterface $validator;
+
     public function __construct(
         ValidatorInterface $validator,
     ) {
@@ -30,13 +33,13 @@ class FilmImageService implements FilmImageInterface
     }
 
     /**
-     * @param $linkFilm
+     * @param $node
      * @return ArrayCollection
      * @throws GuzzleException
      */
-    public function parseImage($linkFilm): ArrayCollection
+    public function parseImage($node): ArrayCollection
     {
-        $link = $this->getCrawler($this->getContentLink($linkFilm->link()->getUri()))
+        $link = $this->getCrawler($this->getContentLink($node->link()->getUri()))
             ->filter('ul.video-view-tabs')
             ->children('.nav-item')
             ->eq(2)

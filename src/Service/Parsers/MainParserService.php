@@ -8,22 +8,21 @@ use App\Entity\CommandTask;
 use App\Entity\Provider;
 use App\Interface\Parsers\FilmFieldInterface;
 use App\Interface\Parsers\FilmFieldTranslateInterface;
+use App\Interface\Parsers\FilmImageInterface;
 use App\Interface\Parsers\FilmPeopleInterface;
 use App\Repository\FilmByProviderRepository;
 use App\Repository\ProviderRepository;
 use App\Service\FilmByProviderService;
 use App\Service\TaskService;
 use App\Utility\CrawlerTrait;
-use Doctrine\Common\Collections\ArrayCollection;
 use Exception;
-use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
-use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 abstract class MainParserService
 {
     use CrawlerTrait;
+
     protected const LANG_DEFAULT = 'en';
 
     public const LANGS = [
@@ -32,55 +31,26 @@ abstract class MainParserService
         'uk'
     ];
 
-    /**
-     * @var FilmByProviderRepository
-     */
     private FilmByProviderRepository $filmByProviderRepository;
-
-    /**
-     * @var FilmByProviderService
-     */
     private FilmByProviderService $filmByProviderService;
-
-    /**
-     * @var Client
-     */
-    protected Client $client;
-
-    /**
-     * @var ProviderRepository
-     */
-    protected ProviderRepository $providerRepository;
-
-    /**
-     * @var TaskService
-     */
+    private ProviderRepository $providerRepository;
     protected TaskService $taskService;
-
-    /**
-     * @var ValidatorInterface
-     */
-    protected ValidatorInterface $validator;
+    private ValidatorInterface $validator;
     protected ?CommandTask $task;
     protected string $parserName;
-    public string $defaultLink;
-    /**
-     * @var FilmFieldInterface
-     */
+    protected string $defaultLink;
     protected FilmFieldInterface $filmFieldService;
-    /**
-     * @var FilmFieldTranslateInterface
-     */
     protected FilmFieldTranslateInterface $filmFieldTranslateService;
-    /**
-     * @var FilmPeopleInterface
-     */
     protected FilmPeopleInterface $filmPeopleService;
+    protected FilmImageInterface $filmImageService;
 
     /**
      * @param TaskService $taskService
      * @param ValidatorInterface $validator
      * @param ProviderRepository $providerRepository
+     * @param FilmByProviderRepository $filmByProviderRepository
+     * @param FilmByProviderService $filmByProviderService
+     * @throws Exception
      */
     protected function __construct(
         TaskService $taskService,
@@ -92,18 +62,16 @@ abstract class MainParserService
         $this->taskService = $taskService;
         $this->validator = $validator;
         $this->providerRepository = $providerRepository;
-        $this->task = $this->getTask($this->parserName);
+        $this->task = $this->getTask();
         $this->filmFieldService = new ($this->getClassName('FilmFieldService'))($this->validator);
         $this->filmFieldTranslateService = new ($this->getClassName('FilmFieldTranslateService'))($validator);
         $this->filmPeopleService = new ($this->getClassName('FilmPeopleService'))($validator);
         $this->filmImageService = new ($this->getClassName('FilmImageService'))($this->validator);
-        $this->client = new Client();
         $this->filmByProviderService = $filmByProviderService;
         $this->filmByProviderRepository = $filmByProviderRepository;
     }
     abstract protected function getPageCrawler(string $linkByFilms, int $page);
     abstract protected function parserPages(string $linkByFilms);
-    abstract public function getParserName();
 
     /**
      * @return void
@@ -111,13 +79,13 @@ abstract class MainParserService
      */
     public function exec(): void
     {
-        $this->taskService->updateCountTask($this->getTask($this->parserName));
+        $this->taskService->updateCountTask($this->getTask());
         if ($this->task->getStatus() == 1) {
             throw new Exception('Task is running.');
         }
-        $this->taskService->setWorkStatus($this->getTask($this->parserName));
-        $this->parserPages($this->defaultLink);
-        $this->taskService->setNotWorkStatus($this->getTask($this->parserName));
+        $this->taskService->setWorkStatus($this->getTask());
+        $this->parserPages($this->getDefaultLink());
+        $this->taskService->setNotWorkStatus($this->getTask());
     }
 
     /**
@@ -125,7 +93,17 @@ abstract class MainParserService
      */
     protected function getDefaultLink(): string
     {
+        //TODO проверка на null, если null то ошибка
         return $this->defaultLink;
+    }
+
+    /**
+     * @return string
+     */
+    public function getParserName(): string
+    {
+        //TODO проверка на null, если null то ошибка
+        return $this->parserName;
     }
 
     /**
@@ -149,12 +127,11 @@ abstract class MainParserService
     }
 
     /**
-     * @param $name
      * @return CommandTask|null
      */
-    protected function getTask($name): ?CommandTask
+    protected function getTask(): ?CommandTask
     {
-        return $this->taskService->getTask($this->getProvider($name));
+        return $this->taskService->getTask($this->getProvider($this->getParserName()));
     }
 
     /**
@@ -176,9 +153,14 @@ abstract class MainParserService
     }
 
 
+    /**
+     * @param $nameService
+     * @return string|null
+     * @throws Exception
+     */
     public function getClassName($nameService): ?string
     {
-        $className = 'App\Service\Parsers\\' . $this->parserName . '\\' . $nameService;
+        $className = 'App\Service\Parsers\\' . $this->getParserName() . '\\' . $nameService;
         if (!class_exists($className)) {
             throw new Exception('Class ' . $className . ' not found');
         }
@@ -219,6 +201,8 @@ abstract class MainParserService
     /**
      * @param $node
      * @return void
+     * @throws GuzzleException
+     * @throws Exception
      */
     protected function addFilmInput($node): void
     {

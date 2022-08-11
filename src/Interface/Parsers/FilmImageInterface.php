@@ -11,7 +11,7 @@ use Doctrine\Common\Collections\ArrayCollection;
  */
 interface FilmImageInterface
 {
-    public function parseImage($linkFilm): ?ArrayCollection;
+    public function parseImage($node): ?ArrayCollection;
     public function getImageInput($link): ?ImageInput;
 }
 

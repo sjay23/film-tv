@@ -54,7 +54,6 @@ class TaskService
         $this->entityManager->flush();
     }
 
-
     /**
      * @param object $task
      */
