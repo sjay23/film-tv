@@ -51,13 +51,6 @@ class SweetTvService extends MainParserService
         return $this->parserName;
     }
 
-    /**
-     * @return string
-     */
-    public function getDefaultLink(): string
-    {
-        return $this->defaultLink;
-    }
 
     /**
      * @param $linkByFilms
@@ -109,32 +102,4 @@ class SweetTvService extends MainParserService
         return $this->getCrawler($html);
     }
 
-    /**
-     * @param string $linkFilm
-     * @return string
-     */
-    protected function parseFilmId($linkFilm): string
-    {
-        $re = '/https:\/\/sweet.tv\/en\/movie\/([0-9]*)-(.*)/';
-        preg_match($re, $linkFilm, $matches, PREG_OFFSET_CAPTURE, 0);
-        return $matches[1][0];
-    }
-
-    /**
-     * @param $crawler
-     * @return ArrayCollection
-     */
-    protected function parseImage($crawler): ArrayCollection
-    {
-        $imageLink = $crawler->filter('.movie__item-img > img.img_wauto_hauto')->image()->getUri();
-        $image = $this->getImageInput($imageLink);
-        return new ArrayCollection([$image]);
-    }
-
-    private function getImageInput(string $link): ImageInput
-    {
-        $imageInput = new ImageInput($link);
-        $this->validator->validate($imageInput);
-        return $imageInput;
-    }
 }

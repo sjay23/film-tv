@@ -19,6 +19,18 @@ class FilmFieldService implements FilmFieldInterface
         $this->validator = $validator;
     }
 
+    /**
+     * @param string $linkFilm
+     * @return string
+     */
+    public function parseFilmId($linkFilm): string
+    {
+
+        $re = '/https:\/\/megogo.net\/en\/view\/([0-9]*)-(.*)/';
+        preg_match($re, $linkFilm, $matches, PREG_OFFSET_CAPTURE, 0);
+        return $matches[1][0];
+    }
+
     public function parseAge($crawler): ?string
     {
         return $crawler->filter('.videoInfoPanel-age-limit')->text();

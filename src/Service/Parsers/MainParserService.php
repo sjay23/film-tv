@@ -6,10 +6,14 @@ use App\DTO\FilmFieldTranslationInput;
 use App\DTO\FilmInput;
 use App\Entity\CommandTask;
 use App\Entity\Provider;
+use App\Interface\Parsers\FilmFieldInterface;
+use App\Interface\Parsers\FilmFieldTranslateInterface;
+use App\Interface\Parsers\FilmPeopleInterface;
 use App\Repository\FilmByProviderRepository;
 use App\Repository\ProviderRepository;
 use App\Service\FilmByProviderService;
 use App\Service\TaskService;
+use App\Utility\CrawlerTrait;
 use Doctrine\Common\Collections\ArrayCollection;
 use Exception;
 use GuzzleHttp\Client;
@@ -19,6 +23,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 abstract class MainParserService
 {
+    use CrawlerTrait;
     protected const LANG_DEFAULT = 'en';
 
     public const LANGS = [
@@ -59,6 +64,18 @@ abstract class MainParserService
     protected ?CommandTask $task;
     protected string $parserName;
     public string $defaultLink;
+    /**
+     * @var FilmFieldInterface
+     */
+    protected FilmFieldInterface $filmFieldService;
+    /**
+     * @var FilmFieldTranslateInterface
+     */
+    protected FilmFieldTranslateInterface $filmFieldTranslateService;
+    /**
+     * @var FilmPeopleInterface
+     */
+    protected FilmPeopleInterface $filmPeopleService;
 
     /**
      * @param TaskService $taskService
@@ -79,17 +96,14 @@ abstract class MainParserService
         $this->filmFieldService = new ($this->getClassName('FilmFieldService'))($this->validator);
         $this->filmFieldTranslateService = new ($this->getClassName('FilmFieldTranslateService'))($validator);
         $this->filmPeopleService = new ($this->getClassName('FilmPeopleService'))($validator);
+        $this->filmImageService = new ($this->getClassName('FilmImageService'))($this->validator);
         $this->client = new Client();
         $this->filmByProviderService = $filmByProviderService;
         $this->filmByProviderRepository = $filmByProviderRepository;
     }
-
-    abstract protected function parseImage(string $linkFilm): ArrayCollection;
-    abstract protected function parseFilmId(string $linkFilm);
     abstract protected function getPageCrawler(string $linkByFilms, int $page);
     abstract protected function parserPages(string $linkByFilms);
     abstract public function getParserName();
-    abstract public function getDefaultLink();
 
     /**
      * @return void
@@ -107,30 +121,11 @@ abstract class MainParserService
     }
 
     /**
-     * @param string $link
-     * @param string $lang
-     * @return string|null
-     * @throws GuzzleException
+     * @return string
      */
-    protected function getContentLink(string $link, string $lang = self::LANG_DEFAULT): ?string
+    protected function getDefaultLink(): string
     {
-        sleep(rand(0, 3));
-        if ($lang !== self::LANG_DEFAULT) {
-            $link = str_replace(self::LANG_DEFAULT, $lang, $link);
-        }
-        echo 'Parse link: ' . $link . "\n";
-        $response = $this->client->get($link);
-
-        return (string)$response->getBody();
-    }
-
-    /**
-     * @param string $html
-     * @return Crawler
-     */
-    protected function getCrawler(string $html): Crawler
-    {
-        return new Crawler($html);
+        return $this->defaultLink;
     }
 
     /**
@@ -185,7 +180,7 @@ abstract class MainParserService
     {
         $className = 'App\Service\Parsers\\' . $this->parserName . '\\' . $nameService;
         if (!class_exists($className)) {
-            throw new Exception('Class' . $className . 'not found');
+            throw new Exception('Class ' . $className . ' not found');
         }
         return $className;
     }
@@ -233,8 +228,8 @@ abstract class MainParserService
         $filmInput = new FilmInput();
         $linkFilm = $node->link()->getUri();
         $filmInput->setLink($linkFilm);
-        $movieId = $this->parseFilmId($linkFilm);
-        $posterInput = $this->parseImage($node);
+        $movieId = $this->filmFieldService->parseFilmId($linkFilm);
+        $posterInput = $this->filmImageService->parseImage($node);
         $filmInput->setImagesInput($posterInput);
         $filmInput->setMovieId((int)$movieId);
         $provider = $this->getProvider($this->getParserName());

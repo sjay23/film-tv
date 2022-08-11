@@ -45,13 +45,7 @@ class MegogoService extends MainParserService
         return $this->parserName;
     }
 
-    /**
-     * @return string
-     */
-    public function getDefaultLink(): string
-    {
-        return $this->defaultLink;
-    }
+
 
     /**
      * @return void
@@ -120,44 +114,4 @@ class MegogoService extends MainParserService
         return str_replace('TOKEN', $nextPageToken, $this->defaultLink);
     }
 
-    /**
-     * @param string $linkFilm
-     * @return string
-     */
-    protected function parseFilmId($linkFilm): string
-    {
-
-        $re = '/https:\/\/megogo.net\/en\/view\/([0-9]*)-(.*)/';
-        preg_match($re, $linkFilm, $matches, PREG_OFFSET_CAPTURE, 0);
-        return $matches[1][0];
-    }
-
-    private function getImageInput(string $link): ImageInput
-    {
-        $imageInput = new ImageInput($link);
-        $this->validator->validate($imageInput);
-        return $imageInput;
-    }
-
-    /**
-     * @param $linkFilm
-     * @return ArrayCollection
-     * @throws GuzzleException
-     */
-    protected function parseImage($linkFilm): ArrayCollection
-    {
-        $link = $this->getCrawler($this->getContentLink($linkFilm->link()->getUri()))
-            ->filter('ul.video-view-tabs')
-            ->children('.nav-item')
-            ->eq(2)
-            ->children('a')
-            ->attr('href');
-        $html = $this->getContentLink('https://megogo.net' . $link);
-        $crawler = $this->getCrawler($html);
-        $images = $crawler->filter('a.type-screenshot img.lazy_image')->each(function (Crawler $node) {
-            $link =  $node->attr('data-original');
-            return($this->getImageInput($link));
-        });
-        return new ArrayCollection($images);
-    }
 }
