@@ -5,12 +5,26 @@ namespace App\Service\Parsers\Megogo;
 
 use App\DTO\ImageInput;
 use App\Interface\Parsers\FilmFieldTranslateInterface;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * Class SweetTvService
  */
 class FilmFieldTranslateService implements FilmFieldTranslateInterface
 {
+
+    public function __construct(
+        ValidatorInterface $validator,
+    ) {
+        $this->validator = $validator;
+    }
+
+    private function getImageInput(string $link): ImageInput
+    {
+        $imageInput = new ImageInput($link);
+        $this->validator->validate($imageInput);
+        return $imageInput;
+    }
 
     public function parseBannerTranslate($crawlerChild): ImageInput
     {

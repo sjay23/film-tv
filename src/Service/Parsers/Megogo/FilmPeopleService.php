@@ -31,7 +31,9 @@ class FilmPeopleService implements FilmPeopleInterface
         return new ArrayCollection($directors);
     }
 
-    public function parseCast($crawler, $filmInput = null): ?ArrayCollection
+
+
+    public function parseCast($crawler): ?ArrayCollection
     {
         $castGenre = $crawler->filter('div.video-persons .type-main a.link-default')->each(function (Crawler $node) {
             $link = 'https://megogo.net' . $node->attr('href');

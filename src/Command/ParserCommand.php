@@ -16,8 +16,6 @@ class ParserCommand extends Command
 {
     protected static $defaultName = 'app:parser';
 
-
-
     /**
      * @var MegogoService
      */

@@ -6,7 +6,6 @@ use App\DTO\FilmFieldTranslationInput;
 use App\DTO\FilmInput;
 use App\Entity\CommandTask;
 use App\Entity\Provider;
-use App\Interface\Parsers\FilmFieldTranslateInterface;
 use App\Repository\FilmByProviderRepository;
 use App\Repository\ProviderRepository;
 use App\Service\FilmByProviderService;
@@ -58,7 +57,6 @@ abstract class MainParserService
      */
     protected ValidatorInterface $validator;
     protected ?CommandTask $task;
-    protected ?FilmFieldTranslateInterface $filmFieldService;
     protected string $parserName;
     public string $defaultLink;
 
@@ -78,29 +76,16 @@ abstract class MainParserService
         $this->validator = $validator;
         $this->providerRepository = $providerRepository;
         $this->task = $this->getTask($this->parserName);
-
-        //TODO сделать функцию под это дело
-        $className = 'App\Service\Parsers\\' . $this->parserName . '\\FilmFieldService';
-        $this->filmFieldService = new $className($validator);
-        
+        $this->filmFieldService = new ($this->getClassName('FilmFieldService'))($this->validator);
+        $this->filmFieldTranslateService = new ($this->getClassName('FilmFieldTranslateService'))($validator);
+        $this->filmPeopleService = new ($this->getClassName('FilmPeopleService'))($validator);
         $this->client = new Client();
         $this->filmByProviderService = $filmByProviderService;
         $this->filmByProviderRepository = $filmByProviderRepository;
     }
 
-    abstract protected function parseAge(Crawler $crawler);
-    abstract protected function parseRating(Crawler $crawler);
     abstract protected function parseImage(string $linkFilm): ArrayCollection;
-    abstract protected function parseYear(Crawler $crawlerChild);
-    abstract protected function parseDuration(Crawler $crawlerChild);
-    abstract protected function parseCountry(Crawler $crawler): ArrayCollection;
-    abstract protected function parseAudio(Crawler $crawler): ArrayCollection;
-    abstract protected function parseDirector(Crawler $crawler): ArrayCollection;
-    abstract protected function parseGenre(Crawler $crawler): ArrayCollection;
     abstract protected function parseFilmId(string $linkFilm);
-    abstract protected function parseTitleTranslate(Crawler $crawlerChild);
-    abstract protected function parseDescriptionTranslate(Crawler $crawlerChild);
-    abstract protected function parseBannerTranslate(Crawler $crawlerChild);
     abstract protected function getPageCrawler(string $linkByFilms, int $page);
     abstract protected function parserPages(string $linkByFilms);
     abstract public function getParserName();
@@ -184,14 +169,25 @@ abstract class MainParserService
      */
     protected function getFilmFieldTranslation($crawlerChild, $lang): FilmFieldTranslationInput
     {
-        $imageInput = $this->parseBannerTranslate($crawlerChild);
-        $description = $this->parseDescriptionTranslate($crawlerChild);
-        $title = $this->parseTitleTranslate($crawlerChild);
+
+        $imageInput = $this->filmFieldTranslateService->parseBannerTranslate($crawlerChild);
+        $description = $this->filmFieldTranslateService->parseDescriptionTranslate($crawlerChild);
+        $title = $this->filmFieldTranslateService->parseTitleTranslate($crawlerChild);
         $filmFieldTranslation = new FilmFieldTranslationInput($title, $description, $lang);
         $filmFieldTranslation->setBannersInput($imageInput);
         $this->validator->validate($filmFieldTranslation);
 
         return $filmFieldTranslation;
+    }
+
+
+    public function getClassName($nameService): ?string
+    {
+        $className = 'App\Service\Parsers\\' . $this->parserName . '\\' . $nameService;
+        if (!class_exists($className)) {
+            throw new Exception('Class' . $className . 'not found');
+        }
+        return $className;
     }
 
     /**
@@ -210,13 +206,13 @@ abstract class MainParserService
 
         if ($lang === self::LANG_DEFAULT) {
             $filmInput->setAge($this->filmFieldService->parseAge($crawlerChild));
-            $filmInput->setRating((float)$this->filmFieldService->parseRating($crawlerChild));
-            $filmInput->setYears((int)$this->filmFieldService->parseYear($crawlerChild));
+            $filmInput->setRating($this->filmFieldService->parseRating($crawlerChild));
+            $filmInput->setYears($this->filmFieldService->parseYear($crawlerChild));
             $filmInput->setDuration($this->filmFieldService->parseDuration($crawlerChild));
             $filmInput->setCountriesInput($this->filmFieldService->parseCountry($crawlerChild));
             $filmInput->setGenresInput($this->filmFieldService->parseGenre($crawlerChild));
             $filmInput->setDirectorsInput($this->filmPeopleService->parseDirector($crawlerChild));
-            $filmInput->setCastsInput($this->filmPeopleService->parseCast($crawlerChild,$filmInput));
+            $filmInput->setCastsInput($this->filmPeopleService->parseCast($crawlerChild));
             $filmInput->setAudiosInput($this->filmFieldService->parseAudio($crawlerChild));
         }
 

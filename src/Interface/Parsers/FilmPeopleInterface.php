@@ -11,6 +11,6 @@ use Doctrine\Common\Collections\ArrayCollection;
 interface FilmPeopleInterface
 {
     public function parseDirector($crawler): ?ArrayCollection;
-    public function parseCast($crawler, $filmInput): ?ArrayCollection;
+    public function parseCast($crawler): ?ArrayCollection;
 }
 
