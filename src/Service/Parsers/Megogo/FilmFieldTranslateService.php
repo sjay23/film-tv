@@ -5,6 +5,7 @@ namespace App\Service\Parsers\Megogo;
 
 use App\DTO\ImageInput;
 use App\Interface\Parsers\FilmFieldTranslateInterface;
+use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class FilmFieldTranslateService implements FilmFieldTranslateInterface
@@ -25,20 +26,20 @@ class FilmFieldTranslateService implements FilmFieldTranslateInterface
         return $imageInput;
     }
 
-    public function parseBannerTranslate($crawlerChild): ImageInput
+    public function parseBannerTranslate(Crawler $crawlerChild): ImageInput
     {
         $bannerLink = $crawlerChild->filter('div.thumbnail div.thumb img')->image()->getUri();
         return $this->getImageInput($bannerLink);
     }
 
-    public function parseDescriptionTranslate($crawlerChild): ?string
+    public function parseDescriptionTranslate(Crawler $crawlerChild): ?string
     {
         return $crawlerChild->filter('div.video-description')->text();
     }
 
-    public function parseTitleTranslate($crawlerChild): string
+    public function parseTitleTranslate(Crawler $crawlerChild): string
     {
-        $data = $crawlerChild->filterXpath("//meta[@property='og:title']")->extract(['content']);
+        $data = $crawlerChild->filterXPath("//meta[@property='og:title']")->extract(['content']);
         $title = $data[0];
         return $title;
     }

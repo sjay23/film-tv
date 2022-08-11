@@ -25,7 +25,7 @@ class FilmImageService implements FilmImageInterface
         $this->validator = $validator;
     }
 
-    public function getImageInput($link): ImageInput
+    public function getImageInput(string $link): ImageInput
     {
         $imageInput = new ImageInput($link);
         $this->validator->validate($imageInput);
@@ -33,11 +33,11 @@ class FilmImageService implements FilmImageInterface
     }
 
     /**
-     * @param $node
+     * @param Crawler $node
      * @return ArrayCollection
      * @throws GuzzleException
      */
-    public function parseImage($node): ArrayCollection
+    public function parseImage(Crawler $node): ArrayCollection
     {
         $link = $this->getCrawler($this->getContentLink($node->link()->getUri()))
             ->filter('ul.video-view-tabs')

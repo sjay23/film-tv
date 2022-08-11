@@ -18,29 +18,19 @@ class SweetTvService extends MainParserService
     protected string $defaultLink = 'https://sweet.tv/en/movies/all-movies/sort=5';
 
     /**
-     * @return string
-     */
-    public function getParserName(): string
-    {
-        return $this->parserName;
-    }
-
-    /**
-     * @param $linkByFilms
      * @return void
      * @throws GuzzleException
-     * @throws Exception
      */
-    protected function parserPages($linkByFilms): void
+    protected function parserPages(): void
     {
-        $html = $this->getContentLink($linkByFilms);
+        $html = $this->getContentLink($this->getDefaultLink());
         $crawler = $this->getCrawler($html);
         $pageMax = (int)$crawler->filter('.pagination li')->last()->text();
         $page = 1;
         $this->taskService->setWorkStatus($this->task);
         while ($page <= $pageMax) {
             try {
-                $this->parseFilmsByPage($linkByFilms . '/page/$page', $page);
+                $this->parseFilmsByPage($this->getDefaultLink() . '/page/$page', $page);
             } catch (Exception $e) {
                 $this->taskService->setErrorStatus($this->task, $e->getMessage());
                 throw new Exception($e->getMessage());

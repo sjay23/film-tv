@@ -6,6 +6,7 @@ use App\DTO\ImageInput;
 use App\Interface\Parsers\FilmImageInterface;
 use App\Utility\CrawlerTrait;
 use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
@@ -24,17 +25,17 @@ class FilmImageService implements FilmImageInterface
     }
 
     /**
-     * @param $crawler
+     * @param Crawler $node
      * @return ArrayCollection
      */
-    public function parseImage($crawler): ArrayCollection
+    public function parseImage(Crawler $node): ArrayCollection
     {
-        $imageLink = $crawler->filter('.movie__item-img > img.img_wauto_hauto')->image()->getUri();
+        $imageLink = $node->filter('.movie__item-img > img.img_wauto_hauto')->image()->getUri();
         $image = $this->getImageInput($imageLink);
         return new ArrayCollection([$image]);
     }
 
-    public function getImageInput($link): ImageInput
+    public function getImageInput(string $link): ImageInput
     {
         $imageInput = new ImageInput($link);
         $this->validator->validate($imageInput);

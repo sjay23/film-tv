@@ -18,7 +18,7 @@ class FilmPeopleService implements FilmPeopleInterface
         $this->validator = $validator;
     }
 
-    public function parseDirector($crawler): ?ArrayCollection
+    public function parseDirector(Crawler $crawler): ?ArrayCollection
     {
         $node = $crawler->filter('div.film__directors');
         $directors = [];
@@ -32,7 +32,7 @@ class FilmPeopleService implements FilmPeopleInterface
         return new ArrayCollection($directors);
     }
 
-    public function parseCast($crawler): ?ArrayCollection
+    public function parseCast(Crawler $crawler): ?ArrayCollection
     {
         $node = $crawler->filter('div.film__actor a');
         $castGenre = [];

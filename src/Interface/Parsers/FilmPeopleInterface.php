@@ -4,13 +4,11 @@
 namespace App\Interface\Parsers;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\DomCrawler\Crawler;
 
-/**
- * Class SweetTvService
- */
 interface FilmPeopleInterface
 {
-    public function parseDirector($crawler): ?ArrayCollection;
-    public function parseCast($crawler): ?ArrayCollection;
+    public function parseDirector(Crawler $crawler): ?ArrayCollection;
+    public function parseCast(Crawler $crawler): ?ArrayCollection;
 }
 

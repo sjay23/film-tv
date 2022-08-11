@@ -4,19 +4,16 @@
 namespace App\Interface\Parsers;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\DomCrawler\Crawler;
 
-/**
- * Class SweetTvService
- */
 interface FilmFieldInterface
 {
-    public function parseAge($crawler): ?string;
-    public function parseFilmId($linkFilm): ?string;
-    public function parseRating($crawler): ?string;
-    public function parseYear($crawlerChild): ?string;
-    public function parseDuration($crawlerChild): ?int;
-    public function parseCountry($crawler): ?ArrayCollection;
-    public function parseGenre($crawler): ?ArrayCollection;
-    public function parseAudio($crawler): ?ArrayCollection;
-
+    public function parseAge(Crawler $crawler): ?string;
+    public function parseFilmId(string $linkFilm): ?string;
+    public function parseRating(Crawler $crawler): ?string;
+    public function parseYear(Crawler $crawlerChild): ?string;
+    public function parseDuration(Crawler $crawlerChild): ?int;
+    public function parseCountry(Crawler $crawler): ?ArrayCollection;
+    public function parseGenre(Crawler $crawler): ?ArrayCollection;
+    public function parseAudio(Crawler $crawler): ?ArrayCollection;
 }

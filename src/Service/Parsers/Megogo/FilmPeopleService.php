@@ -18,7 +18,7 @@ class FilmPeopleService implements FilmPeopleInterface
         $this->validator = $validator;
     }
 
-    public function parseDirector($crawler): ?ArrayCollection
+    public function parseDirector(Crawler $crawler): ?ArrayCollection
     {
         $directors = [];
         $directorName = $crawler->filter('a[itemprop="director"] div')->text();
@@ -30,7 +30,7 @@ class FilmPeopleService implements FilmPeopleInterface
         return new ArrayCollection($directors);
     }
 
-    public function parseCast($crawler): ?ArrayCollection
+    public function parseCast(Crawler $crawler): ?ArrayCollection
     {
         $castGenre = $crawler->filter('div.video-persons .type-main a.link-default')->each(function (Crawler $node) {
             $link = 'https://megogo.net' . $node->attr('href');

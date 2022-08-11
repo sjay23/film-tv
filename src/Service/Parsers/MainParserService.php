@@ -71,7 +71,7 @@ abstract class MainParserService
         $this->filmByProviderRepository = $filmByProviderRepository;
     }
     abstract protected function getPageCrawler(string $linkByFilms, int $page);
-    abstract protected function parserPages(string $linkByFilms);
+    abstract protected function parserPages();
 
     /**
      * @return void
@@ -84,7 +84,7 @@ abstract class MainParserService
             throw new Exception('Task is running.');
         }
         $this->taskService->setWorkStatus($this->getTask());
-        $this->parserPages($this->getDefaultLink());
+        $this->parserPages();
         $this->taskService->setNotWorkStatus($this->getTask());
     }
 
@@ -141,7 +141,6 @@ abstract class MainParserService
      */
     protected function getFilmFieldTranslation($crawlerChild, $lang): FilmFieldTranslationInput
     {
-
         $imageInput = $this->filmFieldTranslateService->parseBannerTranslate($crawlerChild);
         $description = $this->filmFieldTranslateService->parseDescriptionTranslate($crawlerChild);
         $title = $this->filmFieldTranslateService->parseTitleTranslate($crawlerChild);

@@ -5,13 +5,11 @@ namespace App\Interface\Parsers;
 
 use App\DTO\ImageInput;
 use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\DomCrawler\Crawler;
 
-/**
- * Class SweetTvService
- */
 interface FilmImageInterface
 {
-    public function parseImage($node): ?ArrayCollection;
-    public function getImageInput($link): ?ImageInput;
+    public function parseImage(Crawler $node): ?ArrayCollection;
+    public function getImageInput(string $link): ?ImageInput;
 }
 

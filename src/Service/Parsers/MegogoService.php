@@ -18,12 +18,11 @@ class MegogoService extends MainParserService
     protected string $defaultLink = 'https://megogo.net/en/search-extended?category_id=16&main_tab=filters&sort=add&ajax=true&origin=/en/search-extended?category_id=16&main_tab=filters&sort=add&widget=widget_58';
 
     /**
-     * @param null $linkByFilms
      * @return void
      * @throws GuzzleException
      * @throws Exception
      */
-    protected function parserPages($linkByFilms = null): void
+    protected function parserPages(): void
     {
         try {
             $this->parseFilmsByPage($this->getDefaultLink());

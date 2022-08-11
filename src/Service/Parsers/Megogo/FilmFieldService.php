@@ -6,6 +6,7 @@ use App\DTO\AudioInput;
 use App\DTO\CountryInput;
 use App\Interface\Parsers\FilmFieldInterface;
 use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class FilmFieldService implements FilmFieldInterface
@@ -22,7 +23,7 @@ class FilmFieldService implements FilmFieldInterface
      * @param string $linkFilm
      * @return string
      */
-    public function parseFilmId($linkFilm): string
+    public function parseFilmId(string $linkFilm): string
     {
 
         $re = '/https:\/\/megogo.net\/en\/view\/([0-9]*)-(.*)/';
@@ -30,12 +31,12 @@ class FilmFieldService implements FilmFieldInterface
         return $matches[1][0];
     }
 
-    public function parseAge($crawler): ?string
+    public function parseAge(Crawler $crawler): ?string
     {
         return $crawler->filter('.videoInfoPanel-age-limit')->text();
     }
 
-    public function parseRating($crawler): ?string
+    public function parseRating(Crawler $crawler): ?string
     {
         $rating = null;
         $node = $crawler->filter('.videoInfoPanel-rating');
@@ -46,12 +47,12 @@ class FilmFieldService implements FilmFieldInterface
         return $rating;
     }
 
-    public function parseYear($crawlerChild): ?string
+    public function parseYear(Crawler $crawlerChild): ?string
     {
         return $crawlerChild->filter('span.video-year')->text();
     }
 
-    public function parseDuration($crawlerChild): ?int
+    public function parseDuration(Crawler $crawlerChild): ?int
     {
         $duration = (int)(preg_replace(
             "/[^,.0-9]/",
@@ -61,9 +62,9 @@ class FilmFieldService implements FilmFieldInterface
         return $duration;
     }
 
-    public function parseCountry($crawler): ?ArrayCollection
+    public function parseCountry(Crawler $crawler): ?ArrayCollection
     {
-        $data = $crawler->filterXpath("//meta[@property='ya:ovs:country']")->extract(['content']);
+        $data = $crawler->filterXPath("//meta[@property='ya:ovs:country']")->extract(['content']);
         $countries = explode(',', $data[0]);
         $filmCountry = [];
         foreach ($countries as $country) {
@@ -74,9 +75,9 @@ class FilmFieldService implements FilmFieldInterface
         return new ArrayCollection($filmCountry);
     }
 
-    public function parseGenre($crawler): ?ArrayCollection
+    public function parseGenre(Crawler $crawler): ?ArrayCollection
     {
-        $data = $crawler->filterXpath("//meta[@property='ya:ovs:genre']")->extract(['content']);
+        $data = $crawler->filterXPath("//meta[@property='ya:ovs:genre']")->extract(['content']);
         $genres = explode(',', $data[0]);
         $filmGenre = [];
         foreach ($genres as $genre) {
@@ -87,9 +88,9 @@ class FilmFieldService implements FilmFieldInterface
         return new ArrayCollection($filmGenre);
     }
 
-    public function parseAudio($crawler): ?ArrayCollection
+    public function parseAudio(Crawler $crawler): ?ArrayCollection
     {
-        $data = $crawler->filterXpath("//meta[@property='ya:ovs:languages']")->extract(['content']);
+        $data = $crawler->filterXPath("//meta[@property='ya:ovs:languages']")->extract(['content']);
         $audios = explode(',', $data[0]);
         $filmAudio = [];
         foreach ($audios as $audio) {

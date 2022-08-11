@@ -5,6 +5,7 @@ namespace App\Service\Parsers\SweetTv;
 
 use App\DTO\ImageInput;
 use App\Interface\Parsers\FilmFieldTranslateInterface;
+use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class FilmFieldTranslateService implements FilmFieldTranslateInterface
@@ -25,7 +26,7 @@ class FilmFieldTranslateService implements FilmFieldTranslateInterface
         return $imageInput;
     }
 
-    public function parseBannerTranslate($crawlerChild): ?ImageInput
+    public function parseBannerTranslate(Crawler $crawlerChild): ?ImageInput
     {
         $bannerNode = $crawlerChild->filter('div.film-right  div.film-right__img source');
         if ($bannerNode->count() > 0) {
@@ -35,7 +36,7 @@ class FilmFieldTranslateService implements FilmFieldTranslateInterface
         return null;
     }
 
-    public function parseDescriptionTranslate($crawlerChild): ?string
+    public function parseDescriptionTranslate(Crawler $crawlerChild): ?string
     {
         $node = $crawlerChild->filter('div.film-descr p');
         if ($node->count() !== 0) {
@@ -44,7 +45,7 @@ class FilmFieldTranslateService implements FilmFieldTranslateInterface
         return null;
     }
 
-    public function parseTitleTranslate($crawlerChild): string
+    public function parseTitleTranslate(Crawler $crawlerChild): string
     {
         return $crawlerChild->filter('.container-fluid_padding li')->last()->text();
     }

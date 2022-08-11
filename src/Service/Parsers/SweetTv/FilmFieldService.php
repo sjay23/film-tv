@@ -24,7 +24,7 @@ class FilmFieldService implements FilmFieldInterface
      * @param string $linkFilm
      * @return string
      */
-    public function parseFilmId($linkFilm): string
+    public function parseFilmId(string $linkFilm): string
     {
         $re = '/https:\/\/sweet.tv\/en\/movie\/([0-9]*)-(.*)/';
         preg_match($re, $linkFilm, $matches, PREG_OFFSET_CAPTURE, 0);
@@ -32,7 +32,7 @@ class FilmFieldService implements FilmFieldInterface
     }
 
 
-    public function parseAge($crawler): ?string
+    public function parseAge(Crawler $crawler): ?string
     {
         $age = null;
         $node = $crawler->filter('.film__age');
@@ -43,7 +43,7 @@ class FilmFieldService implements FilmFieldInterface
         return $age;
     }
 
-    public function parseRating($crawler): ?string
+    public function parseRating(Crawler $crawler): ?string
     {
         $rating = null;
         $node = $crawler->filter('.film__rating');
@@ -54,12 +54,12 @@ class FilmFieldService implements FilmFieldInterface
         return $rating;
     }
 
-    public function parseYear($crawlerChild): ?string
+    public function parseYear(Crawler $crawlerChild): ?string
     {
         return $crawlerChild->filter('.film__years > .film-left__details')->text();
     }
 
-    public function parseDuration($crawlerChild): ?int
+    public function parseDuration(Crawler $crawlerChild): ?int
     {
         $str = $crawlerChild->filter(' span.film-left__time')->text();
         $a = preg_replace("/[^0-9]/", '', $str);
@@ -67,7 +67,7 @@ class FilmFieldService implements FilmFieldInterface
         return  $time;
     }
 
-    public function parseCountry($crawler): ?ArrayCollection
+    public function parseCountry(Crawler $crawler): ?ArrayCollection
     {
         $filmCountry = $crawler->filter('div.film__countries a.film-left__link')->each(function (Crawler $node) {
             $countriesInput = new CountryInput($node->text());
@@ -77,7 +77,7 @@ class FilmFieldService implements FilmFieldInterface
         return new ArrayCollection($filmCountry);
     }
 
-    public function parseGenre($crawler): ?ArrayCollection
+    public function parseGenre(Crawler $crawler): ?ArrayCollection
     {
         $node = $crawler->filter('div.film__genres a');
         $filmGenre = [];
@@ -91,7 +91,7 @@ class FilmFieldService implements FilmFieldInterface
         return new ArrayCollection($filmGenre);
     }
 
-    public function parseAudio($crawler): ?ArrayCollection
+    public function parseAudio(Crawler $crawler): ?ArrayCollection
     {
         $node = $crawler->filter('a.film-audio__link');
         $filmAudio = [];
