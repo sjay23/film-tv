@@ -2,15 +2,15 @@
 
 namespace App\Command;
 
-
-use App\Service\Parsers\MainParserService;
+use App\Repository\ProviderRepository;
+use App\Service\Parsers\ExecParserService;
 use App\Service\Parsers\MegogoService;
 use App\Service\Parsers\SweetTvService;
+use App\Service\TaskService;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
-use Symfony\Component\Console\Question\Question;
 
 class ParserCommand extends Command
 {
@@ -27,13 +27,16 @@ class ParserCommand extends Command
     private SweetTvService $sweetTvService;
 
     public function __construct(
-
+        TaskService $taskService,
         SweetTvService $sweetTvService,
-        MegogoService $megogoService
-    ) {
+        MegogoService $megogoService,
+        ProviderRepository $providerRepository,
 
+    ) {
+        $this->taskService = $taskService;
         $this->sweetTvService = $sweetTvService;
         $this->megogoService = $megogoService;
+        $this->providerRepository = $providerRepository;
         parent::__construct();
     }
 
@@ -59,10 +62,12 @@ class ParserCommand extends Command
         ]);
         switch ($name) {
             case $this->megogoService->getParserName():
-                $this->megogoService->exec();
+                $class = new ExecParserService($this->megogoService, $this->taskService ,$this->providerRepository);
+                $class->exec();
                 break;
             case $this->sweetTvService->getParserName():
-                $this->sweetTvService->exec();
+                $class = new ExecParserService($this->sweetTvService, $this->taskService,$this->providerRepository);
+                $class->exec();
                 break;
         }
 

@@ -37,8 +37,6 @@ abstract class MainParserService
     protected TaskService $taskService;
     private ValidatorInterface $validator;
     protected ?CommandTask $task;
-    protected string $parserName;
-    protected string $defaultLink;
     protected FilmFieldInterface $filmFieldService;
     protected FilmFieldTranslateInterface $filmFieldTranslateService;
     protected FilmPeopleInterface $filmPeopleService;
@@ -73,28 +71,16 @@ abstract class MainParserService
     abstract protected function getPageCrawler(string $linkByFilms, int $page);
     abstract protected function parserPages();
 
-    /**
-     * @return void
-     * @throws Exception
-     */
-    public function exec(): void
-    {
-        $this->taskService->updateCountTask($this->getTask());
-        if ($this->task->getStatus() == 1) {
-            throw new Exception('Task is running.');
-        }
-        $this->taskService->setWorkStatus($this->getTask());
-        $this->parserPages();
-        $this->taskService->setNotWorkStatus($this->getTask());
-    }
 
     /**
      * @return string
      */
     protected function getDefaultLink(): string
     {
-        //TODO проверка на null, если null то ошибка
-        return $this->defaultLink;
+        if (!$defaultLink = $this->defaultLink) {
+            throw new Exception('Link is not found');
+        }
+        return $defaultLink;
     }
 
     /**
@@ -102,8 +88,10 @@ abstract class MainParserService
      */
     public function getParserName(): string
     {
-        //TODO проверка на null, если null то ошибка
-        return $this->parserName;
+        if (!$parserName = $this->parserName) {
+            throw new Exception('Parser is not found');
+        }
+        return $parserName;
     }
 
     /**
