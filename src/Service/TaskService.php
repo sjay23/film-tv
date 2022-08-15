@@ -25,7 +25,9 @@ class TaskService
      */
     public function getTask(object $provider): ?CommandTask
     {
-        return $this->commandTaskRepository->findOneBy(['provider' => $provider]);
+        $task = $this->commandTaskRepository->findOneBy(['provider' => $provider]);
+        $this->entityManager->refresh($task);
+        return $task;
     }
 
     /**
@@ -52,7 +54,6 @@ class TaskService
         $this->entityManager->flush();
     }
 
-
     /**
      * @param object $task
      */
@@ -68,6 +69,15 @@ class TaskService
     public function setNotWorkStatus(object $task): void
     {
         $task->setStatus(0);
+        $this->entityManager->flush();
+    }
+
+    /**
+     * @param object $task
+     */
+    public function updateCountTask(object $task): void
+    {
+        $task->setCountTask(0);
         $this->entityManager->flush();
     }
 }

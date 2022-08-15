@@ -24,7 +24,8 @@ class ImageService
     {
         $link = $imageInput->getLink();
         if (!$image = $this->imageRepository->findOneBy(['link' => $link])) {
-            $image = new Image($link);
+            $image = new Image();
+            $image = $this->imageRepository->setImageLink($image, $link);
             $this->entityManager->persist($image);
             $this->entityManager->flush();
         }

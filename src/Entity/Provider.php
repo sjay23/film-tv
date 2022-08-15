@@ -35,6 +35,7 @@ use Symfony\Component\Uid\Uuid;
 class Provider
 {
     public const SWEET_TV = 'SweetTv';
+    public const MEGOGO = 'Megogo';
 
     /**
      * @ORM\Id

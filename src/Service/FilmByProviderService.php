@@ -6,13 +6,7 @@ use App\DTO\FilmFieldTranslationInput;
 use App\DTO\FilmInput;
 use App\Entity\FilmByProvider;
 use App\Entity\FilmByProviderTranslation;
-use App\Repository\FilmByProviderRepository;
-use App\Repository\ProviderRepository;
-use App\Service\AudioService;
-use App\Service\GenreService;
-use App\Service\PeopleService;
-use App\Service\CountryService;
-use App\Service\ImageService;
+use App\Service\Parsers\MainParserService;
 use Doctrine\ORM\EntityManagerInterface;
 
 /**
@@ -63,6 +57,7 @@ class FilmByProviderService
      * @param AudioService $audioService
      * @param CountryService $countryService
      * @param PeopleService $peopleService
+     * @param ImageFileService $imageFileService
      */
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -161,7 +156,7 @@ class FilmByProviderService
 
     public function uploadBanner(FilmByProvider $film): void
     {
-        foreach (SweetTvService::LANGS as $lang) {
+        foreach (MainParserService::LANGS as $lang) {
             $filmByTranslation = $film->translate($lang);
             $banners = $filmByTranslation->getBanner();
             foreach ($banners as $banner) {

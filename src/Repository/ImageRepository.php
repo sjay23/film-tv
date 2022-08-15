@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\Image;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Carbon\Carbon;
 
 /**
  * @extends ServiceEntityRepository<Image>
@@ -39,6 +40,14 @@ class ImageRepository extends ServiceEntityRepository
         }
     }
 
+    public function setImageLink(Image $image, string $link): Image
+    {
+        $image->setLink($link);
+        $image->setUploadedAt(Carbon::now());
+        $image->setUploaded($image::NO_UPLOAD);
+        return $image;
+    }
+
     /**
      * @param Image $provider
      */
@@ -62,7 +71,7 @@ class ImageRepository extends ServiceEntityRepository
     {
         return $this->createQueryBuilder('i')
             ->select('i')
-            ->Where('i.uploaded == 0')
+            ->where('i.uploaded == 0')
             ->getQuery()
             ->getResult();
     }

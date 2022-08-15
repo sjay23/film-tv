@@ -7,13 +7,13 @@ use App\Repository\ProviderRepository;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 
-class CreateProviderFixture extends Fixture
+class CreateProviderMegogoFixture extends Fixture
 {
 
     private ProviderRepository $providerRepository;
 
     /**
-     * run console - php bin/console doctrine:fixtures:load --append --group=CreateProviderFixture
+     * run console - php bin/console doctrine:fixtures:load --append --group=CreateProviderMegogoFixture
      */
 
     public function __construct(
@@ -29,7 +29,7 @@ class CreateProviderFixture extends Fixture
     public function load(ObjectManager $manager): void
     {
         $provider = new Provider(
-            Provider::SWEET_TV
+            Provider::MEGOGO
         );
 
         try {

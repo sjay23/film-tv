@@ -40,11 +40,11 @@ class FilmInput
     /**
      * @var string|null
      * @Assert\Length(
-     *      min = 2,
-     *      max = 3,
+     *      min = 1,
+     *      max = 4,
      * )
      */
-    private ?string $age;
+    private ?string $age = null;
 
     /**
      * @var int|null

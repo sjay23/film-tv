@@ -39,6 +39,7 @@ class Image
 {
     public const UPLOAD = 1;
     public const NO_UPLOAD = 0;
+    private ImageRepository $imageRepository;
 
     /**
      * @ORM\Id
@@ -49,7 +50,7 @@ class Image
     private int $id;
 
     /**
-     * @ORM\Column(type="string", length=500, unique="true")
+     * @ORM\Column(type="string", length=500, unique="true",nullable="true")
      * @Groups({"post", "get"})
      */
     private ?string $link;
@@ -80,7 +81,7 @@ class Image
      * @var string|null
      * @ORM\Column(nullable=true)
      */
-    public ?string $filePath;
+    public ?string $filePath = null;
 
     /**
      * @ORM\Column(type="smallint", options={"default":0})
@@ -101,14 +102,6 @@ class Image
      */
     private $imageName;
 
-
-    public function __construct(
-        ?string $link
-    ) {
-        $this->link = $link;
-        $this->uploaded = self::NO_UPLOAD;
-        $this->uploadedAt = Carbon::now();
-    }
 
     /**
      * @return int
@@ -174,12 +167,12 @@ class Image
         $this->uploaded = $uploaded;
     }
 
-    public function setImageFile(?File $imageFile): void
+    public function setImageFile($imageFile): void
     {
         $this->imageFile = $imageFile;
     }
 
-    public function getImageFile(): ?File
+    public function getImageFile()
     {
         return $this->imageFile;
     }
