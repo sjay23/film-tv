@@ -16,12 +16,15 @@ use App\Service\FilmByProviderService;
 use App\Service\TaskService;
 use App\Utility\CrawlerTrait;
 use Exception;
+use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 abstract class MainParserService
 {
-    use CrawlerTrait;
+    use CrawlerTrait {
+        CrawlerTrait::__construct as private __tConstruct;
+    }
 
     protected const LANG_DEFAULT = 'en';
 
@@ -50,13 +53,14 @@ abstract class MainParserService
      * @param FilmByProviderService $filmByProviderService
      * @throws Exception
      */
-    protected function __construct(
+    public function __construct(
         TaskService $taskService,
         ValidatorInterface $validator,
         ProviderRepository $providerRepository,
         FilmByProviderRepository $filmByProviderRepository,
         FilmByProviderService $filmByProviderService
     ) {
+        $this->__tConstruct();
         $this->taskService = $taskService;
         $this->validator = $validator;
         $this->providerRepository = $providerRepository;

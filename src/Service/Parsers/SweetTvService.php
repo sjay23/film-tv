@@ -21,7 +21,7 @@ class SweetTvService extends MainParserService
      * @return void
      * @throws GuzzleException
      */
-    protected function parserPages(): void
+    public function parserPages(): void
     {
         $html = $this->getContentLink($this->getDefaultLink());
         $crawler = $this->getCrawler($html);

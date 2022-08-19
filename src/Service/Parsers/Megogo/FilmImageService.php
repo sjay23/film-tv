@@ -15,13 +15,16 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  */
 class FilmImageService implements FilmImageInterface
 {
-    use CrawlerTrait;
+    use CrawlerTrait {
+        CrawlerTrait::__construct as private __tConstruct;
+    }
 
     private ValidatorInterface $validator;
 
     public function __construct(
         ValidatorInterface $validator,
     ) {
+        $this->__tConstruct();
         $this->validator = $validator;
     }
 
