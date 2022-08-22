@@ -43,12 +43,12 @@ class FilmFieldService implements FilmFieldInterface
         return $age;
     }
 
-    public function parseRating(Crawler $crawler): ?string
+    public function parseRating(Crawler $crawler): ?float
     {
         $rating = null;
         $node = $crawler->filter('.film__rating');
         if ($node->count() !== 0) {
-            $rating = $node->filter('.film-left__details > span')->text();
+            $rating = (float)$node->filter('.film-left__details > span')->text();
         }
 
         return $rating;

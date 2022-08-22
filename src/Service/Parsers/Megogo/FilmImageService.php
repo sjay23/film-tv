@@ -19,6 +19,8 @@ class FilmImageService implements FilmImageInterface
         CrawlerTrait::__construct as private __tConstruct;
     }
 
+    public const LANG_DEFAULT = 'en';
+
     private ValidatorInterface $validator;
 
     public function __construct(

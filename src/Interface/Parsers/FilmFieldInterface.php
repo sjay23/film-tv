@@ -10,7 +10,7 @@ interface FilmFieldInterface
 {
     public function parseAge(Crawler $crawler): ?string;
     public function parseFilmId(string $linkFilm): ?string;
-    public function parseRating(Crawler $crawler): ?string;
+    public function parseRating(Crawler $crawler): ?float;
     public function parseYear(Crawler $crawlerChild): ?string;
     public function parseDuration(Crawler $crawlerChild): ?int;
     public function parseCountry(Crawler $crawler): ?ArrayCollection;
