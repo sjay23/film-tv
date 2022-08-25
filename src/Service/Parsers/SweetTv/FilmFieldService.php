@@ -61,9 +61,13 @@ class FilmFieldService implements FilmFieldInterface
 
     public function parseDuration(Crawler $crawlerChild): ?int
     {
+        $time = null;
         $str = $crawlerChild->filter(' span.film-left__time')->text();
-        $a = preg_replace("/[^0-9]/", '', $str);
-        $time = ((substr($a, 0, 2)) * 60) + (substr($a, -2, 2));
+        if ($str !== 0) {
+            $a = preg_replace("/[^0-9]/", '', $str);
+            $time = ((substr($a, 0, 2)) * 60) + (substr($a, -2, 2));
+            return $time;
+        }
         return  $time;
     }
 

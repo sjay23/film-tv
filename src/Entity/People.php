@@ -31,7 +31,11 @@ use Symfony\Component\Uid\Uuid;
             'get',
             'post',
         ]
-    ]
+    ],
+    collectionOperations: [
+        'get','post',
+        'popular_actors' => ['route_name' => 'api_popular'],
+    ],
 )]
 class People
 {

@@ -39,4 +39,16 @@ class PeopleRepository extends ServiceEntityRepository
         }
     }
 
+    public function getPopularActor(): ?array
+    {
+        return $this->createQueryBuilder('p')
+            ->select('p')
+            ->leftJoin('p.filmActor', 'f')
+            ->groupBy('p.id')
+            ->orderBy('COUNT(f.id)', 'ASC')
+            ->setMaxResults(10)
+            ->getQuery()
+            ->getResult();
+    }
+
 }
