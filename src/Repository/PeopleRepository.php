@@ -43,9 +43,10 @@ class PeopleRepository extends ServiceEntityRepository
     {
         return $this->createQueryBuilder('p')
             ->select('p')
-            ->leftJoin('p.filmActor', 'f')
+            ->join('p.filmActor', 'f')
+            ->addSelect('COUNT(f.id) as countFilms')
             ->groupBy('p.id')
-            ->orderBy('COUNT(f.id)', 'ASC')
+            ->orderBy('COUNT(f.id)', 'DESC')
             ->setMaxResults(10)
             ->getQuery()
             ->getResult();
