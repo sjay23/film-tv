@@ -40,4 +40,4 @@ api_popular:
   defaults:
     _api_resource_class: App\Entity\People
     _api_collection_operation_name: popular_actors
-    _controller: '\App\Controller\PopularActorController::getPopularActors'
+    _controller: \App\Controller\PopularActorController::getPopularActors
