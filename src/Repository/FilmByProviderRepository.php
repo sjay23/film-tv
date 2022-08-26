@@ -71,4 +71,15 @@ class FilmByProviderRepository extends ServiceEntityRepository
             ->getResult();
     }
 
+    public function getFilmsByActor($people)
+    {
+        return $this->createQueryBuilder('f')
+            ->select('f')
+            ->join('f.actor', 'a')
+            ->where('a= :people')
+            ->setParameter('people', $people)
+            ->getQuery()
+            ->getResult();
+    }
+
 }

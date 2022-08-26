@@ -20,7 +20,18 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[ApiResource(
     itemOperations: [
         'get',
-        'delete'
+        'film_by_actor' => [
+            'method' => 'GET',
+            'route_name' => 'api_film_by_actor',
+            'openapi_context' => [
+                'summary' => 'Get film labels',
+                'description' => 'Get film labels'
+            ],
+            'normalization_context' => [
+                'groups' => ['get'],
+            ],
+        ],
+        'delete',
     ],
     denormalizationContext: [
         'groups' => [

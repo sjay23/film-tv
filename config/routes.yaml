@@ -41,3 +41,10 @@ api_popular:
     _api_resource_class: App\Entity\People
     _api_collection_operation_name: popular_actors
     _controller: \App\Controller\Admin\PopularActorController::getPopularActors
+api_film_by_actor:
+  path: /api/people/{id}/films
+  methods: ['GET']
+  defaults:
+    _api_resource_class: App\Entity\FilmByProvider
+    _api_collection_operation_name: film_by_actor
+    _controller: \App\Controller\Admin\PopularActorController::getFilmByActor

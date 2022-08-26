@@ -2,15 +2,33 @@
 
 namespace App\Controller\Admin;
 
+use App\Entity\FilmByProvider;
 use App\Entity\People;
 use App\Repository\PeopleRepository;
+use App\Repository\FilmByProviderRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Routing\Annotation\Route;
 
 class PopularActorController extends AbstractController
 {
-    public function getPopularActors( PeopleRepository $peopleRepository): array
+
+    public function __construct(
+        PeopleRepository $peopleRepository,
+        FilmByProviderRepository $filmByProviderRepository,
+    )
     {
-        return $peopleRepository->getPopularActor();
+        $this->peopleRepository = $peopleRepository;
+        $this->filmByProviderRepository = $filmByProviderRepository;
     }
+
+    public function getPopularActors(): array
+    {
+        return $this->peopleRepository->getPopularActor();
+    }
+
+    public function getFilmByActor($id): array
+    {
+        $people = $this->peopleRepository->findOneBy(['id'=>$id]);
+        return $this->filmByProviderRepository->getFilmsByActor($people);
+    }
+
 }
