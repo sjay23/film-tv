@@ -42,7 +42,7 @@ class PeopleRepository extends ServiceEntityRepository
     public function getPopularActor(): ?array
     {
         return $this->createQueryBuilder('p')
-            ->select('p')
+            ->select('p as actor')
             ->join('p.filmActor', 'f')
             ->addSelect('COUNT(f.id) as countFilms')
             ->groupBy('p.id')
