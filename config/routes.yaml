@@ -48,3 +48,11 @@ api_film_by_actor:
     _api_resource_class: App\Entity\FilmByProvider
     _api_collection_operation_name: film_by_actor
     _controller: \App\Controller\Admin\PopularActorController::getFilmByActor
+api_film_by_parameter:
+  path: /api/film/
+  methods: ['GET']
+  defaults:
+    _api_resource_class: App\Entity\FilmByProvider
+    _api_collection_operation_name: film_by_parameter
+    _controller: \App\Controller\Admin\PopularActorController::getFilmByParameter
+

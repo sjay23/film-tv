@@ -47,7 +47,16 @@ services:
       PMA_HOST: mysql
     ports:
       - "3128:80"
-################################## environment
+
+  redis:
+    image: redis
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - 6379:6379
+
 volumes:
   mysql-data:
   mysql-log:
+

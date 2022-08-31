@@ -18,6 +18,68 @@ use Symfony\Component\Serializer\Annotation\Groups;
  * @ORM\Table(name="film_by_provider")
  */
 #[ApiResource(
+    collectionOperations: [
+        'film_by_parameter' => [
+            'route_name' => 'api_film_by_parameter',
+            'openapi_context' => [
+                'parameters' => [
+                    [
+                        'name' => 'year',
+                        'schema' => [
+                            'type' => 'int'
+                        ],
+                        'in' => 'query'
+                    ],
+                    [
+                        'name' => 'genre_name',
+                        'schema' => [
+                            'type' => 'string'
+                        ],
+                        'in' => 'query'
+                    ],
+                    [
+                        'name' => 'actor_name',
+                        'schema' => [
+                            'type' => 'string'
+                        ],
+                        'in' => 'query'
+                    ],
+                    [
+                        'name' => 'director_name',
+                        'schema' => [
+                            'type' => 'string'
+                        ],
+                        'in' => 'query'
+                    ],
+                    [
+                        'name' => 'rating',
+                        'schema' => [
+                            'type' => 'float'
+                        ],
+                        'in' => 'query'
+                    ],
+                    [
+                        'name' => 'lang_audio',
+                        'schema' => [
+                            'type' => 'string'
+                        ],
+                        'in' => 'query'
+                    ],
+                    [
+                        'name' => 'sort_by',
+                        'schema' => [
+                            'type' => 'string'
+                        ],
+                        'in' => 'query',
+                        'description' => 'Example: id_asc, id_desc, year_asc, year_desc'
+                    ],
+                ],
+                'summary' => 'Get all films',
+                'description' => 'Get all films'
+            ],
+            'method' => 'GET',
+        ],
+    ],
     itemOperations: [
         'get',
         'film_by_actor' => [
