@@ -22,7 +22,7 @@ class MegogoService extends MainParserService
      * @throws GuzzleException
      * @throws Exception
      */
-    protected function parserPages(): void
+    public function parserPages(): void
     {
         try {
             $this->parseFilmsByPage($this->getDefaultLink());

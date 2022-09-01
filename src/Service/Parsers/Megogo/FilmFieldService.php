@@ -36,15 +36,15 @@ class FilmFieldService implements FilmFieldInterface
         return $crawler->filter('.videoInfoPanel-age-limit')->text();
     }
 
-    public function parseRating(Crawler $crawler): ?string
+    public function parseRating(Crawler $crawler): ?float
     {
         $rating = null;
         $node = $crawler->filter('.videoInfoPanel-rating');
         if ($node->count() !== 0) {
-            $rating = $node->filter('span.value')->text();
+            $rating = (float)$node->filter('span.value')->text();
         }
 
-        return $rating;
+        return  $rating;
     }
 
     public function parseYear(Crawler $crawlerChild): ?string

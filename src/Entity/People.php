@@ -9,13 +9,25 @@ use Symfony\Component\Serializer\Annotation\Groups;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\JoinTable;
-use Symfony\Component\Uid\Uuid;
 
 /**
  * @ORM\Entity(repositoryClass=PeopleRepository::class)
  * @ORM\Table(name="`people`")
  */
 #[ApiResource(
+    collectionOperations: [
+        'popular_actors' => [
+            'method' => 'GET',
+            'route_name' => 'api_popular',
+            'openapi_context' => [
+                'summary' => 'Get top labels',
+                'description' => 'Get top labels'
+            ],
+            'normalization_context' => [
+                'groups' => ['get'],
+            ],
+        ],
+    ],
     itemOperations: [
         'get',
         'delete'
@@ -31,7 +43,8 @@ use Symfony\Component\Uid\Uuid;
             'get',
             'post',
         ]
-    ]
+    ],
+
 )]
 class People
 {
