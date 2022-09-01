@@ -82,34 +82,34 @@ class FilmByProviderRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    public function setSearchGenre($queryParameter, $qb)
+    private function setSearchGenre($queryParameter, $qb)
     {
         $qb->andWhere('g.name = :genre_name');
         $qb->setParameter('genre_name', $queryParameter->getGenreName());
         return $qb;
     }
 
-    public function setSearchActor($queryParameter, $qb)
+    private function setSearchActor($queryParameter, $qb)
     {
         $qb->andWhere('a.name LIKE :actor_name');
         $qb->setParameter('actor_name', '%' . $queryParameter->getActorName() . '%');
         return $qb;
     }
 
-    public function setSearchDirector($queryParameter, $qb)
+    private function setSearchDirector($queryParameter, $qb)
     {
         $qb->andWhere('d.name LIKE :director_name');
         $qb->setParameter('director_name', '%' . $queryParameter->getDirectorName() . '%');
         return $qb;
     }
 
-    public function setSearchAudio($queryParameter, $qb)
+    private function setSearchAudio($queryParameter, $qb)
     {
         $qb->andWhere('au.name = :lang_audio');
         $qb->setParameter('lang_audio', $queryParameter->getAudioLang());
         return $qb;
     }
-    public function setSort($qb, $orderBy)
+    private function setSort($qb, $orderBy)
     {
         if ($orderBy == 'id_asc') {
             $qb->orderBy('f.id', 'ASC');

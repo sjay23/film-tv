@@ -7,9 +7,9 @@ use App\Repository\PeopleRepository;
 use App\Repository\FilmByProviderRepository;
 use Symfony\Component\Cache\Adapter\AdapterInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Knp\Component\Pager\PaginatorInterface;
 
 class PopularActorController extends AbstractController
 {
@@ -19,13 +19,15 @@ class PopularActorController extends AbstractController
         ValidatorInterface $validator,
         PeopleRepository $peopleRepository,
         FilmByProviderRepository $filmByProviderRepository,
-        AdapterInterface $cache
+        AdapterInterface $cache,
+        PaginatorInterface $paginator
     )
     {
         $this->validator = $validator;
         $this->peopleRepository = $peopleRepository;
         $this->filmByProviderRepository = $filmByProviderRepository;
         $this->cache = $cache;
+        $this->paginator = $paginator;
     }
 
     public function getPopularActors()
@@ -41,7 +43,7 @@ class PopularActorController extends AbstractController
 
     public function getFilmByActor($id): array
     {
-        $people = $this->peopleRepository->findOneBy(['id'=>$id]);
+        $people = $this->peopleRepository->findOneBy(['id' => $id]);
         return $this->filmByProviderRepository->getFilmsByActor($people);
     }
 
@@ -56,8 +58,12 @@ class PopularActorController extends AbstractController
         $queryParameter->setSortBy($request->get('sort_by'));
         $queryParameter->setYear($request->get('year'));
         $this->validator->validate($queryParameter);
+        $appointments = $this->paginator->paginate(
+            $this->filmByProviderRepository->getFilmsByFilters($queryParameter),
+            $request->query->getInt('page', 1),
+            5
+        );
 
-        return  $this->filmByProviderRepository->getFilmsByFilters($queryParameter);
+        return $appointments;
     }
-
 }
