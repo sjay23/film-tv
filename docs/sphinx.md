@@ -17,10 +17,11 @@
             ->getResults();
         return $results ;
 ``` 
-3. В терминале выполнить :
+3. Выполнить в контейнере sphinx :
 ``` 
     /usr/bin/indexer --all --rotate
 ``` 
+4. В терминале выполнить :
 ``` 
     docker-compose stop sphinx
 ```
