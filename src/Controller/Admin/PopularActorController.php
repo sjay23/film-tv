@@ -50,6 +50,7 @@ class PopularActorController extends AbstractController
     public function getFilmByParameter(Request $request)
     {
         $queryParameter = new QueryParameter();
+        $queryParameter->setWord($request->get('word'));
         $queryParameter->setActorName($request->get('actor_name'));
         $queryParameter->setAudioLang($request->get('lang_audio'));
         $queryParameter->setDirectorName($request->get('director_name'));
