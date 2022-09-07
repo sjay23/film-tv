@@ -32,6 +32,13 @@ class QueryParameter
      * @var string|null
      * @Assert\Positive
      */
+    private $word;
+
+
+    /**
+     * @var string|null
+     * @Assert\Positive
+     */
     private $actorName;
 
     /**
@@ -168,6 +175,22 @@ class QueryParameter
     public function setSortBy(?string $sortBy): void
     {
         $this->sortBy = $sortBy;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getWord(): ?string
+    {
+        return $this->word;
+    }
+
+    /**
+     * @param string|null $word
+     */
+    public function setWord(?string $word): void
+    {
+        $this->word = $word;
     }
 
 }

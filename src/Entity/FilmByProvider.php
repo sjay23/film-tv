@@ -24,6 +24,13 @@ use Symfony\Component\Serializer\Annotation\Groups;
             'openapi_context' => [
                 'parameters' => [
                     [
+                        'name' => 'word',
+                        'schema' => [
+                            'type' => 'string'
+                        ],
+                        'in' => 'query'
+                    ],
+                    [
                         'name' => 'year',
                         'schema' => [
                             'type' => 'int'

@@ -7,6 +7,7 @@ use App\Entity\FilmByProviderTranslation;
 use App\Entity\Provider;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * @extends ServiceEntityRepository<FilmByProvider>
@@ -18,8 +19,9 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class FilmByProviderRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
+    public function __construct(ManagerRegistry $registry, ContainerInterface $container)
     {
+        $this->container = $container;
         parent::__construct($registry, FilmByProvider::class);
     }
 
@@ -126,6 +128,17 @@ class FilmByProviderRepository extends ServiceEntityRepository
         return $qb;
     }
 
+    private function getFilmsByWord($queryParameter)
+    {
+        $results = $this->container->get('sphinx')
+            ->createQuery()
+            ->select('id')
+            ->from('plain_films')
+            ->match(['title','year','description'], $queryParameter->getWord())
+            ->getResults();
+        return $results ;
+    }
+
     public function getFilmsByFilters($queryParameter)
     {
         $qb = $this->createQueryBuilder('f')
@@ -134,6 +147,15 @@ class FilmByProviderRepository extends ServiceEntityRepository
             ->join('f.director', 'd')
             ->join('f.genre', 'g')
             ->join('f.audio', 'au');
+
+        if ($queryParameter->getWord()) {
+            if (!$ids = $this->getFilmsByWord($queryParameter)) {
+                return [];
+            }
+            $qb->andWhere('f.id IN (:ids)');
+            $qb->setParameter('ids', $ids);
+        }
+
         if ($queryParameter->getYear()) {
             $qb->andWhere('f.year = :year');
             $qb->setParameter('year', $queryParameter->getYear());
@@ -157,6 +179,7 @@ class FilmByProviderRepository extends ServiceEntityRepository
         if ($orderBy = $queryParameter->getSortBy()) {
             $this->setSort($qb, $orderBy);
         }
-        return $qb->getQuery()->getResult();
+        $films = $qb->getQuery()->getResult();
+        return $films;
     }
 }

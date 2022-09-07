@@ -56,6 +56,27 @@ services:
     ports:
       - 6379:6379
 
+  sphinx:
+    container_name: manticore
+    image: manticoresearch/manticore
+    restart: always
+    ports:
+      - 127.0.0.1:9306:9306
+      - 127.0.0.1:9308:9308
+    ulimits:
+      nproc: 65535
+      nofile:
+        soft: 65535
+        hard: 65535
+      memlock:
+        soft: -1
+        hard: -1
+    environment:
+      - MCL=1
+    volumes:
+      - ./data:/var/lib/manticore
+      - ./docker/sphinx/manticore.conf:/etc/manticoresearch/manticore.conf # uncommment if you use a custom config
+
 volumes:
   mysql-data:
   mysql-log:
