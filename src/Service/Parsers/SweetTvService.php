@@ -7,6 +7,7 @@ namespace App\Service\Parsers;
 use App\Entity\Provider;
 use Exception;
 use GuzzleHttp\Exception\GuzzleException;
+use JetBrains\PhpStorm\ArrayShape;
 use Symfony\Component\DomCrawler\Crawler;
 
 /**
@@ -16,54 +17,48 @@ class SweetTvService extends MainParserService
 {
     protected string $parserName = Provider::SWEET_TV;
     protected string $defaultLink = 'https://sweet.tv/en/movies/all-movies/sort=5';
+    protected int $countFilmsOnPage = 30;
+    protected string $firstPage = '1';
 
     /**
-     * @return void
-     * @throws GuzzleException
+     * @param Crawler|null $crawler
+     * @return Crawler
      */
-    public function parserPages(): void
+    protected function getNodeFilms(?Crawler $crawler): Crawler
     {
-        $html = $this->getContentLink($this->getDefaultLink());
-        $crawler = $this->getCrawler($html);
-        $pageMax = (int)$crawler->filter('.pagination li')->last()->text();
-        $page = 1;
-        $this->taskService->setWorkStatus($this->task);
-        while ($page <= $pageMax) {
-            try {
-                $this->parseFilmsByPage($this->getDefaultLink() . '/page/$page', $page);
-            } catch (Exception $e) {
-                $this->taskService->setErrorStatus($this->task, $e->getMessage());
-                throw new Exception($e->getMessage());
-            }
-            $page++;
-        }
+        return $crawler->filter('.movie__item-link');
     }
 
     /**
-     * @param string $linkByFilms
-     * @param int $page
-     * @return void
-     * @throws GuzzleException
-     * @throws Exception
+     * @param Crawler|null $crawler
+     * @param string|null $previousPage
+     * @return string
      */
-    protected function parseFilmsByPage(string $linkByFilms, int $page): void
+    protected function getNextPageToken(?Crawler $crawler, ?string $previousPage = null): string
     {
-        $crawler = $this->getPageCrawler($linkByFilms, $page);
-        $crawler->filter('.movie__item-link')->each(function ($node) {
-            $this->addFilmInput($node);
-        });
+        $pageInt = intval($previousPage);
+        $pageInt++;
+        return (string) $pageInt;
     }
 
     /**
      * @param $linkByFilms
-     * @param $page
      * @return Crawler
      * @throws GuzzleException
      */
-    protected function getPageCrawler($linkByFilms, $page): Crawler
+    protected function getPageCrawler($linkByFilms): Crawler
     {
-        $link = str_replace('$page', (string)$page, $linkByFilms);
-        $html = $this->getContentLink($link);
+        $html = $this->getContentLink($linkByFilms);
         return $this->getCrawler($html);
+    }
+
+    /**
+     * @param string $nextPageToken
+     * @return string
+     * @throws Exception
+     */
+    protected function getNextPageLink(string $nextPageToken): string
+    {
+        return str_replace('$page', $nextPageToken, $this->getDefaultLink() . '/page/$page');
     }
 }

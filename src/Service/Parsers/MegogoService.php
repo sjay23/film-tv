@@ -16,73 +16,57 @@ class MegogoService extends MainParserService
 {
     protected string $parserName = Provider::MEGOGO;
     protected string $defaultLink = 'https://megogo.net/en/search-extended?category_id=16&main_tab=filters&sort=add&ajax=true&origin=/en/search-extended?category_id=16&main_tab=filters&sort=add&widget=widget_58';
+    protected int $countFilmsOnPage = 30;
+    protected string $firstPage = '';
 
-    /**
-     * @return void
-     * @throws GuzzleException
-     * @throws Exception
-     */
-    public function parserPages(): void
+    protected function isItemFilm(Crawler $node): bool
     {
-        try {
-            $this->parseFilmsByPage($this->getDefaultLink());
-        } catch (Exception $e) {
-            $this->taskService->setErrorStatus($this->task, $e->getMessage());
-            throw new Exception($e->getMessage());
-        }
+        return (
+            !str_contains($node->link()->getUri(), 'treyler')
+            and !str_contains($node->link()->getUri(), 'trailer')
+        );
     }
 
     /**
-     * @param string $linkByFilms
-     * @return void
-     * @throws GuzzleException
-     * @throws Exception
+     * @param Crawler|null $crawler
+     * @return Crawler
      */
-    protected function parseFilmsByPage(string $linkByFilms): void
+    protected function getNodeFilms(?Crawler $crawler): Crawler
     {
-        $crawler = $this->getPageCrawler($linkByFilms);
-        $crawler->filter('div.thumbnail div.thumb a')->each(function ($node) {
-
-            if (
-                !str_contains($node->link()->getUri(), 'treyler')
-                and !str_contains($node->link()->getUri(), 'trailer')
-            ) {
-                $this->addFilmInput($node);
-            }
-        });
-        $this->parseFilmsByPage($this->getNextPageLink($this->getNextPageToken($crawler)));
+        return $crawler->filter('div.thumbnail div.thumb a');
     }
 
     /**
-     * @param $crawler
+     * @param Crawler|null $crawler
+     * @param string|null $previousPage
      * @return string
      */
-    private function getNextPageToken($crawler): string
+    protected function getNextPageToken(?Crawler $crawler, ?string $previousPage = null): string
     {
         return $crawler->filter('div.pagination-more a.link-gray ')->attr('data-page-more');
     }
 
     /**
-     * @param $linkByFilms
-     * @param null $page
+     * @param string $linkByFilms
      * @return Crawler
      * @throws GuzzleException
      */
-    protected function getPageCrawler($linkByFilms, $page = null): Crawler
+    protected function getPageCrawler(string $linkByFilms): Crawler
     {
         $html = $this->getContentLink($linkByFilms);
-        if ($linkByFilms === $this->getDefaultLink()) {
-            $html = str_replace('\"', '', $html);
-        }
+        $htmlJson  = json_decode($html);
+        $html = $htmlJson->data->widgets->widget_58->html;
+
         return $this->getCrawler($html);
     }
 
     /**
-     * @param $nextPageToken
+     * @param string $nextPageToken
      * @return string
+     * @throws Exception
      */
-    private function getNextPageLink($nextPageToken): string
+    protected function getNextPageLink(string $nextPageToken): string
     {
-        return str_replace('TOKEN', $nextPageToken, $this->getDefaultLink());
+        return str_replace('TOKEN', $nextPageToken, $this->getDefaultLink() . '&pageToken=TOKEN');
     }
 }

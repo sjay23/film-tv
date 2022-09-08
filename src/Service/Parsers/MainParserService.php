@@ -18,6 +18,8 @@ use App\Utility\CrawlerTrait;
 use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
+use JetBrains\PhpStorm\ArrayShape;
+use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 abstract class MainParserService
@@ -72,12 +74,53 @@ abstract class MainParserService
         $this->filmByProviderService = $filmByProviderService;
         $this->filmByProviderRepository = $filmByProviderRepository;
     }
-    abstract protected function getPageCrawler(string $linkByFilms, int $page);
-    abstract protected function parserPages();
+    abstract protected function getPageCrawler(string $linkByFilms);
+    abstract protected function getNextPageLink(string $nextPageToken): string;
+    abstract protected function getNodeFilms(?Crawler $crawler): Crawler;
 
+    /**
+     * @return void
+     * @throws Exception|GuzzleException
+     */
+    public function parserPages(): void
+    {
+        $countFilms = $this->countFilmsOnPage;
+        $this->taskService->setWorkStatus($this->task);
+        $page = $this->firstPage;
+        while ($countFilms == $this->countFilmsOnPage) {
+            try {
+                $dataFilms = $this->parseFilmsByPage($page);
+                $countFilms = $dataFilms['count'];
+            } catch (Exception $e) {
+                $this->taskService->setErrorStatus($this->task, $e->getMessage());
+                throw new Exception($e->getMessage());
+            }
+            $page = $dataFilms['nextToken'];
+        }
+    }
+
+    /**
+     * @param string $page
+     * @return array
+     * @throws Exception|GuzzleException
+     */
+    #[ArrayShape(['count' => 'int', 'nextToken' => 'string'])]
+    protected function parseFilmsByPage(string $page): array
+    {
+        $nextLink = $this->getNextPageLink($page);
+        $crawler = $this->getPageCrawler($nextLink);
+        $films = $this->getNodeFilms($crawler)->each(function ($node) {
+            if ($this->isItemFilm($node)) {
+                $this->addFilmInput($node);
+            }
+        });
+
+        return ['count' => count($films), 'nextToken' => $this->getNextPageToken($crawler, $page)];
+    }
 
     /**
      * @return string
+     * @throws Exception
      */
     protected function getDefaultLink(): string
     {
@@ -89,6 +132,7 @@ abstract class MainParserService
 
     /**
      * @return string
+     * @throws Exception
      */
     public function getParserName(): string
     {
@@ -120,6 +164,7 @@ abstract class MainParserService
 
     /**
      * @return CommandTask|null
+     * @throws Exception
      */
     protected function getTask(): ?CommandTask
     {
@@ -201,7 +246,7 @@ abstract class MainParserService
             throw new Exception('Task is stop manual.');
         }
         $filmInput = new FilmInput();
-        $linkFilm = $node->link()->getUri();
+        $linkFilm = $this->filmFieldService->parseLink($node);
         $filmInput->setLink($linkFilm);
         $movieId = $this->filmFieldService->parseFilmId($linkFilm);
         $posterInput = $this->filmImageService->parseImage($node);
@@ -223,5 +268,10 @@ abstract class MainParserService
             $film = $this->filmByProviderService->addFilmByProvider($filmInput);
         }
         $this->taskService->updateTask($film, $this->task);
+    }
+
+    protected function isItemFilm(Crawler $node): bool
+    {
+        return true;
     }
 }
