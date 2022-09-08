@@ -76,6 +76,7 @@ abstract class MainParserService
     }
     abstract protected function getPageCrawler(string $linkByFilms);
     abstract protected function getNextPageLink(string $nextPageToken): string;
+    abstract protected function getNextPageToken(?Crawler $crawler, ?string $previousPage = null): string;
     abstract protected function getNodeFilms(?Crawler $crawler): Crawler;
 
     /**
