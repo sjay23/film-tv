@@ -12,6 +12,9 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 
+/**
+ *
+ */
 class ParserCommand extends Command
 {
     protected static $defaultName = 'app:parser';
@@ -26,17 +29,19 @@ class ParserCommand extends Command
      */
     private SweetTvService $sweetTvService;
 
+    /**
+     * @var ExecParserService
+     */
+    private ExecParserService $execParserService;
+
     public function __construct(
-        TaskService $taskService,
         SweetTvService $sweetTvService,
         MegogoService $megogoService,
-        ProviderRepository $providerRepository,
-
+        ExecParserService $execParserService,
     ) {
-        $this->taskService = $taskService;
         $this->sweetTvService = $sweetTvService;
         $this->megogoService = $megogoService;
-        $this->providerRepository = $providerRepository;
+        $this->execParserService = $execParserService;
         parent::__construct();
     }
 
@@ -62,12 +67,10 @@ class ParserCommand extends Command
         ]);
         switch ($name) {
             case $this->megogoService->getParserName():
-                $class = new ExecParserService($this->megogoService, $this->taskService ,$this->providerRepository);
-                $class->exec();
+                $this->execParserService->exec($this->megogoService);
                 break;
             case $this->sweetTvService->getParserName():
-                $class = new ExecParserService($this->sweetTvService, $this->taskService,$this->providerRepository);
-                $class->exec();
+                $this->execParserService->exec($this->sweetTvService);
                 break;
         }
 

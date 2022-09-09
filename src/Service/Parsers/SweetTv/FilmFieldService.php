@@ -31,6 +31,10 @@ class FilmFieldService implements FilmFieldInterface
         return $matches[1][0];
     }
 
+    public function parseLink(Crawler $crawler): ?string
+    {
+        return $crawler->link()->getUri();
+    }
 
     public function parseAge(Crawler $crawler): ?string
     {

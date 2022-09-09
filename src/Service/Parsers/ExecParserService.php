@@ -10,28 +10,37 @@ use App\Repository\ProviderRepository;
 use App\Service\TaskService;
 use Exception;
 
-class ExecParserService
+final class ExecParserService
 {
+    private TaskService $taskService;
+    private ProviderRepository $providerRepository;
+    private ?CommandTask $task;
+
+    /**
+     * @throws Exception
+     */
     public function __construct(
-        $parser,
         TaskService $taskService,
         ProviderRepository $providerRepository,
-    )
-    {
-        $this->parser = $parser;
+    ) {
         $this->taskService = $taskService;
         $this->providerRepository = $providerRepository;
-        $this->task = $this->getTask();
     }
 
-    public function exec(): void
+    /**
+     * @param MainParserService $parser
+     * @return void
+     * @throws Exception
+     */
+    public function exec(MainParserService $parser): void
     {
+        $this->setTask($parser);
         $this->taskService->updateCountTask($this->task);
         if ($this->task->getStatus() == 1) {
             throw new Exception('Task is running.');
         }
         $this->taskService->setWorkStatus($this->task);
-        $this->parser->parserPages();
+        $parser->parserPages();
         $this->taskService->setNotWorkStatus($this->task);
     }
 
@@ -45,10 +54,12 @@ class ExecParserService
     }
 
     /**
-     * @return CommandTask|null
+     * @param MainParserService $parser
+     * @return void
+     * @throws Exception
      */
-    protected function getTask(): ?CommandTask
+    protected function setTask(MainParserService $parser): void
     {
-        return $this->taskService->getTask($this->getProvider($this->parser->getParserName()));
+        $this->task = $this->taskService->getTask($this->getProvider($parser->getParserName()));
     }
 }
