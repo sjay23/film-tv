@@ -10,7 +10,7 @@ class PeopleTest extends TestMain
 {
     public function testPeopleCollection(): void
     {
-        $this->getCollection('/api/genres', People::class);
+        $this->getCollection('/api/people/actors/popular', People::class);
     }
 
 

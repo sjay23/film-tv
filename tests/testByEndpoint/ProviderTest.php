@@ -11,7 +11,7 @@ class ProviderTest extends TestMain
 
     public function testProviderCollection(): void
     {
-        $this->getCollection('/api/genres', Provider::class);
+        $this->getCollection('/api/providers', Provider::class);
     }
 
 
