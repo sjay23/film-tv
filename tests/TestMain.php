@@ -3,10 +3,9 @@
 namespace App\Tests;
 
 use ApiPlatform\Core\Bridge\Symfony\Bundle\Test\ApiTestCase as SymfonyApiTestCase;
-use App\Entity\Genre;
 
 
-class GenreTest extends SymfonyApiTestCase
+class TestMain extends SymfonyApiTestCase
 {
 
 
@@ -16,17 +15,19 @@ class GenreTest extends SymfonyApiTestCase
         $this->userToken = $this->createJwtToken('test@jelvix.com', 'ROLE_SUPER_ADMIN');
     }
 
-    public function testGetCollection(): void
+    public function getCollection($url ,$entity): void
     {
-        $response = static::createClient()->request('GET', '/api/genres', [
+        $response = static::createClient()->request('GET', $url, [
             'headers' => [
+                'Authorization' => 'Bearer ' .  $this->userToken,
                 'Content-Type' => 'application/json',
                 'Accept' => '*/*'
             ]]);
         $this->assertResponseIsSuccessful();
         $this->assertResponseHeaderSame('content-type', 'application/json; charset=utf-8');
-        $this->assertMatchesResourceCollectionJsonSchema(Genre::class);
+        $this->assertMatchesResourceCollectionJsonSchema($entity);
     }
+
 
     /**
      * @param string $username
