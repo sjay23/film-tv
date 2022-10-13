@@ -60,6 +60,7 @@
 # Embedded web-server pid file
 /.web-server-pid
 
+.phpunit.result.cache
 .env
 .env.local
 .env.test
