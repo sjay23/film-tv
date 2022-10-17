@@ -13,6 +13,9 @@ class AudioTest extends TestMain
         $this->getCollection('/api/audio', Audio::class);
     }
 
-
+    public function testAudioRecord(): void
+    {
+        $this->getRecord(Audio::class);
+    }
 
 }
