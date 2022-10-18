@@ -15,7 +15,7 @@ class TestMain extends SymfonyApiTestCase
         $this->userToken = $this->createJwtToken('test@jelvix.com', 'ROLE_SUPER_ADMIN');
 
         $kernel = self::bootKernel();
-        DatabasePrimer::prime($kernel);
+        //DatabasePrimer::prime($kernel);
         $this->entityManager = $kernel->getContainer()->get('doctrine')->getManager();
         $this->router = $kernel->getContainer()->get('router');
     }

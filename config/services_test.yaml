@@ -1,0 +1,6 @@
+doctrine:
+  dbal:
+services:
+  _defaults:
+    public: true
+
