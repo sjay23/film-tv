@@ -45,6 +45,7 @@ services:
       - .env
     environment:
       PMA_HOST: mysql
+      UPLOAD_LIMIT: 102400K
     ports:
       - "3128:80"
 
