@@ -3,6 +3,8 @@
 namespace App\Tests;
 
 use ApiPlatform\Core\Bridge\Symfony\Bundle\Test\ApiTestCase as SymfonyApiTestCase;
+use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
+use Symfony\Contracts\HttpClient\ResponseInterface;
 
 
 class TestMain extends SymfonyApiTestCase
@@ -11,6 +13,11 @@ class TestMain extends SymfonyApiTestCase
     {
         $this->client = static::createClient();
         $this->userToken = $this->createJwtToken('test@jelvix.com', 'ROLE_SUPER_ADMIN');
+
+        $kernel = self::bootKernel();
+        DatabasePrimer::prime($kernel);
+        $this->entityManager = $kernel->getContainer()->get('doctrine')->getManager();
+        $this->router = $kernel->getContainer()->get('router');
     }
 
     public function sendGetUri($url)
@@ -21,6 +28,33 @@ class TestMain extends SymfonyApiTestCase
                 'Content-Type' => 'application/json',
                 'Accept' => '*/*'
             ]]);
+        $this->assertResponseIsSuccessful();
+        $this->assertResponseHeaderSame('content-type', 'application/json; charset=utf-8');
+        return $response;
+    }
+
+    /**
+     * @param string $iri
+     * @param array $data
+     * @return ResponseInterface
+     * @throws TransportExceptionInterface
+     */
+    protected function sendPostUri(string $iri, array $data = []): ResponseInterface
+    {
+        $extra = [];
+        if (!empty($data)) {
+            $extra['parameters'] = $data;
+        }
+
+        $response = $this->client->request('POST', $iri, [
+            'headers' => [
+                'Authorization' => 'Bearer ' . $this->userToken,
+                'Content-Type' => 'application/json',
+                'Accept' => '*/*'
+            ],
+            'extra' => $extra
+        ]);
+
         $this->assertResponseIsSuccessful();
         $this->assertResponseHeaderSame('content-type', 'application/json; charset=utf-8');
         return $response;
