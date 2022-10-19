@@ -39,11 +39,38 @@ class AudioTest extends TestMain
         ]);
 
         $responseRecord = json_decode($response->getContent());
-
         /**
          * @var Audio $audioRecord
          */
         $audioRecord = $this->audioRepository->findOneBy(['id' => $responseRecord->id]);
+
+        $audioId = $audioRecord->getId();
+        $testUri = static::findIriBy(Audio::class, ['id' => $audioId]);
+        if ($testUri) {
+            $this->sendGetUri($testUri);
+        }
+
+        $this->assertMatchesResourceItemJsonSchema(Audio::class);
+        $this->assertEquals('test title', $audioRecord->getName());
+    }
+
+    public function testUpdateAudio(): void
+    {
+        $audioUri = $this->router->generate('update_audio',['id'=>20]);
+
+        /**
+         * Insert Audio
+         */
+        $response = $this->sendPostUriForUpdate($audioUri, [
+            'name' => 'test title'
+        ]);
+
+        $responseRecord = json_decode($response->getContent());
+        /**
+         * @var Audio $audioRecord
+         */
+        $audioRecord = $this->audioRepository->findOneBy(['id' => $responseRecord->id]);
+
         $audioId = $audioRecord->getId();
         $testUri = static::findIriBy(Audio::class, ['id' => $audioId]);
         if ($testUri) {

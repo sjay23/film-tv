@@ -60,6 +60,33 @@ class TestMain extends SymfonyApiTestCase
         return $response;
     }
 
+    /**
+     * @param string $iri
+     * @param array $data
+     * @return ResponseInterface
+     * @throws TransportExceptionInterface
+     */
+    protected function sendPostUriForUpdate(string $iri, array $data = []): ResponseInterface
+    {
+        $extra = [];
+        if (!empty($data)) {
+            $extra['parameters'] = $data;
+        }
+
+        $response = $this->client->request('PATCH', $iri, [
+            'headers' => [
+                'Authorization' => 'Bearer ' . $this->userToken,
+                'Content-Type' => 'application/json',
+                'Accept' => '*/*'
+            ],
+            'extra' => $extra
+        ]);
+
+        $this->assertResponseIsSuccessful();
+        $this->assertResponseHeaderSame('content-type', 'application/json; charset=utf-8');
+        return $response;
+    }
+
     public function getCollection($url, $entity): void
     {
         $this->sendGetUri($url);
@@ -68,11 +95,17 @@ class TestMain extends SymfonyApiTestCase
 
     public function getRecord($entity): void
     {
-        $iri = static::findIriBy($entity, []);
+        $iri = $this->getIri($entity);
         if ($iri) {
             $this->sendGetUri($iri);
         }
         $this->assertMatchesResourceItemJsonSchema($entity);
+    }
+
+
+    public function getIri($entity)
+    {
+        return static::findIriBy($entity, []);
     }
 
     /**

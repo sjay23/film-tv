@@ -26,6 +26,14 @@ add_genre:
     _api_item_operation_name: add_genre
     _api_receive: false
     _controller: App\Controller\GenreController::addGenre
+update_audio:
+  path: /api/audios/{id}/update
+  methods: ['PATCH']
+  defaults:
+    _api_resource_class: App\Entity\Audio
+    _api_item_operation_name: update_audio
+    _api_receive: false
+    _controller: App\Controller\AudioController::updateAudio
 add_audio:
   path: /api/audios
   methods: ['POST']

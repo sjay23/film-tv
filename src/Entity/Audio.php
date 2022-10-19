@@ -44,6 +44,26 @@ use Symfony\Component\Serializer\Annotation\Groups;
     ],
     itemOperations: [
         'get',
+        'update_audio' => [
+            'route_name' => 'update_audio',
+            'method' => 'PATCH',
+            'openapi_context' => [
+                'requestBody' => [
+                    'content' => [
+                        'application/x-www-form-urlencoded' => [
+                            'schema' => [
+                                'type' => 'object',
+                                'properties' => [
+                                    'name' => [
+                                        'type' => 'string',
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ]
+                ]
+            ]
+        ],
         'delete'
     ],
     denormalizationContext: [
@@ -58,8 +78,6 @@ use Symfony\Component\Serializer\Annotation\Groups;
             'post',
         ]
     ],
-
-
 )]
 class Audio
 {
