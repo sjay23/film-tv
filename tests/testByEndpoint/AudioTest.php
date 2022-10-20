@@ -8,13 +8,13 @@ use App\Tests\TestMain;
 
 class AudioTest extends TestMain
 {
-
     protected function setUp(): void
     {
         parent::setUp();
 
         $this->audioRepository = $this->entityManager
             ->getRepository(Audio::class);
+        $this->idRecord = $this->audioRepository->findOneBy([])->getId();
     }
 
     public function testAudioCollection(): void
@@ -27,7 +27,7 @@ class AudioTest extends TestMain
         $this->getRecord(Audio::class);
     }
 
-    public function testAddAudioRecord(): void
+    public function testAddAudioRecord()
     {
         $audioUri = $this->router->generate('add_audio');
 
@@ -52,11 +52,12 @@ class AudioTest extends TestMain
 
         $this->assertMatchesResourceItemJsonSchema(Audio::class);
         $this->assertEquals('test title', $audioRecord->getName());
+        return $responseRecord->id;
     }
 
     public function testUpdateAudio(): void
     {
-        $audioUri = $this->router->generate('update_audio',['id'=>20]);
+        $audioUri = $this->router->generate('update_audio',['id'=>$this->testAddAudioRecord()]);
 
         /**
          * Insert Audio
@@ -79,5 +80,16 @@ class AudioTest extends TestMain
 
         $this->assertMatchesResourceItemJsonSchema(Audio::class);
         $this->assertEquals('test title', $audioRecord->getName());
+    }
+
+    public function testDeleteRecord(): void
+    {
+        $recordDeleteUri = $this->router->generate('delete_audio', array('id' => $this->idRecord));
+
+        $this->sendDeleteUri($recordDeleteUri);
+
+        $testUri = static::findIriBy(Audio::class, ['id' => $this->idRecord]);
+
+        $this->assertEquals(null, $testUri);
     }
 }

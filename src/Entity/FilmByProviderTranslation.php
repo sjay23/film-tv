@@ -17,7 +17,30 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[ApiResource(
     itemOperations: [
         'get',
-        'delete'
+        'update_filmTranslation' => [
+            'route_name' => 'update_filmTranslation',
+            'method' => 'PATCH',
+            'openapi_context' => [
+                'requestBody' => [
+                    'content' => [
+                        'application/x-www-form-urlencoded' => [
+                            'schema' => [
+                                'type' => 'object',
+                                'properties' => [
+                                    'title' => [
+                                        'type' => 'string',
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ]
+                ]
+            ]
+        ],
+        'delete_filmByProviderTranslation' => [
+            'route_name' => 'delete_filmByProviderTranslation',
+            'method' => 'DELETE'
+        ],
     ],
     denormalizationContext: [
         'groups' => [

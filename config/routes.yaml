@@ -26,14 +26,158 @@ add_genre:
     _api_item_operation_name: add_genre
     _api_receive: false
     _controller: App\Controller\GenreController::addGenre
+update_country:
+  path: /api/countries/{id}
+  methods: ['PATCH']
+  defaults:
+    _api_resource_class: App\Entity\Country
+    _api_item_operation_name: update_country
+    _api_receive: false
+    _controller: App\Controller\CountryController::updateCountry
+update_filmTranslation:
+  path: /api/film/{id}
+  methods: ['PATCH']
+  defaults:
+    _api_resource_class: App\Entity\FilmByProviderTranslation
+    _api_item_operation_name: update_filmTranslation
+    _api_receive: false
+    _controller: App\Controller\FilmByProviderTranslationController::updateFilmTranslation
+update_film:
+  path: /api/film/{id}
+  methods: ['PATCH']
+  defaults:
+    _api_resource_class: App\Entity\FilmByProvider
+    _api_item_operation_name: update_film
+    _api_receive: false
+    _controller: App\Controller\FilmByProviderController::updateFilm
 update_audio:
-  path: /api/audios/{id}/update
+  path: /api/audios/{id}
   methods: ['PATCH']
   defaults:
     _api_resource_class: App\Entity\Audio
     _api_item_operation_name: update_audio
     _api_receive: false
     _controller: App\Controller\AudioController::updateAudio
+update_people:
+  path: /api/people/{id}
+  methods: ['PATCH']
+  defaults:
+    _api_resource_class: App\Entity\People
+    _api_item_operation_name: update_people
+    _api_receive: false
+    _controller: App\Controller\PeopleController::updatePeople
+update_genre:
+  path: /api/genres/{id}
+  methods: ['PATCH']
+  defaults:
+    _api_resource_class: App\Entity\Genre
+    _api_item_operation_name: update_genre
+    _api_receive: false
+    _controller: App\Controller\GenreController::updateGenre
+update_provider:
+  path: /api/providers/{id}
+  methods: ['PATCH']
+  defaults:
+    _api_resource_class: App\Entity\Provider
+    _api_item_operation_name: update_provider
+    _api_receive: false
+    _controller: App\Controller\ProviderController::updateProvider
+update_image:
+  path: /api/images/{id}
+  methods: ['PATCH']
+  defaults:
+    _api_resource_class: App\Entity\Image
+    _api_item_operation_name: update_image
+    _api_receive: false
+    _controller: App\Controller\ImageController::updateImage
+delete_image:
+  path: /api/images/{id}
+  methods: ['DELETE']
+  defaults:
+    _api_resource_class: App\Entity\Image
+    _api_item_operation_name: delete_image
+    _api_receive: false
+    _controller: App\Controller\ImageController::deleteImage
+delete_provider:
+  path: /api/provider/{id}
+  methods: ['DELETE']
+  defaults:
+    _api_resource_class: App\Entity\Provider
+    _api_item_operation_name: delete_provider
+    _api_receive: false
+    _controller: App\Controller\ProviderController::deleteProvider
+delete_genre:
+  path: /api/genres/{id}
+  methods: ['DELETE']
+  defaults:
+    _api_resource_class: App\Entity\Genre
+    _api_item_operation_name: delete_genre
+    _api_receive: false
+    _controller: App\Controller\GenreController::deleteGenre
+delete_audio:
+  path: /api/audio/{id}
+  methods: ['DELETE']
+  defaults:
+    _api_resource_class: App\Entity\Audio
+    _api_item_operation_name: delete_audio
+    _api_receive: false
+    _controller: App\Controller\AudioController::deleteAudio
+delete_filmByProviderTranslation:
+  path: /api/film_by_provider_translations/{id}
+  methods: ['DELETE']
+  defaults:
+    _api_resource_class: App\Entity\FilmByProviderTranslation
+    _api_item_operation_name: delete_filmByProviderTranslation
+    _api_receive: false
+    _controller: App\Controller\FilmByProviderTranslationController::deleteFilmByProviderTranslation
+delete_filmByProvider:
+  path: /api/film_by_providers/{id}
+  methods: ['DELETE']
+  defaults:
+    _api_resource_class: App\Entity\FilmByProvider
+    _api_item_operation_name: delete_filmByProvider
+    _api_receive: false
+    _controller: App\Controller\FilmByProviderController::deleteFilmByProvider
+delete_country:
+  path: /api/countries/{id}
+  methods: ['DELETE']
+  defaults:
+    _api_resource_class: App\Entity\Country
+    _api_item_operation_name: delete_country
+    _api_receive: false
+    _controller: App\Controller\CountryController::deleteCountry
+delete_people:
+  path: /api/people/{id}
+  methods: ['DELETE']
+  defaults:
+    _api_resource_class: App\Entity\People
+    _api_item_operation_name: delete_people
+    _api_receive: false
+    _controller: App\Controller\PeopleController::deletePeople
+add_people:
+  path: /api/people
+  methods: ['POST']
+  defaults:
+    _api_resource_class: App\Entity\People
+    _api_item_operation_name: add_people
+    _api_receive: false
+    _controller: App\Controller\PeopleController::addPeople
+add_image:
+  path: /api/images
+  methods: ['POST']
+  defaults:
+    _api_resource_class: App\Entity\Image
+    _api_item_operation_name: add_image
+    _api_receive: false
+    _controller: App\Controller\ImageController::addImage
+add_provider:
+  path: /api/providers
+  methods: ['POST']
+  defaults:
+    _api_resource_class: App\Entity\Provider
+    _api_item_operation_name: add_provider
+    _api_receive: false
+    _controller: App\Controller\ProviderController::addProvider
 add_audio:
   path: /api/audios
   methods: ['POST']

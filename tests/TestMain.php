@@ -121,4 +121,26 @@ class TestMain extends SymfonyApiTestCase
             ->encode($data);
     }
 
+    /**
+     * @param string $uri
+     * @param array $data
+     * @return void
+     * @throws TransportExceptionInterface
+     */
+    protected function sendDeleteUri(string $uri, array $data = [])
+    {
+        $this->client->request('DELETE', $uri, [
+            'headers' => [
+                'Authorization' => 'Bearer ' . $this->userToken,
+                'Content-Type' => 'application/json',
+                'Accept' => '*/*'
+            ],
+            'extra' => [
+                'parameters' => $data
+            ]
+        ]);
+
+        $this->assertResponseIsSuccessful();
+    }
+
 }

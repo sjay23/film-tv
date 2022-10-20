@@ -64,7 +64,10 @@ use Symfony\Component\Serializer\Annotation\Groups;
                 ]
             ]
         ],
-        'delete'
+        'delete_audio' => [
+            'route_name' => 'delete_audio',
+            'method' => 'DELETE'
+        ],
     ],
     denormalizationContext: [
         'groups' => [

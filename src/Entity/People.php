@@ -23,6 +23,32 @@ use Doctrine\ORM\Mapping\JoinTable;
                 'summary' => 'Get top labels',
                 'description' => 'Get top labels'
             ],
+            'add_people' => [
+                'route_name' => 'add_people',
+                'method' => 'POST',
+                'openapi_context' => [
+                    'requestBody' => [
+                        'content' => [
+                            'multipart/form-data' => [
+                                'schema' => [
+                                    'type' => 'object',
+                                    'required' => [
+                                        'name'
+                                    ],
+                                    'properties' => [
+                                        'name' => [
+                                            'type' => 'string',
+                                        ],
+                                        'link' => [
+                                            'type' => 'string',
+                                        ]
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ]
+                ]
+            ],
             'normalization_context' => [
                 'groups' => ['get'],
             ],
@@ -30,7 +56,33 @@ use Doctrine\ORM\Mapping\JoinTable;
     ],
     itemOperations: [
         'get',
-        'delete'
+        'update_people' => [
+            'route_name' => 'update_people',
+            'method' => 'PATCH',
+            'openapi_context' => [
+                'requestBody' => [
+                    'content' => [
+                        'application/x-www-form-urlencoded' => [
+                            'schema' => [
+                                'type' => 'object',
+                                'properties' => [
+                                    'name' => [
+                                        'type' => 'string',
+                                    ],
+                                    'link' => [
+                                        'type' => 'string',
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ]
+                ]
+            ]
+        ],
+        'delete_people' => [
+            'route_name' => 'delete_people',
+            'method' => 'DELETE'
+        ],
     ],
     denormalizationContext: [
         'groups' => [

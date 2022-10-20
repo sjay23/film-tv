@@ -3,8 +3,12 @@
 namespace App\Controller;
 
 use App\DTO\AudioInput;
+use App\DTO\PeopleInput;
 use App\Entity\Audio;
+use App\Entity\FilmByProvider;
+use App\Entity\People;
 use App\Repository\AudioRepository;
+use App\Repository\PeopleRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Symfony\Component\HttpFoundation\Request;
@@ -13,7 +17,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  *
  */
-class AudioController
+class PeopleController
 {
     /**
      * @var ValidatorInterface
@@ -21,9 +25,9 @@ class AudioController
     private ValidatorInterface $validator;
 
     /**
-     * @var AudioRepository
+     * @var PeopleRepository
      */
-    private AudioRepository $audioRepository;
+    private PeopleRepository $peopleRepository;
 
     /**
      * @var EntityManagerInterface
@@ -32,40 +36,40 @@ class AudioController
 
     /**
      * @param ValidatorInterface $validator
-     * @param AudioRepository $audioRepository
+     * @param PeopleRepository $peopleRepository
      * @param EntityManagerInterface $entityManager
      */
     public function __construct(
-        AudioRepository $audioRepository,
+        PeopleRepository $peopleRepository,
         ValidatorInterface $validator,
         EntityManagerInterface $entityManager,
     ) {
-        $this->audioRepository = $audioRepository;
+        $this->peopleRepository = $peopleRepository;
         $this->validator = $validator;
         $this->entityManager = $entityManager;
     }
 
     /**
      * @param Request $request
-     * @return Audio
+     * @return People
      * @throws Exception
      */
-    public function addAudio(Request $request): Audio
+    public function addPeople(Request $request): People
     {
-        $audioInput = new AudioInput(
-            $request->get('name')
+        $peopleInput = new PeopleInput(
+            $request->get('name'), $request->get('link')
         );
-        $this->validator->validate($audioInput);
+        $this->validator->validate($peopleInput);
 
-        if ($audio = $this->audioRepository->findOneBy(['name' => $audioInput->getName()])) {
-            throw new Exception('The audio already exists');
+        if ($people = $this->peopleRepository->findOneBy(['name' => $peopleInput->getName()])) {
+            throw new Exception('The people already exists');
         } else {
-            $audio = new Audio();
-            $audio->setName($audioInput->getName());
-            $this->entityManager->persist($audio);
+            $people = new People();
+            $people->setName($peopleInput->getName());
+            $this->entityManager->persist($people);
             $this->entityManager->flush();
         }
-        return $audio;
+        return $people;
     }
 
     /**
@@ -73,19 +77,19 @@ class AudioController
      * @return Audio
      * @throws Exception
      */
-    public function updateAudio(Request $request, Audio $audio): Audio
+    public function updatePeople(Request $request, People $people): People
     {
-            $audio->setName($request->get('name'));
+        $people->setName($request->get('name'));
             $this->entityManager->flush();
 
-        return $audio;
+        return $people;
     }
 
-    public function deleteAudio(Audio $audio): Audio
+    public function deletePeople( People $people): People
     {
-        $this->entityManager->remove($audio);
+        $this->entityManager->remove($people);
         $this->entityManager->flush();
 
-        return $audio;
+        return $people;
     }
 }

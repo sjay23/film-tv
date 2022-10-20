@@ -3,8 +3,12 @@
 namespace App\Controller;
 
 use App\DTO\AudioInput;
+use App\DTO\ImageInput;
 use App\Entity\Audio;
+use App\Entity\FilmByProvider;
+use App\Entity\Image;
 use App\Repository\AudioRepository;
+use App\Repository\ImageRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Symfony\Component\HttpFoundation\Request;
@@ -13,7 +17,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  *
  */
-class AudioController
+class ImageController
 {
     /**
      * @var ValidatorInterface
@@ -21,9 +25,9 @@ class AudioController
     private ValidatorInterface $validator;
 
     /**
-     * @var AudioRepository
+     * @var ImageRepository
      */
-    private AudioRepository $audioRepository;
+    private ImageRepository $imageRepository;
 
     /**
      * @var EntityManagerInterface
@@ -32,60 +36,59 @@ class AudioController
 
     /**
      * @param ValidatorInterface $validator
-     * @param AudioRepository $audioRepository
+     * @param ImageRepository $imageRepository
      * @param EntityManagerInterface $entityManager
      */
     public function __construct(
-        AudioRepository $audioRepository,
+        ImageRepository $imageRepository,
         ValidatorInterface $validator,
         EntityManagerInterface $entityManager,
     ) {
-        $this->audioRepository = $audioRepository;
+        $this->imageRepository = $imageRepository;
         $this->validator = $validator;
         $this->entityManager = $entityManager;
     }
 
     /**
      * @param Request $request
-     * @return Audio
+     * @return Image
      * @throws Exception
      */
-    public function addAudio(Request $request): Audio
+    public function addImage(Request $request): Image
     {
-        $audioInput = new AudioInput(
-            $request->get('name')
+        $imageInput = new ImageInput(
+            $request->get('link')
         );
-        $this->validator->validate($audioInput);
+        $this->validator->validate($imageInput);
 
-        if ($audio = $this->audioRepository->findOneBy(['name' => $audioInput->getName()])) {
-            throw new Exception('The audio already exists');
+        if ($image = $this->imageRepository->findOneBy(['link' => $imageInput->getLink()])) {
+            throw new Exception('The image already exists');
         } else {
-            $audio = new Audio();
-            $audio->setName($audioInput->getName());
-            $this->entityManager->persist($audio);
+            $image = new Image();
+            $image->setLink($imageInput->getLink());
+            $this->entityManager->persist($image);
             $this->entityManager->flush();
         }
-        return $audio;
+        return $image;
     }
-
     /**
      * @param Request $request
      * @return Audio
      * @throws Exception
      */
-    public function updateAudio(Request $request, Audio $audio): Audio
+    public function updateImage(Request $request, Image $image): Image
     {
-            $audio->setName($request->get('name'));
+        $image->setLink($request->get('link'));
             $this->entityManager->flush();
 
-        return $audio;
+        return $image;
     }
 
-    public function deleteAudio(Audio $audio): Audio
+    public function deleteImage(Image $image): Image
     {
-        $this->entityManager->remove($audio);
+        $this->entityManager->remove($image);
         $this->entityManager->flush();
 
-        return $audio;
+        return $image;
     }
 }
