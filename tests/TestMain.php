@@ -87,6 +87,35 @@ class TestMain extends SymfonyApiTestCase
         return $response;
     }
 
+    /**
+     * @param string $iri
+     * @param array $data
+     * @return ResponseInterface
+     * @throws TransportExceptionInterface
+     */
+    protected function sendPostUriForUploadFile(string $iri, array $data = []): ResponseInterface
+    {
+        $extra = [];
+        if (!empty($data)) {
+            $extra['parameters'] = $data;
+        }
+        if (!empty($files)) {
+            $extra['files'] = $files;
+        }
+        $response = $this->client->request('POST', $iri, [
+            'headers' => [
+                'Authorization' => 'Bearer ' . $this->userToken,
+                'Content-Type' => 'application/json',
+                'Accept' => '*/*'
+            ],
+            'extra' => $extra
+        ]);
+
+        $this->assertResponseIsSuccessful();
+        $this->assertResponseHeaderSame('content-type', 'application/json; charset=utf-8');
+        return $response;
+    }
+
     public function getCollection($url, $entity): void
     {
         $this->sendGetUri($url);

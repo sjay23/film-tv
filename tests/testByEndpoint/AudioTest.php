@@ -27,69 +27,44 @@ class AudioTest extends TestMain
         $this->getRecord(Audio::class);
     }
 
-    public function testAddAudioRecord()
+    public function testAudio(): void
     {
-        $audioUri = $this->router->generate('add_audio');
-
         /**
-         * Insert Audio
+         * Create
          */
+        $audioUri = $this->router->generate('add_audio');
         $response = $this->sendPostUri($audioUri, [
             'name' => 'test title'
         ]);
-
         $responseRecord = json_decode($response->getContent());
-        /**
-         * @var Audio $audioRecord
-         */
         $audioRecord = $this->audioRepository->findOneBy(['id' => $responseRecord->id]);
-
         $audioId = $audioRecord->getId();
         $testUri = static::findIriBy(Audio::class, ['id' => $audioId]);
         if ($testUri) {
             $this->sendGetUri($testUri);
         }
-
         $this->assertMatchesResourceItemJsonSchema(Audio::class);
         $this->assertEquals('test title', $audioRecord->getName());
-        return $responseRecord->id;
-    }
-
-    public function testUpdateAudio(): void
-    {
-        $audioUri = $this->router->generate('update_audio',['id'=>$this->testAddAudioRecord()]);
-
         /**
-         * Insert Audio
+         * Update
          */
-        $response = $this->sendPostUriForUpdate($audioUri, [
+        $audioUpdateUri = $this->router->generate('update_audio',['id'=>$audioId]);
+        $response = $this->sendPostUriForUpdate($audioUpdateUri, [
             'name' => 'test title'
         ]);
-
-        $responseRecord = json_decode($response->getContent());
-        /**
-         * @var Audio $audioRecord
-         */
-        $audioRecord = $this->audioRepository->findOneBy(['id' => $responseRecord->id]);
-
-        $audioId = $audioRecord->getId();
+        json_decode($response->getContent());
         $testUri = static::findIriBy(Audio::class, ['id' => $audioId]);
         if ($testUri) {
             $this->sendGetUri($testUri);
         }
-
         $this->assertMatchesResourceItemJsonSchema(Audio::class);
         $this->assertEquals('test title', $audioRecord->getName());
-    }
-
-    public function testDeleteRecord(): void
-    {
+        /**
+         * Delete Comment
+         */
         $recordDeleteUri = $this->router->generate('delete_audio', array('id' => $this->idRecord));
-
         $this->sendDeleteUri($recordDeleteUri);
-
         $testUri = static::findIriBy(Audio::class, ['id' => $this->idRecord]);
-
         $this->assertEquals(null, $testUri);
     }
 }

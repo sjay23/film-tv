@@ -27,71 +27,44 @@ class PeopleTest extends TestMain
         $this->getRecord(People::class);
     }
 
-    public function testAddPeopleRecord()
+    public function testPeople(): void
     {
-        $peopleUri = $this->router->generate('add_people');
-
         /**
-         * Insert People
+         * Create
          */
+        $peopleUri = $this->router->generate('add_people');
         $response = $this->sendPostUri($peopleUri, [
             'name' => 'test title',
             'link' => 'test link'
         ]);
-
         $responseRecord = json_decode($response->getContent());
-        /**
-         * @var People $peopleRecord
-         */
         $peopleRecord = $this->peopleRepository->findOneBy(['id' => $responseRecord->id]);
-
         $peopleId = $peopleRecord->getId();
         $testUri = static::findIriBy(People::class, ['id' => $peopleId]);
         if ($testUri) {
             $this->sendGetUri($testUri);
         }
-
         $this->assertMatchesResourceItemJsonSchema(People::class);
         $this->assertEquals('test title', $peopleRecord->getName());
-        return $responseRecord;
-    }
-
-    public function testUpdatePeople()
-    {
-        $peopleUri = $this->router->generate('update_people',['id'=>$this->testAddPeopleRecord()->id]);
-
         /**
-         * Insert People
+         * Update
          */
-        $response = $this->sendPostUriForUpdate($peopleUri, [
+        $peopleUri = $this->router->generate('update_people', ['id' => $peopleId]);
+        $this->sendPostUriForUpdate($peopleUri, [
             'name' => 'test title'
         ]);
-
-        $responseRecord = json_decode($response->getContent());
-        /**
-         * @var People $peopleRecord
-         */
-        $peopleRecord = $this->peopleRepository->findOneBy(['id' => $responseRecord->id]);
-
-        $peopleId = $peopleRecord->getId();
         $testUri = static::findIriBy(People::class, ['id' => $peopleId]);
         if ($testUri) {
             $this->sendGetUri($testUri);
         }
-
         $this->assertMatchesResourceItemJsonSchema(People::class);
         $this->assertEquals('test title', $peopleRecord->getName());
-        return $responseRecord->id;
-    }
-
-    public function testDeleteImage(): void
-    {
-        $peopleDeleteUri = $this->router->generate('delete_people', array('id' => $this->idRecord));
-
+        /**
+         * Delete Comment
+         */
+        $peopleDeleteUri = $this->router->generate('delete_people', array('id' => $peopleId));
         $this->sendDeleteUri($peopleDeleteUri);
-
-        $testUri = static::findIriBy(People::class, ['id' => $this->idRecord]);
-
+        $testUri = static::findIriBy(People::class, ['id' => $peopleId]);
         $this->assertEquals(null, $testUri);
     }
 }

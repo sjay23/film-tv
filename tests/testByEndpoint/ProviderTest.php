@@ -64,4 +64,49 @@ class ProviderTest extends TestMain
 
         $this->assertEquals(null, $testUri);
     }
+
+    public function testProvider(): void
+    {
+        /**
+         * Create
+         */
+        $providerUri = $this->router->generate('add_provider');
+        $response = $this->sendPostUri($providerUri, [
+            'name' => 'test',
+        ]);
+        $responseRecord = json_decode($response->getContent());
+        dump($response->getContent());
+        $providerRecord = $this->providerRepository->findOneBy(['id' => $responseRecord->id]);
+        $providerId = $providerRecord->getId();
+        $testUri = static::findIriBy(Provider::class, ['id' => $providerId]);
+        if ($testUri) {
+            $this->sendGetUri($testUri);
+        }
+        $this->assertMatchesResourceItemJsonSchema(Provider::class);
+        $this->assertEquals('test', $providerRecord->getName());
+        /**
+         * Update
+         */
+        $providerUri = $this->router->generate('update_provider',['id'=>2]);
+        $response = $this->sendPostUriForUpdate($providerUri, [
+            'name' => 'test title'
+        ]);
+        $responseRecord = json_decode($response->getContent());
+
+        $providerRecord = $this->providerRepository->findOneBy(['id' => $responseRecord->id]);
+        $providerId = $providerRecord->getId();
+        $testUri = static::findIriBy(Provider::class, ['id' => $providerId]);
+        if ($testUri) {
+            $this->sendGetUri($testUri);
+        }
+        $this->assertMatchesResourceItemJsonSchema(Provider::class);
+        $this->assertEquals('test title', $providerRecord->getName());
+        /**
+         * Delete Comment
+         */
+        $recordDeleteUri = $this->router->generate('delete_provider', array('id' => $this->idRecord));
+        $this->sendDeleteUri($recordDeleteUri);
+        $testUri = static::findIriBy(Provider::class, ['id' => $this->idRecord]);
+        $this->assertEquals(null, $testUri);
+    }
 }

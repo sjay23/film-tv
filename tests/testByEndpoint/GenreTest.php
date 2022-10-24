@@ -27,69 +27,43 @@ class GenreTest extends TestMain
         $this->getRecord(Genre::class);
     }
 
-    public function testAddGenreRecord()
+    public function testGenre(): void
     {
-        $genreUri = $this->router->generate('add_genre');
-
         /**
-         * Insert Genre
+         * Create
          */
+        $genreUri = $this->router->generate('add_genre');
         $response = $this->sendPostUri($genreUri, [
             'name' => 'test title'
         ]);
-
         $responseRecord = json_decode($response->getContent());
-        /**
-         * @var Genre $genreRecord
-         */
         $genreRecord = $this->genreRepository->findOneBy(['id' => $responseRecord->id]);
-
         $genreId = $genreRecord->getId();
         $testUri = static::findIriBy(Genre::class, ['id' => $genreId]);
         if ($testUri) {
             $this->sendGetUri($testUri);
         }
-
         $this->assertMatchesResourceItemJsonSchema(Genre::class);
         $this->assertEquals('test title', $genreRecord->getName());
-        return $responseRecord->id;
-    }
-
-    public function testUpdateGenre(): void
-    {
-        $genreUri = $this->router->generate('update_genre',['id'=>$this->testAddGenreRecord()]);
-
         /**
-         * Insert Genre
+         * Update
          */
-        $response = $this->sendPostUriForUpdate($genreUri, [
+        $genreUpdateUri = $this->router->generate('update_genre', ['id' => $genreId]);
+        $this->sendPostUriForUpdate($genreUpdateUri, [
             'name' => 'test title'
         ]);
-
-        $responseRecord = json_decode($response->getContent());
-        /**
-         * @var Genre $genreRecord
-         */
-        $genreRecord = $this->genreRepository->findOneBy(['id' => $responseRecord->id]);
-
-        $genreId = $genreRecord->getId();
         $testUri = static::findIriBy(Genre::class, ['id' => $genreId]);
         if ($testUri) {
             $this->sendGetUri($testUri);
         }
-
         $this->assertMatchesResourceItemJsonSchema(Genre::class);
         $this->assertEquals('test title', $genreRecord->getName());
-    }
-
-    public function testDeleteRecord(): void
-    {
-        $recordDeleteUri = $this->router->generate('delete_genre', array('id' => $this->idRecord));
-
+        /**
+         * Delete Comment
+         */
+        $recordDeleteUri = $this->router->generate('delete_genre', array('id' => $genreId));
         $this->sendDeleteUri($recordDeleteUri);
-
-        $testUri = static::findIriBy(Genre::class, ['id' => $this->idRecord]);
-
+        $testUri = static::findIriBy(Genre::class, ['id' => $genreId]);
         $this->assertEquals(null, $testUri);
     }
 }

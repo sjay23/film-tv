@@ -15,8 +15,7 @@ use Symfony\Component\Uid\Uuid;
  * @ORM\Entity(repositoryClass=ProviderRepository::class)
  */
 #[ApiResource(
-    itemOperations: [
-        'get',
+    collectionOperations: [
         'add_provider' => [
             'route_name' => 'add_provider',
             'method' => 'POST',
@@ -39,7 +38,10 @@ use Symfony\Component\Uid\Uuid;
                     ]
                 ]
             ]
+        ],
     ],
+    itemOperations: [
+        'get',
         'update_provider' => [
             'route_name' => 'update_provider',
             'method' => 'PATCH',
