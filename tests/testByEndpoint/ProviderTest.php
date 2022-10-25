@@ -49,13 +49,11 @@ class ProviderTest extends TestMain
         /**
          * Update
          */
-        $providerUri = $this->router->generate('update_provider',['id'=>2]);
-        $response = $this->sendPostUriForUpdate($providerUri, [
+        $providerUri = $this->router->generate('update_provider',['id'=> $providerId]);
+        $this->sendPostUriForUpdate($providerUri, [
             'name' => 'test title'
         ]);
-        $responseRecord = json_decode($response->getContent());
-
-        $providerRecord = $this->providerRepository->findOneBy(['id' => $responseRecord->id]);
+        $providerRecord = $this->providerRepository->findOneBy(['id' => $providerId]);
         $providerId = $providerRecord->getId();
         $testUri = static::findIriBy(Provider::class, ['id' => $providerId]);
         if ($testUri) {
@@ -66,9 +64,9 @@ class ProviderTest extends TestMain
         /**
          * Delete Comment
          */
-        $recordDeleteUri = $this->router->generate('delete_provider', array('id' => $this->idRecord));
+        $recordDeleteUri = $this->router->generate('delete_provider', array('id' => $providerId));
         $this->sendDeleteUri($recordDeleteUri);
-        $testUri = static::findIriBy(Provider::class, ['id' => $this->idRecord]);
+        $testUri = static::findIriBy(Provider::class, ['id' => $providerId]);
         $this->assertEquals(null, $testUri);
     }
 }
