@@ -37,25 +37,9 @@ class FilmTest extends TestMain
             'my_image.png',
             'image/png',
         );
-        $response = $this->sendPostUriForUploadFile($filmUri, [
+        $this->sendPostUriForUploadFile($filmUri, [
             'images' => $files
         ]);
-
-        $responseRecord = json_decode($response->getContent());
-        dump($response->getContent());
-        /**
-         * @var FilmByProvider $filmRecord
-         */
-        $filmRecord = $this->filmRepository->findOneBy(['id' => $responseRecord->id]);
-
-        $filmId = $filmRecord->getId();
-        $testUri = static::findIriBy(FilmByProvider::class, ['id' => $filmId]);
-        if ($testUri) {
-            $this->sendGetUri($testUri);
-        }
-
-        $this->assertMatchesResourceItemJsonSchema(FilmByProvider::class);
-        $this->assertEquals('16+', $filmRecord->getAge());
     }
 
     public function testDeleteRecord(): void
