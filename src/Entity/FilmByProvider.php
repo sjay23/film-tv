@@ -99,8 +99,9 @@ use Symfony\Component\Serializer\Annotation\Groups;
                             'schema' => [
                                 'type' => 'object',
                                 'properties' => [
-                                    'age' => [
+                                    'image' => [
                                         'type' => 'string',
+                                        'format' => 'binary',
                                     ]
                                 ]
                             ]

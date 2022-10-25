@@ -56,19 +56,11 @@ class ImageController
      */
     public function addImage(Request $request): Image
     {
-        $imageInput = new ImageInput(
-            $request->get('link')
-        );
-        $this->validator->validate($imageInput);
-
-        if ($image = $this->imageRepository->findOneBy(['link' => $imageInput->getLink()])) {
-            throw new Exception('The image already exists');
-        } else {
             $image = new Image();
-            $image->setLink($imageInput->getLink());
+            $image->setImageFile($request->get('images'));
             $this->entityManager->persist($image);
             $this->entityManager->flush();
-        }
+
         return $image;
     }
     /**

@@ -131,7 +131,6 @@ class TestMain extends SymfonyApiTestCase
         $this->assertMatchesResourceItemJsonSchema($entity);
     }
 
-
     public function getIri($entity)
     {
         return static::findIriBy($entity, []);

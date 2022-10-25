@@ -30,6 +30,14 @@ class FilmByProviderController
         $this->entityManager = $entityManager;
     }
 
+    public function updateFilm(Request $request , FilmByProvider $filmByProvider): FilmByProvider
+    {
+        $filmByProvider->setPoster($request->get('image'));
+        $this->entityManager->flush();
+
+        return $filmByProvider;
+    }
+
     public function deleteFilmByProvider(FilmByProvider $filmByProvider): FilmByProvider
     {
         $this->entityManager->remove($filmByProvider);

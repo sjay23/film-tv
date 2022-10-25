@@ -4,6 +4,8 @@ namespace App\Tests\testByEndpoint;
 
 use App\Entity\Image;
 use App\Tests\TestMain;
+use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 
 class ImageTest extends TestMain
@@ -25,6 +27,22 @@ class ImageTest extends TestMain
     public function testImageRecord(): void
     {
         $this->getRecord(Image::class);
+    }
+
+    public function testAddImage(): void
+    {
+        $genreUri = $this->router->generate('add_image');
+        $filesystem = new Filesystem();
+
+        $filesystem->copy('./tests/image/test_image.png', './tests/image/test_image.png');
+        $files = ['image' => [ new UploadedFile(
+            './tests/image/test_image.png',
+            'my_image.png',
+            'image/png',
+        )]];
+        $response = $this->sendPostUri($genreUri, [
+            'image' => $files
+        ]);
     }
 
     public function testUpdateImage(): void

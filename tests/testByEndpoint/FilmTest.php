@@ -4,6 +4,8 @@ namespace App\Tests\testByEndpoint;
 
 use App\Entity\FilmByProvider;
 use App\Tests\TestMain;
+use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 
 class FilmTest extends TestMain
@@ -29,14 +31,18 @@ class FilmTest extends TestMain
 
     public function testUpdateFilmByProvider(): void
     {
-        $filmUri = $this->router->generate('update_film',['id'=> $this->idRecord]);
-
-        /**
-         * Insert FilmByProvider
-         */
+        $filmUri = $this->router->generate('update_film',['id'=> 10]);
+        $filesystem = new Filesystem();
+        $filesystem->copy('./tests/image/test_image.png', './tests/image/test_image.png');
+        $files = ['image' => [ new UploadedFile(
+            './tests/image/test_image.png',
+            'my_image.png',
+            'image/png',
+        )]];
         $response = $this->sendPostUriForUpdate($filmUri, [
-            'age' => '16+'
+            'image' => $files
         ]);
+        dump($response->getContent());
 
         $responseRecord = json_decode($response->getContent());
         /**

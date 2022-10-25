@@ -18,6 +18,30 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @Vich\Uploadable
  */
 #[ApiResource(
+    collectionOperations: [
+        'add_image' => [
+            'route_name' => 'add_image',
+            'method' => 'POST',
+            'openapi_context' => [
+                'requestBody' => [
+                    'content' => [
+                        'application/x-www-form-urlencoded' => [
+                            'schema' => [
+                                'type' => 'object',
+                                'properties' => [
+                                    'image' => [
+                                        'type' => 'string',
+                                        'format' => 'binary',
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ]
+                ]
+            ]
+        ],
+        'get'
+    ],
     itemOperations: [
         'get',
         'update_image' => [
