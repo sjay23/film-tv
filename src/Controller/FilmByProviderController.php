@@ -34,7 +34,7 @@ class FilmByProviderController
     public function updateFilm(Request $request , FilmByProvider $filmByProvider): FilmByProvider
     {
         $image = new Image();
-        $image->setImageFile($request->files->get('images'));
+        $image->setImageFile($request->files->get('poster'));
         $this->entityManager->persist($image);
         $filmByProvider->setPoster($image);
         $this->entityManager->flush();

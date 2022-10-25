@@ -44,7 +44,7 @@ update_filmTranslation:
     _controller: App\Controller\FilmByProviderTranslationController::updateFilmTranslation
 update_film:
   path: /api/film_by_providers/{id}
-  methods: ['PATCH']
+  methods: ['POST']
   defaults:
     _api_resource_class: App\Entity\FilmByProvider
     _api_item_operation_name: update_film

@@ -38,7 +38,7 @@ class FilmTest extends TestMain
             'image/png',
         );
         $this->sendPostUriForUploadFile($filmUri, [
-            'images' => $files
+            'poster' => $files
         ]);
     }
 

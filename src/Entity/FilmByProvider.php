@@ -91,7 +91,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
         'get',
         'update_film' => [
             'route_name' => 'update_film',
-            'method' => 'PATCH',
+            'method' => 'POST',
             'openapi_context' => [
                 'requestBody' => [
                     'content' => [
@@ -99,9 +99,8 @@ use Symfony\Component\Serializer\Annotation\Groups;
                             'schema' => [
                                 'type' => 'object',
                                 'properties' => [
-                                    'images' => [
-                                        'type' => 'string',
-                                        'format' => 'binary',
+                                    'poster' => [
+                                        'type' => 'file',
                                     ]
                                 ]
                             ]
