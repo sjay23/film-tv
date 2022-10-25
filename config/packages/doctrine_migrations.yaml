@@ -8,5 +8,5 @@ doctrine_migrations:
     storage:
         # The default metadata storage, implemented as a table in the database.
         table_storage:
-            table_name: 'migrations_versions'
+            table_name: 'doctrine_migration_versions'
             version_column_name:  'version'

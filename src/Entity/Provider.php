@@ -39,6 +39,7 @@ use Symfony\Component\Uid\Uuid;
                 ]
             ]
         ],
+        'get',
     ],
     itemOperations: [
         'get',
