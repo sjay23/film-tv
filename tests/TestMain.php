@@ -100,7 +100,7 @@ class TestMain extends SymfonyApiTestCase
             $extra['parameters'] = $data;
         }
         if (!empty($files)) {
-            $extra['files'] = $files;
+            $extra['file'] = $files;
         }
         $response = $this->client->request('POST', $iri, [
             'headers' => [

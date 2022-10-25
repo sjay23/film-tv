@@ -57,7 +57,7 @@ class ImageController
     public function addImage(Request $request): Image
     {
             $image = new Image();
-            $image->setImageFile($request->get('images'));
+            $image->setImageFile($request->get('image'));
             $this->entityManager->persist($image);
             $this->entityManager->flush();
 

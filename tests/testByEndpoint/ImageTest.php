@@ -34,14 +34,14 @@ class ImageTest extends TestMain
         $genreUri = $this->router->generate('add_image');
         $filesystem = new Filesystem();
 
-        $filesystem->copy('./tests/image/test_image.png', './tests/image/test_image.png');
-        $files = ['image' => [ new UploadedFile(
-            './tests/image/test_image.png',
+        $filesystem->copy('./tests/image/test_image.png', './tests/image/test_image1.png');
+        $files = ['images' => [ new UploadedFile(
+            './tests/image/test_image1.png',
             'my_image.png',
             'image/png',
         )]];
-        $response = $this->sendPostUri($genreUri, [
-            'image' => $files
+        $response = $this->sendPostUriForUploadFile($genreUri, [
+            'images' => $files
         ]);
     }
 

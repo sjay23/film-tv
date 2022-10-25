@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\DTO\AudioInput;
 use App\Entity\Audio;
 use App\Entity\FilmByProvider;
+use App\Entity\Image;
 use App\Repository\AudioRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
@@ -32,7 +33,10 @@ class FilmByProviderController
 
     public function updateFilm(Request $request , FilmByProvider $filmByProvider): FilmByProvider
     {
-        $filmByProvider->setPoster($request->get('image'));
+        $image = new Image();
+        $image->setImageFile($request->get('images'));
+        $this->entityManager->persist($image);
+        $filmByProvider->setPoster($image);
         $this->entityManager->flush();
 
         return $filmByProvider;

@@ -29,7 +29,7 @@ use Symfony\Component\Validator\Constraints as Assert;
                             'schema' => [
                                 'type' => 'object',
                                 'properties' => [
-                                    'image' => [
+                                    'images' => [
                                         'type' => 'string',
                                         'format' => 'binary',
                                     ]

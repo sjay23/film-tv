@@ -99,7 +99,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
                             'schema' => [
                                 'type' => 'object',
                                 'properties' => [
-                                    'image' => [
+                                    'images' => [
                                         'type' => 'string',
                                         'format' => 'binary',
                                     ]

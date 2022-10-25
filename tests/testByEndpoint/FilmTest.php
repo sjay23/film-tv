@@ -31,18 +31,17 @@ class FilmTest extends TestMain
 
     public function testUpdateFilmByProvider(): void
     {
-        $filmUri = $this->router->generate('update_film',['id'=> 10]);
+        $filmUri = $this->router->generate('update_film',['id'=> 11]);
         $filesystem = new Filesystem();
-        $filesystem->copy('./tests/image/test_image.png', './tests/image/test_image.png');
-        $files = ['image' => [ new UploadedFile(
-            './tests/image/test_image.png',
+        $filesystem->copy('./tests/image/test_image.png', './tests/image/test_image1.png');
+        $files = ['images' => [ new UploadedFile(
+            './tests/image/test_image1.png',
             'my_image.png',
             'image/png',
         )]];
-        $response = $this->sendPostUriForUpdate($filmUri, [
-            'image' => $files
+        $response = $this->sendPostUriForUploadFile($filmUri, [
+            'images' => $files
         ]);
-        dump($response->getContent());
 
         $responseRecord = json_decode($response->getContent());
         /**

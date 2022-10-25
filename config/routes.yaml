@@ -43,7 +43,7 @@ update_filmTranslation:
     _api_receive: false
     _controller: App\Controller\FilmByProviderTranslationController::updateFilmTranslation
 update_film:
-  path: /api/film/{id}
+  path: /api/film_by_providers/{id}
   methods: ['PATCH']
   defaults:
     _api_resource_class: App\Entity\FilmByProvider
