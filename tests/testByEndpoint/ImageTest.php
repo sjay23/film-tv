@@ -32,15 +32,12 @@ class ImageTest extends TestMain
     public function testAddImage(): void
     {
         $genreUri = $this->router->generate('add_image');
-        $filesystem = new Filesystem();
-
-        $filesystem->copy('./tests/image/test_image.png', './tests/image/test_image1.png');
-        $files = ['images' => [ new UploadedFile(
+        $files =  new UploadedFile(
             './tests/image/test_image1.png',
             'my_image.png',
             'image/png',
-        )]];
-        $response = $this->sendPostUriForUploadFile($genreUri, [
+        );
+         $this->sendPostUriForUploadFile($genreUri, [
             'images' => $files
         ]);
     }
