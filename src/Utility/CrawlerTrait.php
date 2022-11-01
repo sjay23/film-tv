@@ -8,11 +8,11 @@ use Symfony\Component\DomCrawler\Crawler;
 
 trait CrawlerTrait
 {
-    public Client $client;
+    public Client $clientParser;
 
     public function __construct()
     {
-        $this->client = new Client();
+        $this->clientParser = new Client();
     }
 
     /**
@@ -28,7 +28,7 @@ trait CrawlerTrait
             $link = str_replace(self::LANG_DEFAULT, $lang, $link);
         }
         echo 'Parse link: ' . $link . "\n";
-        $response = $this->client->get($link);
+        $response = $this->clientParser->get($link);
 
         return (string)$response->getBody();
     }

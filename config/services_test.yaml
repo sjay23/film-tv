@@ -4,3 +4,5 @@ services:
   _defaults:
     public: true
 
+  App\Service\Parsers\Megogo\FilmFieldService:
+    public: true
