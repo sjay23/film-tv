@@ -43,6 +43,15 @@ class TestUnitMain extends KernelTestCase
     }
 
     /**
+     * @param Crawler|null $crawler
+     * @return Crawler
+     */
+    protected function getNodeFilms(?Crawler $crawler): Crawler
+    {
+        return $crawler->filter('div.thumbnail div.thumb a');
+    }
+
+    /**
      * @return Crawler
      */
     public function getCrawlerByLink(): Crawler
