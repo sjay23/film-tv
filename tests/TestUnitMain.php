@@ -15,10 +15,8 @@ class TestUnitMain extends KernelTestCase
     {
         $this->validator = $this->createMock(ValidatorInterface::class);
         $this->clientParser = new Client();
-        $this->link = 'https://megogo.net/en/view/7585835-crypto.html';
     }
-
-
+    
     /**
      * @param string $link
      * @return string|null
@@ -54,9 +52,9 @@ class TestUnitMain extends KernelTestCase
     /**
      * @return Crawler
      */
-    public function getCrawlerByLink(): Crawler
+    public function getCrawlerByLink($link): Crawler
     {
-        $contentHtml = $this->getContentLink($this->link);
+        $contentHtml = $this->getContentLink($link);
 
         return $this->getCrawler($contentHtml);
     }
