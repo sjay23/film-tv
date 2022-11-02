@@ -16,7 +16,7 @@ class TestUnitMain extends KernelTestCase
         $this->validator = $this->createMock(ValidatorInterface::class);
         $this->clientParser = new Client();
     }
-    
+
     /**
      * @param string $link
      * @return string|null
