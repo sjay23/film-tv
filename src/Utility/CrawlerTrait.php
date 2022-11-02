@@ -18,14 +18,15 @@ trait CrawlerTrait
     /**
      * @param string $link
      * @param string $lang
+     * @param string $langDefault
      * @return string|null
      * @throws GuzzleException
      */
-    public function getContentLink(string $link, string $lang = 'en'): ?string
+    public function getContentLink(string $link, string $lang = 'en', string $langDefault = 'en'): ?string
     {
         sleep(rand(0, 3));
-        if ($lang !== self::LANG_DEFAULT) {
-            $link = str_replace(self::LANG_DEFAULT, $lang, $link);
+        if ($lang !== $langDefault) {
+            $link = str_replace($langDefault, $lang, $link);
         }
         echo 'Parse link: ' . $link . "\n";
         $response = $this->clientParser->get($link);
@@ -40,5 +41,15 @@ trait CrawlerTrait
     public function getCrawler(string $html): Crawler
     {
         return new Crawler($html);
+    }
+
+    /**
+     * @throws GuzzleException
+     */
+    public function getCrawlerByLink($link): Crawler
+    {
+        $contentHtml = $this->getContentLink($link);
+
+        return $this->getCrawler($contentHtml);
     }
 }

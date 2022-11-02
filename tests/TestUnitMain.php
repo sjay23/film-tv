@@ -3,8 +3,11 @@
 namespace App\Tests;
 
 use App\Service\Parsers\Megogo\FilmFieldService;
+use App\Utility\CrawlerTrait;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
+use ReflectionClass;
+use ReflectionException;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -15,48 +18,26 @@ class TestUnitMain extends KernelTestCase
     {
         $this->validator = $this->createMock(ValidatorInterface::class);
         $this->clientParser = new Client();
+        $this->traitClass = $this->getObjectForTrait(CrawlerTrait::class);
+        $this->containerKernel = static::getContainer();
     }
 
     /**
-     * @param string $link
-     * @return string|null
-     * @throws GuzzleException
+     * Call protected/private method of a class.
+     *
+     * @param object &$object Instantiated object that we will run method on.
+     * @param string $methodName Method name to call
+     * @param array $parameters Array of parameters to pass into method.
+     *
+     * @return mixed Method return.
+     * @throws ReflectionException
      */
-    public function getContentLink(string $link): ?string
+    public function invokeMethod(object &$object, string $methodName, array $parameters = []): mixed
     {
-        sleep(rand(0, 3));
-        echo 'Parse link: ' . $link . "\n";
-        $response = $this->clientParser->get($link);
+        $reflection = new ReflectionClass(get_class($object));
+        $method = $reflection->getMethod($methodName);
+        $method->setAccessible(true);
 
-        return (string)$response->getBody();
+        return $method->invokeArgs($object, $parameters);
     }
-
-    /**
-     * @param string $html
-     * @return Crawler
-     */
-    public function getCrawler(string $html): Crawler
-    {
-        return new Crawler($html);
-    }
-
-    /**
-     * @param Crawler|null $crawler
-     * @return Crawler
-     */
-    protected function getNodeFilms(?Crawler $crawler): Crawler
-    {
-        return $crawler->filter('div.thumbnail div.thumb a');
-    }
-
-    /**
-     * @return Crawler
-     */
-    public function getCrawlerByLink($link): Crawler
-    {
-        $contentHtml = $this->getContentLink($link);
-
-        return $this->getCrawler($contentHtml);
-    }
-
 }

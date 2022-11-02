@@ -15,7 +15,7 @@ class ParseFilmTest extends TestUnitMain
 
     public function testParseFilmAge()
     {
-        $age = $this->getService()->parseAge($this->getCrawlerByLink(self::LINK));
+        $age = $this->getService()->parseAge($this->traitClass->getCrawlerByLink(self::LINK));
         $this->assertEquals("18+", $age);
     }
 
@@ -27,37 +27,37 @@ class ParseFilmTest extends TestUnitMain
 
     public function testParseFilmDuration()
     {
-        $duration = $this->getService()->parseDuration($this->getCrawlerByLink(self::LINK));
+        $duration = $this->getService()->parseDuration($this->traitClass->getCrawlerByLink(self::LINK));
         $this->assertEquals("105", $duration);
     }
 
     public function testParseFilmYear()
     {
-        $year = $this->getService()->parseAge($this->getCrawlerByLink(self::LINK));
+        $year = $this->getService()->parseAge($this->traitClass->getCrawlerByLink(self::LINK));
         $this->assertEquals("18+", $year);
     }
 
     public function testParseFilmAudio()
     {
-        $audio = $this->getService()->parseAudio($this->getCrawlerByLink(self::LINK));
+        $audio = $this->getService()->parseAudio($this->traitClass->getCrawlerByLink(self::LINK));
         $this->assertEquals(" English ", ($audio[1])->getName());
     }
 
     public function testParseFilmGenre()
     {
-        $genre = $this->getService()->parseGenre($this->getCrawlerByLink(self::LINK));
+        $genre = $this->getService()->parseGenre($this->traitClass->getCrawlerByLink(self::LINK));
         $this->assertEquals("Thriller", ($genre[0])->getName());
     }
 
     public function testParseFilmCountry()
     {
-        $country = $this->getService()->parseCountry($this->getCrawlerByLink(self::LINK));
+        $country = $this->getService()->parseCountry($this->traitClass->getCrawlerByLink(self::LINK));
         $this->assertEquals("USA", ($country[0])->getName());
     }
 
     public function testParseFilmRating()
     {
-        $rating = $this->getService()->parseRating($this->getCrawlerByLink(self::LINK));
+        $rating = $this->getService()->parseRating($this->traitClass->getCrawlerByLink(self::LINK));
         $this->assertEquals("5.2", $rating);
     }
 

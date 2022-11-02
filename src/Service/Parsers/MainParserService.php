@@ -258,7 +258,7 @@ abstract class MainParserService
         $film = $this->filmByProviderRepository->findOneBy(['movieId' => $movieId]);
         if (!$film) {
             foreach (self::LANGS as $lang) {
-                $htmlChild = $this->getContentLink($linkFilm, $lang);
+                $htmlChild = $this->getContentLink($linkFilm, $lang, self::LANG_DEFAULT);
                 $crawlerChild = $this->getCrawler($htmlChild);
                 if ($crawlerChild->filter('h1')->text() == 'Movies') {
                     return;

@@ -16,15 +16,15 @@ class ParseFilmPeopleTest extends TestUnitMain
 
     public function testParseFilmDirector()
     {
-        $cast = $this->getService()->parseDirector($this->getCrawlerByLink(self::LINK));
+        $cast = $this->getService()->parseDirector($this->traitClass->getCrawlerByLink(self::LINK));
         $this->assertEquals("John Stalberg Jr.", ($cast[0])->getName());
     }
 
     public function testParseFilmActor()
     {
-        $contentHtml = $this->getContentLink(self::LINK_PAGE);
-        $this->getCrawler($contentHtml);
-        $cast = $this->getService()->parseCast($this->getCrawler($contentHtml));
+        $contentHtml = $this->traitClass->getContentLink(self::LINK_PAGE);
+        $this->traitClass->getCrawler($contentHtml);
+        $cast = $this->getService()->parseCast($this->traitClass->getCrawler($contentHtml));
         $this->assertEquals("Beau Knapp", ($cast[0])->getName());
     }
 }
