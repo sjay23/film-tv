@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Tests;
+namespace App\Tests\testByService\MegogoTests;
 
 use App\DTO\ImageInput;
 use App\Service\Parsers\Megogo\FilmFieldTranslateService;
-use App\Service\Parsers\Megogo\FilmImageService;
+use App\Tests\testByService\TestUnitMain;
 use GuzzleHttp\Exception\GuzzleException;
 use ReflectionException;
 

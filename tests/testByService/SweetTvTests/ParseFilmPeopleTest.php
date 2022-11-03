@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Tests;
+namespace App\Tests\testByService\SweetTvTests;
 
-use App\Service\Parsers\Megogo\FilmPeopleService;
+use App\Service\Parsers\SweetTv\FilmPeopleService;
+use App\Tests\testByService\TestUnitMain;
 
 class ParseFilmPeopleTest extends TestUnitMain
 {
-    public const LINK = 'https://megogo.net/en/view/7585835-crypto.html';
-    public const LINK_PAGE = 'https://megogo.net/en/view/7585835-crypto.html?video_view_tab=cast';
+    public const LINK = 'https://sweet.tv/ru/movie/1347-rambo';
 
     public function getService()
     {
@@ -17,14 +17,14 @@ class ParseFilmPeopleTest extends TestUnitMain
     public function testParseFilmDirector()
     {
         $cast = $this->getService()->parseDirector($this->traitClass->getCrawlerByLink(self::LINK));
-        $this->assertEquals("John Stalberg Jr.", ($cast[0])->getName());
+        $this->assertEquals("Сильвестр Сталлоне", ($cast[0])->getName());
     }
 
     public function testParseFilmActor()
     {
-        $contentHtml = $this->traitClass->getContentLink(self::LINK_PAGE);
+        $contentHtml = $this->traitClass->getContentLink(self::LINK);
         $this->traitClass->getCrawler($contentHtml);
         $cast = $this->getService()->parseCast($this->traitClass->getCrawler($contentHtml));
-        $this->assertEquals("Beau Knapp", ($cast[0])->getName());
+        $this->assertEquals("Сильвестр Сталлоне", ($cast[0])->getName());
     }
 }

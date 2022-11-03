@@ -1,25 +1,26 @@
 <?php
 
-namespace App\Tests;
+namespace App\Tests\testByService\SweetTvTests;
 
-use App\Service\Parsers\Megogo\FilmImageService;
-use App\Service\Parsers\MegogoService;
+use App\Service\Parsers\SweetTv\FilmImageService;
+use App\Service\Parsers\SweetTvService;
+use App\Tests\testByService\TestUnitMain;
 use GuzzleHttp\Exception\GuzzleException;
 use ReflectionException;
 use Symfony\Component\DomCrawler\Crawler;
 
 class ParseFilmImageTest extends TestUnitMain
 {
-    public const LINK = 'https://megogo.net/en/search-extended?category_id=16&main_tab=filters&sort=add&ajax=true&origin=/en/search-extended?category_id=16&main_tab=filters&sort=add&widget=widget_58';
+    public const LINK = 'https://sweet.tv/en/movie/1347-rambo';
 
     public function getService(): FilmImageService
     {
         return new FilmImageService($this->validator);
     }
 
-    public function getServiceMegogo(): ?object
+    public function getServiceSweetTv(): ?object
     {
-        return $this->containerKernel->get(MegogoService::class);
+        return $this->containerKernel->get(SweetTvService::class);
     }
 
     /**
@@ -27,7 +28,7 @@ class ParseFilmImageTest extends TestUnitMain
      */
     public function getNodePages(Crawler $crawler)
     {
-        $object = $this->getServiceMegogo();
+        $object = $this->getServiceSweetTv();
         return $this->invokeMethod(
             $object,
             'getNodeFilms',
@@ -40,7 +41,7 @@ class ParseFilmImageTest extends TestUnitMain
      */
     public function getPageCrawler(string $link)
     {
-        $object = $this->getServiceMegogo();
+        $object = $this->getServiceSweetTv();
         return $this->invokeMethod(
             $object,
             'getPageCrawler',
@@ -55,7 +56,7 @@ class ParseFilmImageTest extends TestUnitMain
     {
         $crawler = $this->getPageCrawler(self::LINK);
         $nodes = $this->getNodePages($crawler);
-        $this->assertCount(30, $nodes);
+        $this->assertCount(35, $nodes);
         $images = $this->getService()->parseImage($nodes->first());
         $this->assertStringContainsString("static", ($images[0])->getLink());
     }

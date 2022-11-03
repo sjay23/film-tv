@@ -1,12 +1,13 @@
 <?php
 
-namespace App\Tests;
+namespace App\Tests\testByService\SweetTvTests;
 
-use App\Service\Parsers\Megogo\FilmFieldService;
+use App\Service\Parsers\SweetTv\FilmFieldService;
+use App\Tests\testByService\TestUnitMain;
 
 class ParseFilmTest extends TestUnitMain
 {
-    public const LINK = 'https://megogo.net/en/view/7585835-crypto.html';
+    public const LINK = 'https://sweet.tv/en/movie/1347-rambo';
 
     public function getService()
     {
@@ -16,49 +17,49 @@ class ParseFilmTest extends TestUnitMain
     public function testParseFilmAge()
     {
         $age = $this->getService()->parseAge($this->traitClass->getCrawlerByLink(self::LINK));
-        $this->assertEquals("18+", $age);
+        $this->assertEquals("16+", $age);
     }
 
     public function testParseFilmId()
     {
         $filmId = $this->getService()->parseFilmId(self::LINK);
-        $this->assertEquals("7585835", $filmId);
+        $this->assertEquals("1347", $filmId);
     }
 
     public function testParseFilmDuration()
     {
         $duration = $this->getService()->parseDuration($this->traitClass->getCrawlerByLink(self::LINK));
-        $this->assertEquals("105", $duration);
+        $this->assertEquals("5368", $duration);
     }
 
     public function testParseFilmYear()
     {
         $year = $this->getService()->parseAge($this->traitClass->getCrawlerByLink(self::LINK));
-        $this->assertEquals("18+", $year);
+        $this->assertEquals("16+", $year);
     }
 
     public function testParseFilmAudio()
     {
         $audio = $this->getService()->parseAudio($this->traitClass->getCrawlerByLink(self::LINK));
-        $this->assertEquals(" English ", ($audio[1])->getName());
+        $this->assertEquals("Українська", ($audio[0])->getName());
     }
 
     public function testParseFilmGenre()
     {
         $genre = $this->getService()->parseGenre($this->traitClass->getCrawlerByLink(self::LINK));
-        $this->assertEquals("Thriller", ($genre[0])->getName());
+        $this->assertEquals("Бойовики", ($genre[0])->getName());
     }
 
     public function testParseFilmCountry()
     {
         $country = $this->getService()->parseCountry($this->traitClass->getCrawlerByLink(self::LINK));
-        $this->assertEquals("USA", ($country[0])->getName());
+        $this->assertEquals("США", ($country[0])->getName());
     }
 
     public function testParseFilmRating()
     {
         $rating = $this->getService()->parseRating($this->traitClass->getCrawlerByLink(self::LINK));
-        $this->assertEquals("5.2", $rating);
+        $this->assertEquals("7.0", $rating);
     }
 
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Tests;
+namespace App\Tests\testByService;
 
 use App\Service\Parsers\Megogo\FilmFieldService;
 use App\Utility\CrawlerTrait;
