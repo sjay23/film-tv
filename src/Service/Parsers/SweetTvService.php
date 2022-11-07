@@ -6,6 +6,7 @@ namespace App\Service\Parsers;
 
 use App\Entity\Provider;
 use Exception;
+use GuzzleHttp\Cookie\CookieJar;
 use GuzzleHttp\Exception\GuzzleException;
 use JetBrains\PhpStorm\ArrayShape;
 use Symfony\Component\DomCrawler\Crawler;
@@ -48,7 +49,7 @@ class SweetTvService extends MainParserService
      */
     protected function getPageCrawler($linkByFilms): Crawler
     {
-        $html = $this->getContentLink($linkByFilms);
+        $html = $this->getContentLink($linkByFilms, 'en', 'en', $this->getCookies());
         return $this->getCrawler($html);
     }
 
@@ -60,5 +61,12 @@ class SweetTvService extends MainParserService
     protected function getNextPageLink(string $nextPageToken): string
     {
         return str_replace('$page', $nextPageToken, $this->getDefaultLink() . '/page/$page');
+    }
+
+    protected function getCookies(string $lang = 'en'): ?CookieJar
+    {
+        return CookieJar::fromArray([
+            'lang' => $lang
+        ], 'sweet.tv');
     }
 }

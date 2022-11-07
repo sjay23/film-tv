@@ -4,6 +4,7 @@ namespace App\Tests\testByService\SweetTvTests;
 
 use App\Service\Parsers\SweetTv\FilmFieldService;
 use App\Tests\testByService\TestUnitMain;
+use ReflectionException;
 
 class ParseFilmTest extends TestUnitMain
 {
@@ -16,7 +17,12 @@ class ParseFilmTest extends TestUnitMain
 
     public function testParseFilmAge()
     {
-        $age = $this->getService()->parseAge($this->traitClass->getCrawlerByLink(self::LINK));
+        $age = $this->getService()->parseAge($this->traitClass->getCrawlerByLink(
+            self::LINK,
+            'en',
+            'en',
+            $this->getCookies($this->sweetTvService, 'en')
+        ));
         $this->assertEquals("16+", $age);
     }
 
@@ -28,37 +34,67 @@ class ParseFilmTest extends TestUnitMain
 
     public function testParseFilmDuration()
     {
-        $duration = $this->getService()->parseDuration($this->traitClass->getCrawlerByLink(self::LINK));
+        $duration = $this->getService()->parseDuration($this->traitClass->getCrawlerByLink(
+            self::LINK,
+            'en',
+            'en',
+            $this->getCookies($this->sweetTvService, 'en')
+        ));
         $this->assertEquals("5368", $duration);
     }
 
     public function testParseFilmYear()
     {
-        $year = $this->getService()->parseAge($this->traitClass->getCrawlerByLink(self::LINK));
-        $this->assertEquals("16+", $year);
+        $year = $this->getService()->parseYear($this->traitClass->getCrawlerByLink(
+            self::LINK,
+            'en',
+            'en',
+            $this->getCookies($this->sweetTvService, 'en')
+        ));
+        $this->assertEquals("2007", $year);
     }
 
     public function testParseFilmAudio()
     {
-        $audio = $this->getService()->parseAudio($this->traitClass->getCrawlerByLink(self::LINK));
-        $this->assertEquals("Українська", ($audio[0])->getName());
+        $audio = $this->getService()->parseAudio($this->traitClass->getCrawlerByLink(
+            self::LINK,
+            'en',
+            'en',
+            $this->getCookies($this->sweetTvService, 'en')
+        ));
+        $this->assertEquals("Ukrainian", ($audio[0])->getName());
     }
 
     public function testParseFilmGenre()
     {
-        $genre = $this->getService()->parseGenre($this->traitClass->getCrawlerByLink(self::LINK));
-        $this->assertEquals("Бойовики", ($genre[0])->getName());
+        $genre = $this->getService()->parseGenre($this->traitClass->getCrawlerByLink(
+            self::LINK,
+            'en',
+            'en',
+            $this->getCookies($this->sweetTvService, 'en')
+        ));
+        $this->assertEquals("Action", ($genre[0])->getName());
     }
 
     public function testParseFilmCountry()
     {
-        $country = $this->getService()->parseCountry($this->traitClass->getCrawlerByLink(self::LINK));
-        $this->assertEquals("США", ($country[0])->getName());
+        $country = $this->getService()->parseCountry($this->traitClass->getCrawlerByLink(
+            self::LINK,
+            'en',
+            'en',
+            $this->getCookies($this->sweetTvService, 'en')
+        ));
+        $this->assertEquals("USA", ($country[0])->getName());
     }
 
     public function testParseFilmRating()
     {
-        $rating = $this->getService()->parseRating($this->traitClass->getCrawlerByLink(self::LINK));
+        $rating = $this->getService()->parseRating($this->traitClass->getCrawlerByLink(
+            self::LINK,
+            'en',
+            'en',
+            $this->getCookies($this->sweetTvService, 'en')
+        ));
         $this->assertEquals("7.0", $rating);
     }
 

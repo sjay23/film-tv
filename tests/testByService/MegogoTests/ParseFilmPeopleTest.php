@@ -4,6 +4,7 @@ namespace App\Tests\testByService\MegogoTests;
 
 use App\Service\Parsers\Megogo\FilmPeopleService;
 use App\Tests\testByService\TestUnitMain;
+use GuzzleHttp\Exception\GuzzleException;
 
 class ParseFilmPeopleTest extends TestUnitMain
 {
@@ -15,6 +16,9 @@ class ParseFilmPeopleTest extends TestUnitMain
         return new FilmPeopleService($this->validator);
     }
 
+    /**
+     * @throws GuzzleException
+     */
     public function testParseFilmDirector()
     {
         $cast = $this->getService()->parseDirector($this->traitClass->getCrawlerByLink(self::LINK));

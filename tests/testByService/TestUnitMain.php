@@ -2,7 +2,10 @@
 
 namespace App\Tests\testByService;
 
+use App\Service\Parsers\MainParserService;
 use App\Service\Parsers\Megogo\FilmFieldService;
+use App\Service\Parsers\MegogoService;
+use App\Service\Parsers\SweetTvService;
 use App\Utility\CrawlerTrait;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
@@ -20,6 +23,20 @@ class TestUnitMain extends KernelTestCase
         $this->clientParser = new Client();
         $this->traitClass = $this->getObjectForTrait(CrawlerTrait::class);
         $this->containerKernel = static::getContainer();
+        $this->sweetTvService = $this->containerKernel->get(SweetTvService::class);
+        $this->megogoService = $this->containerKernel->get(MegogoService::class);
+    }
+
+    /**
+     * @throws ReflectionException
+     */
+    public function getCookies(MainParserService $object, string $lang)
+    {
+        return $this->invokeMethod(
+            $object,
+            'getCookies',
+            [$lang]
+        );
     }
 
     /**

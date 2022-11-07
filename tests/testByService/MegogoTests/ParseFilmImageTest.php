@@ -18,17 +18,12 @@ class ParseFilmImageTest extends TestUnitMain
         return new FilmImageService($this->validator);
     }
 
-    public function getServiceMegogo(): ?object
-    {
-        return $this->containerKernel->get(MegogoService::class);
-    }
-
     /**
      * @throws ReflectionException
      */
     public function getNodePages(Crawler $crawler)
     {
-        $object = $this->getServiceMegogo();
+        $object = $this->megogoService;
         return $this->invokeMethod(
             $object,
             'getNodeFilms',
@@ -41,7 +36,7 @@ class ParseFilmImageTest extends TestUnitMain
      */
     public function getPageCrawler(string $link)
     {
-        $object = $this->getServiceMegogo();
+        $object = $this->megogoService;
         return $this->invokeMethod(
             $object,
             'getPageCrawler',

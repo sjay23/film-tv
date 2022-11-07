@@ -11,16 +11,11 @@ use Symfony\Component\DomCrawler\Crawler;
 
 class ParseFilmImageTest extends TestUnitMain
 {
-    public const LINK = 'https://sweet.tv/en/movie/1347-rambo';
+    public const LINK = 'https://sweet.tv/en/movies/all-movies/sort=5';
 
     public function getService(): FilmImageService
     {
         return new FilmImageService($this->validator);
-    }
-
-    public function getServiceSweetTv(): ?object
-    {
-        return $this->containerKernel->get(SweetTvService::class);
     }
 
     /**
@@ -28,7 +23,7 @@ class ParseFilmImageTest extends TestUnitMain
      */
     public function getNodePages(Crawler $crawler)
     {
-        $object = $this->getServiceSweetTv();
+        $object = $this->sweetTvService;
         return $this->invokeMethod(
             $object,
             'getNodeFilms',
@@ -41,7 +36,7 @@ class ParseFilmImageTest extends TestUnitMain
      */
     public function getPageCrawler(string $link)
     {
-        $object = $this->getServiceSweetTv();
+        $object = $this->sweetTvService;
         return $this->invokeMethod(
             $object,
             'getPageCrawler',
@@ -56,7 +51,7 @@ class ParseFilmImageTest extends TestUnitMain
     {
         $crawler = $this->getPageCrawler(self::LINK);
         $nodes = $this->getNodePages($crawler);
-        $this->assertCount(35, $nodes);
+        $this->assertCount(30, $nodes);
         $images = $this->getService()->parseImage($nodes->first());
         $this->assertStringContainsString("static", ($images[0])->getLink());
     }
