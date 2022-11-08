@@ -11,7 +11,9 @@ use Symfony\Component\DomCrawler\Crawler;
 
 class ParseFilmImageTest extends TestUnitMain
 {
-    public const LINK = 'https://sweet.tv/en/movies/all-movies/sort=5';
+    public const LINK_EN = 'https://sweet.tv/en/movies/all-movies/sort=5';
+    public const LINK_RU = 'https://sweet.tv/ru/movies/all-movies/sort=5';
+    public const LINK_UK = 'https://sweet.tv/uk/movies/all-movies/sort=5';
 
     public function getService(): FilmImageService
     {
@@ -49,10 +51,19 @@ class ParseFilmImageTest extends TestUnitMain
      */
     public function testParseFilmImage()
     {
-        $crawler = $this->getPageCrawler(self::LINK);
+        $images_en = $this->getImageByLanguage(self::LINK_EN);
+        $images_ru = $this->getImageByLanguage(self::LINK_RU);
+        $images_uk = $this->getImageByLanguage(self::LINK_UK);
+        $this->assertStringContainsString("static", ($images_en[0])->getLink());
+        $this->assertStringContainsString("static", ($images_ru[0])->getLink());
+        $this->assertStringContainsString("static", ($images_uk[0])->getLink());
+    }
+
+    public function getImageByLanguage($language)
+    {
+        $crawler = $this->getPageCrawler($language);
         $nodes = $this->getNodePages($crawler);
         $this->assertCount(30, $nodes);
-        $images = $this->getService()->parseImage($nodes->first());
-        $this->assertStringContainsString("static", ($images[0])->getLink());
+        return $this->getService()->parseImage($nodes->first());
     }
 }

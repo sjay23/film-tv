@@ -11,7 +11,9 @@ use Symfony\Component\DomCrawler\Crawler;
 
 class ParseFilmImageTest extends TestUnitMain
 {
-    public const LINK = 'https://megogo.net/en/search-extended?category_id=16&main_tab=filters&sort=add&ajax=true&origin=/en/search-extended?category_id=16&main_tab=filters&sort=add&widget=widget_58';
+    public const LINK_EN = 'https://megogo.net/en/search-extended?category_id=16&main_tab=filters&sort=add&ajax=true&origin=/en/search-extended?category_id=16&main_tab=filters&sort=add&widget=widget_58';
+    public const LINK_RU = 'https://megogo.net/ru/search-extended?category_id=16&main_tab=filters&sort=add&ajax=true&origin=/ru/search-extended?category_id=16&main_tab=filters&sort=add&widget=widget_58';
+    public const LINK_UK = 'https://megogo.net/uk/search-extended?category_id=16&main_tab=filters&sort=add&ajax=true&origin=/uk/search-extended?category_id=16&main_tab=filters&sort=add&widget=widget_58';
 
     public function getService(): FilmImageService
     {
@@ -49,10 +51,19 @@ class ParseFilmImageTest extends TestUnitMain
      */
     public function testParseFilmImage()
     {
-        $crawler = $this->getPageCrawler(self::LINK);
+        $images_en = $this->getImageByLanguage(self::LINK_EN);
+        $images_ru = $this->getImageByLanguage(self::LINK_RU);
+        $images_uk = $this->getImageByLanguage(self::LINK_UK);
+        $this->assertStringContainsString("static", ($images_en[0])->getLink());
+        $this->assertStringContainsString("static", ($images_ru[0])->getLink());
+        $this->assertStringContainsString("static", ($images_uk[0])->getLink());
+    }
+
+    public function getImageByLanguage($language)
+    {
+        $crawler = $this->getPageCrawler($language);
         $nodes = $this->getNodePages($crawler);
         $this->assertCount(30, $nodes);
-        $images = $this->getService()->parseImage($nodes->first());
-        $this->assertStringContainsString("static", ($images[0])->getLink());
+        return $this->getService()->parseImage($nodes->first());
     }
 }
