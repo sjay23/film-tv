@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Tests\testByEndpoint;
+namespace App\Tests\Controller;
 
 use App\Entity\Provider;
 use App\Tests\TestMain;
 
 
-class ProviderTest extends TestMain
+class ProviderControllerTest extends TestMain
 {
     protected function setUp(): void
     {
@@ -37,7 +37,6 @@ class ProviderTest extends TestMain
             'name' => 'test',
         ]);
         $responseRecord = json_decode($response->getContent());
-        dump($response->getContent());
         $providerRecord = $this->providerRepository->findOneBy(['id' => $responseRecord->id]);
         $providerId = $providerRecord->getId();
         $testUri = static::findIriBy(Provider::class, ['id' => $providerId]);

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Tests\testByEndpoint;
+namespace App\Tests\Controller;
 
 use App\Entity\FilmByProvider;
 use App\Tests\TestMain;
@@ -8,7 +8,7 @@ use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 
-class FilmTest extends TestMain
+class FilmByProviderControllerTest extends TestMain
 {
     protected function setUp(): void
     {

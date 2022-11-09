@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Tests\testByEndpoint;
+namespace App\Tests\Controller;
 
 use App\Entity\Country;
 use App\Tests\TestMain;
 
 
-class CountryTest extends TestMain
+class CountryControllerTest extends TestMain
 {
     protected function setUp(): void
     {

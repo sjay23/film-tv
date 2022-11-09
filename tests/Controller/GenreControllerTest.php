@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Tests\testByEndpoint;
+namespace App\Tests\Controller;
 
 use App\Entity\Genre;
 use App\Tests\TestMain;
 
 
-class GenreTest extends TestMain
+class GenreControllerTest extends TestMain
 {
     protected function setUp(): void
     {

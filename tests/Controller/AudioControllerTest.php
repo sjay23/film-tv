@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Tests\testByEndpoint;
+namespace App\Tests\Controller;
 
 use App\Entity\Audio;
 use App\Tests\TestMain;
 
 
-class AudioTest extends TestMain
+class AudioControllerTest extends TestMain
 {
     protected function setUp(): void
     {

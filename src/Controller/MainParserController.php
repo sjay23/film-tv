@@ -30,9 +30,8 @@ class MainParserController extends AbstractController
     /**
      * @Route("/", name="main", methods={"GET", "POST"})
      */
-    public function index(CommandTaskRepository $taskRepository): Response
+    public function index(): Response
     {
-
         return $this->renderForm('parser/mainParserPage.html.twig', [
             'sweetTvTask' =>  $this->task,
         ]);

@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Tests\testByEndpoint;
+namespace App\Tests\Controller;
 
 use App\Entity\FilmByProviderTranslation;
 use App\Tests\TestMain;
 
 
-class FilmTranslationTest extends TestMain
+class FilmByProviderTranslationControllerTest extends TestMain
 {
     protected function setUp(): void
     {
