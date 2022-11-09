@@ -50,21 +50,23 @@ class AudioControllerTest extends TestMain
          */
         $audioUpdateUri = $this->router->generate('update_audio',['id'=>$audioId]);
         $response = $this->sendPostUriForUpdate($audioUpdateUri, [
-            'name' => 'test title'
+            'name' => 'test_Update'
         ]);
         json_decode($response->getContent());
         $testUri = static::findIriBy(Audio::class, ['id' => $audioId]);
         if ($testUri) {
             $this->sendGetUri($testUri);
         }
+        $audioRecordAfterUpdate = $this->audioRepository->findOneBy(['id' => $audioId]);
         $this->assertMatchesResourceItemJsonSchema(Audio::class);
-        $this->assertEquals('test title', $audioRecord->getName());
+        $this->assertEquals('test_Update', $audioRecordAfterUpdate->getName());
         /**
          * Delete Comment
          */
-        $recordDeleteUri = $this->router->generate('delete_audio', array('id' => $this->idRecord));
+        $id = $audioRecordAfterUpdate->getId();
+        $recordDeleteUri = $this->router->generate('delete_audio', array('id' => $id));
         $this->sendDeleteUri($recordDeleteUri);
-        $testUri = static::findIriBy(Audio::class, ['id' => $this->idRecord]);
+        $testUri = static::findIriBy(Audio::class, ['id' => $id]);
         $this->assertEquals(null, $testUri);
     }
 }

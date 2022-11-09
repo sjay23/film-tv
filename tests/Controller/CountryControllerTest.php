@@ -50,21 +50,23 @@ class CountryControllerTest extends TestMain
          */
         $countryUpdateUri = $this->router->generate('update_country',['id'=>$countryId]);
         $response = $this->sendPostUriForUpdate($countryUpdateUri, [
-            'name' => 'test title'
+            'name' => 'test update'
         ]);
         json_decode($response->getContent());
         $testUri = static::findIriBy(Country::class, ['id' => $countryId]);
         if ($testUri) {
             $this->sendGetUri($testUri);
         }
+        $countryRecordAfterUpdate = $this->countryRepository->findOneBy(['id' => $countryId]);
         $this->assertMatchesResourceItemJsonSchema(Country::class);
-        $this->assertEquals('test title', $countryRecord->getName());
+        $this->assertEquals('test update', $countryRecordAfterUpdate->getName());
         /**
          * Delete Comment
          */
-        $recordDeleteUri = $this->router->generate('delete_country', array('id' => $countryId));
+        $id = $countryRecordAfterUpdate->getId();
+        $recordDeleteUri = $this->router->generate('delete_country', array('id' => $id));
         $this->sendDeleteUri($recordDeleteUri);
-        $testUri = static::findIriBy(Country::class, ['id' => $countryId]);
+        $testUri = static::findIriBy(Country::class, ['id' => $id]);
         $this->assertEquals(null, $testUri);
     }
 }

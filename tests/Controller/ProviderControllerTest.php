@@ -50,7 +50,7 @@ class ProviderControllerTest extends TestMain
          */
         $providerUri = $this->router->generate('update_provider',['id'=> $providerId]);
         $this->sendPostUriForUpdate($providerUri, [
-            'name' => 'test title'
+            'name' => 'test update'
         ]);
         $providerRecord = $this->providerRepository->findOneBy(['id' => $providerId]);
         $providerId = $providerRecord->getId();
@@ -58,14 +58,16 @@ class ProviderControllerTest extends TestMain
         if ($testUri) {
             $this->sendGetUri($testUri);
         }
+        $providerRecordAfterUpdate = $this->providerRepository->findOneBy(['id' => $providerId]);
         $this->assertMatchesResourceItemJsonSchema(Provider::class);
-        $this->assertEquals('test title', $providerRecord->getName());
+        $this->assertEquals('test update', $providerRecordAfterUpdate->getName());
         /**
          * Delete Comment
          */
-        $recordDeleteUri = $this->router->generate('delete_provider', array('id' => $providerId));
+        $id = $providerRecordAfterUpdate->getId();
+        $recordDeleteUri = $this->router->generate('delete_provider', array('id' => $id));
         $this->sendDeleteUri($recordDeleteUri);
-        $testUri = static::findIriBy(Provider::class, ['id' => $providerId]);
+        $testUri = static::findIriBy(Provider::class, ['id' => $id]);
         $this->assertEquals(null, $testUri);
     }
 }

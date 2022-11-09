@@ -51,20 +51,22 @@ class PeopleControllerTest extends TestMain
          */
         $peopleUri = $this->router->generate('update_people', ['id' => $peopleId]);
         $this->sendPostUriForUpdate($peopleUri, [
-            'name' => 'test title'
+            'name' => 'test update'
         ]);
         $testUri = static::findIriBy(People::class, ['id' => $peopleId]);
         if ($testUri) {
             $this->sendGetUri($testUri);
         }
+        $peopleRecordAfterUpdate = $this->peopleRepository->findOneBy(['id' => $peopleId]);
         $this->assertMatchesResourceItemJsonSchema(People::class);
-        $this->assertEquals('test title', $peopleRecord->getName());
+        $this->assertEquals('test update', $peopleRecordAfterUpdate->getName());
         /**
          * Delete Comment
          */
-        $peopleDeleteUri = $this->router->generate('delete_people', array('id' => $peopleId));
+        $id = $peopleRecordAfterUpdate->getId();
+        $peopleDeleteUri = $this->router->generate('delete_people', array('id' => $id));
         $this->sendDeleteUri($peopleDeleteUri);
-        $testUri = static::findIriBy(People::class, ['id' => $peopleId]);
+        $testUri = static::findIriBy(People::class, ['id' => $id]);
         $this->assertEquals(null, $testUri);
     }
 }
