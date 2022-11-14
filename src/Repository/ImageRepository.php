@@ -66,13 +66,4 @@ class ImageRepository extends ServiceEntityRepository
         $this->_em->flush();
     }
 
-
-    public function getNoUploadedImage()
-    {
-        return $this->createQueryBuilder('i')
-            ->select('i')
-            ->where('i.uploaded == 0')
-            ->getQuery()
-            ->getResult();
-    }
 }
