@@ -8,17 +8,14 @@ use Hautelook\AliceBundle\PhpUnit\RefreshDatabaseTrait;
 
 class GenreTest extends SymfonyApiTestCase
 {
-    //use RefreshDatabaseTrait;
+    use RefreshDatabaseTrait;
 
     public function testGetCollection(): void
     {
-        $response = static::createClient()->request('GET', '/api/genres', [
-            'headers' => [
-                'Content-Type' => 'application/json',
-                'Accept' => '*/*'
-            ]]);
+        $response = static::createClient()->request('GET', '/api/genres');
         $this->assertResponseIsSuccessful();
         $this->assertResponseHeaderSame('content-type', 'application/json; charset=utf-8');
+        $this->assertCount(30, $response->toArray()['hydra:member']);
         $this->assertMatchesResourceCollectionJsonSchema(Genre::class);
     }
 }

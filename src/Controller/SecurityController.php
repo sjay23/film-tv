@@ -20,7 +20,7 @@ class SecurityController extends AbstractController
             'error' => $error,
             'csrf_token_intention' => 'authenticate',
         ]);
-         }
+    }
 
     #[Route(path: '/logout', name: 'app_logout')]
     public function logout(): void

@@ -15,6 +15,7 @@
 # Email spool folder
 /app/spool/*
 
+/files/csv/*
 # Cache, session files and logs (Symfony3)
 /var/cache/*
 /var/logs/*
@@ -59,6 +60,7 @@
 # Embedded web-server pid file
 /.web-server-pid
 
+.phpunit.result.cache
 .env
 .env.local
 .env.test

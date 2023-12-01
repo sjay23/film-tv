@@ -89,6 +89,26 @@ use Symfony\Component\Serializer\Annotation\Groups;
     ],
     itemOperations: [
         'get',
+        'update_film' => [
+            'route_name' => 'update_film',
+            'method' => 'POST',
+            'openapi_context' => [
+                'requestBody' => [
+                    'content' => [
+                        'application/x-www-form-urlencoded' => [
+                            'schema' => [
+                                'type' => 'object',
+                                'properties' => [
+                                    'poster' => [
+                                        'type' => 'file',
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ]
+                ]
+            ]
+        ],
         'film_by_actor' => [
             'method' => 'GET',
             'route_name' => 'api_film_by_actor',
@@ -100,7 +120,10 @@ use Symfony\Component\Serializer\Annotation\Groups;
                 'groups' => ['get'],
             ],
         ],
-        'delete',
+        'delete_filmByProvider' => [
+            'route_name' => 'delete_filmByProvider',
+            'method' => 'DELETE'
+        ],
     ],
     denormalizationContext: [
         'groups' => [

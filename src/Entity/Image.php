@@ -18,9 +18,56 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @Vich\Uploadable
  */
 #[ApiResource(
+    collectionOperations: [
+        'add_image' => [
+            'route_name' => 'add_image',
+            'method' => 'POST',
+            'openapi_context' => [
+                'requestBody' => [
+                    'content' => [
+                        'application/x-www-form-urlencoded' => [
+                            'schema' => [
+                                'type' => 'object',
+                                'properties' => [
+                                    'images' => [
+                                        'type' => 'string',
+                                        'format' => 'binary',
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ]
+                ]
+            ]
+        ],
+        'get'
+    ],
     itemOperations: [
         'get',
-        'delete'
+        'update_image' => [
+            'route_name' => 'update_image',
+            'method' => 'PATCH',
+            'openapi_context' => [
+                'requestBody' => [
+                    'content' => [
+                        'application/x-www-form-urlencoded' => [
+                            'schema' => [
+                                'type' => 'object',
+                                'properties' => [
+                                    'link' => [
+                                        'type' => 'string',
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ]
+                ]
+            ]
+        ],
+        'delete_image' => [
+            'route_name' => 'delete_image',
+            'method' => 'DELETE'
+        ],
     ],
     denormalizationContext: [
         'groups' => [

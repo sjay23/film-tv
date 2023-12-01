@@ -15,9 +15,58 @@ use Symfony\Component\Uid\Uuid;
  * @ORM\Entity(repositoryClass=ProviderRepository::class)
  */
 #[ApiResource(
+    collectionOperations: [
+        'add_provider' => [
+            'route_name' => 'add_provider',
+            'method' => 'POST',
+            'openapi_context' => [
+                'requestBody' => [
+                    'content' => [
+                        'multipart/form-data' => [
+                            'schema' => [
+                                'type' => 'object',
+                                'required' => [
+                                    'name'
+                                ],
+                                'properties' => [
+                                    'name' => [
+                                        'type' => 'string',
+                                    ],
+                                ]
+                            ]
+                        ]
+                    ]
+                ]
+            ]
+        ],
+        'get',
+    ],
     itemOperations: [
         'get',
-        'delete'
+        'update_provider' => [
+            'route_name' => 'update_provider',
+            'method' => 'PATCH',
+            'openapi_context' => [
+                'requestBody' => [
+                    'content' => [
+                        'application/x-www-form-urlencoded' => [
+                            'schema' => [
+                                'type' => 'object',
+                                'properties' => [
+                                    'name' => [
+                                        'type' => 'string',
+                                    ],
+                                ]
+                            ]
+                        ]
+                    ]
+                ]
+            ]
+        ],
+        'delete_provider' => [
+            'route_name' => 'delete_provider',
+            'method' => 'DELETE'
+        ],
     ],
     denormalizationContext: [
         'groups' => [

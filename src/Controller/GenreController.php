@@ -64,4 +64,25 @@ class GenreController
         }
         return $genre;
     }
+
+    /**
+     * @param Request $request
+     * @return Genre
+     * @throws Exception
+     */
+    public function updateGenre(Request $request, Genre $genre): Genre
+    {
+        $genre->setName($request->get('name'));
+        $this->entityManager->flush();
+
+        return $genre;
+    }
+
+    public function deleteGenre(Genre $genre): Genre
+    {
+        $this->entityManager->remove($genre);
+        $this->entityManager->flush();
+
+        return $genre;
+    }
 }

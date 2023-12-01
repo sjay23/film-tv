@@ -40,7 +40,30 @@ use Symfony\Component\Serializer\Annotation\Groups;
     ],
     itemOperations: [
         'get',
-        'delete'
+        'update_genre' => [
+            'route_name' => 'update_genre',
+            'method' => 'PATCH',
+            'openapi_context' => [
+                'requestBody' => [
+                    'content' => [
+                        'application/x-www-form-urlencoded' => [
+                            'schema' => [
+                                'type' => 'object',
+                                'properties' => [
+                                    'name' => [
+                                        'type' => 'string',
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ]
+                ]
+            ]
+        ],
+        'delete_genre' => [
+            'route_name' => 'delete_genre',
+            'method' => 'DELETE'
+        ],
     ],
     denormalizationContext: [
         'groups' => [

@@ -64,4 +64,25 @@ class CountryController
         }
         return $country;
     }
+
+    /**
+     * @param Request $request
+     * @return Country
+     * @throws Exception
+     */
+    public function updateCountry(Request $request, Country $country): Country
+    {
+        $country->setName($request->get('name'));
+        $this->entityManager->flush();
+
+        return $country;
+    }
+
+    public function deleteCountry(Country $country): Country
+    {
+        $this->entityManager->remove($country);
+        $this->entityManager->flush();
+
+        return $country;
+    }
 }

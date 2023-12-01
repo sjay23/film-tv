@@ -17,6 +17,7 @@ use App\Service\TaskService;
 use App\Utility\CrawlerTrait;
 use Exception;
 use GuzzleHttp\Client;
+use GuzzleHttp\Cookie\CookieJar;
 use GuzzleHttp\Exception\GuzzleException;
 use JetBrains\PhpStorm\ArrayShape;
 use Symfony\Component\DomCrawler\Crawler;
@@ -89,13 +90,13 @@ abstract class MainParserService
         $this->taskService->setWorkStatus($this->task);
         $page = $this->firstPage;
         while ($countFilms == $this->countFilmsOnPage) {
-            try {
+//            try {
                 $dataFilms = $this->parseFilmsByPage($page);
                 $countFilms = $dataFilms['count'];
-            } catch (Exception $e) {
-                $this->taskService->setErrorStatus($this->task, $e->getMessage());
-                throw new Exception($e->getMessage());
-            }
+//            } catch (Exception $e) {
+//                $this->taskService->setErrorStatus($this->task, $e->getMessage());
+//                throw new Exception($e->getMessage());
+//            }
             $page = $dataFilms['nextToken'];
         }
     }
@@ -258,7 +259,7 @@ abstract class MainParserService
         $film = $this->filmByProviderRepository->findOneBy(['movieId' => $movieId]);
         if (!$film) {
             foreach (self::LANGS as $lang) {
-                $htmlChild = $this->getContentLink($linkFilm, $lang);
+                $htmlChild = $this->getContentLink($linkFilm, $lang, self::LANG_DEFAULT, $this->getCookies($lang));
                 $crawlerChild = $this->getCrawler($htmlChild);
                 if ($crawlerChild->filter('h1')->text() == 'Movies') {
                     return;
@@ -274,5 +275,10 @@ abstract class MainParserService
     protected function isItemFilm(Crawler $node): bool
     {
         return true;
+    }
+
+    protected function getCookies(): ?CookieJar
+    {
+        return null;
     }
 }

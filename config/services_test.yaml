@@ -1,0 +1,10 @@
+doctrine:
+  dbal:
+services:
+  _defaults:
+    public: true
+
+  App\Service\Parsers\Megogo\FilmFieldTranslateService:
+    public: true
+    arguments:
+      [ '@validator' ]

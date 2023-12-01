@@ -67,4 +67,25 @@ class AudioController
         }
         return $audio;
     }
+
+    /**
+     * @param Request $request
+     * @return Audio
+     * @throws Exception
+     */
+    public function updateAudio(Request $request, Audio $audio): Audio
+    {
+            $audio->setName($request->get('name'));
+            $this->entityManager->flush();
+
+        return $audio;
+    }
+
+    public function deleteAudio(Audio $audio): Audio
+    {
+        $this->entityManager->remove($audio);
+        $this->entityManager->flush();
+
+        return $audio;
+    }
 }

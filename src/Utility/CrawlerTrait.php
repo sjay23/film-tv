@@ -3,32 +3,40 @@
 namespace App\Utility;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\Cookie\CookieJar;
 use GuzzleHttp\Exception\GuzzleException;
 use Symfony\Component\DomCrawler\Crawler;
 
 trait CrawlerTrait
 {
-    public Client $client;
+    public Client $clientParser;
 
     public function __construct()
     {
-        $this->client = new Client();
+        $this->clientParser = new Client();
     }
 
     /**
      * @param string $link
      * @param string $lang
+     * @param string $langDefault
+     * @param CookieJar|null $cookieJar
      * @return string|null
      * @throws GuzzleException
      */
-    public function getContentLink(string $link, string $lang = 'en'): ?string
-    {
+    public function getContentLink(
+        string $link,
+        string $lang = 'en',
+        string $langDefault = 'en',
+        ?CookieJar $cookieJar = null
+    ): ?string {
         sleep(rand(0, 3));
-        if ($lang !== self::LANG_DEFAULT) {
-            $link = str_replace(self::LANG_DEFAULT, $lang, $link);
+        $cookies = ($cookieJar !== null) ? ['cookies' => $cookieJar] : [];
+        if ($lang !== $langDefault) {
+            $link = str_replace($langDefault, $lang, $link);
         }
         echo 'Parse link: ' . $link . "\n";
-        $response = $this->client->get($link);
+        $response = $this->clientParser->get($link, $cookies);
 
         return (string)$response->getBody();
     }
@@ -40,5 +48,19 @@ trait CrawlerTrait
     public function getCrawler(string $html): Crawler
     {
         return new Crawler($html);
+    }
+
+    /**
+     * @throws GuzzleException
+     */
+    public function getCrawlerByLink(
+        string $link,
+        string $lang = 'en',
+        string $langDefault = 'en',
+        ?CookieJar $cookieJar = null
+    ): Crawler {
+        $contentHtml = $this->getContentLink($link, $lang, $langDefault, $cookieJar);
+
+        return $this->getCrawler($contentHtml);
     }
 }
