@@ -1,0 +1,6 @@
+javer_sphinx:
+  host: sphinx
+  port: 9306
+  config_path: "%kernel.project_dir%/docker/sphinx/manticore.conf"
+  data_dir: "%kernel.project_dir%/data"
+  #searchd_path: searchd

@@ -30,7 +30,7 @@
 # Parameters
 /app/config/parameters.yml
 /app/config/parameters.ini
-
+/data
 # Managed by Composer
 /app/bootstrap.php.cache
 /var/bootstrap.php.cache
@@ -62,3 +62,8 @@
 .env
 .env.local
 .env.test
+###> lexik/jwt-authentication-bundle ###
+/config/jwt/*.pem
+###< lexik/jwt-authentication-bundle ###
+/public/bundles/
+/public/images/*
